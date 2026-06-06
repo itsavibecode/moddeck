@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="moddeck-version" content="0.1.0">
+<title>ModDeck — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- LEFT: brand + palette + broadcast + presets/scenes -->
+  <aside class="col sidebar">
+    <div class="brand">
+      <div class="logo"></div>
+      <div><div class="bname">Mod<b>Deck</b></div><div class="btag">the control deck for you &amp; your mods</div></div>
+    </div>
+    <div class="acct">
+      <div class="av"></div>
+      <div><div class="nm" id="acctName">…</div><div class="badges" id="badges"></div></div>
+      <div class="live-pill" id="livePill"><i></i>OFFLINE</div>
+    </div>
+    <div class="scroll">
+      <div class="sect">Add Widget</div>
+      <div class="grid" id="palette"></div>
+
+      <div class="sect">Broadcast Control</div>
+      <div class="ctl">
+        <button class="big push" id="pushLive">⬆ PUSH TO LIVE</button>
+        <button class="big swap" id="swap">⇄ SWAP LIVE / STAGE</button>
+      </div>
+      <div class="hint">You edit the <b>staging</b> canvas. Viewers only see what you Push to Live.</div>
+
+      <div class="sect">Presets</div>
+      <div class="inline-in"><input id="presetName" placeholder="Preset name…"><button id="savePreset">SAVE</button></div>
+      <div id="presetsList"></div>
+
+      <div class="sect">Scenes</div>
+      <div class="inline-in"><input id="sceneName" placeholder="Scene name…"><button id="saveScene">SAVE</button></div>
+      <div id="scenesList"></div>
+    </div>
+  </aside>
+
+  <!-- CENTER: toolbar + infinite canvas -->
+  <main class="col stage">
+    <div class="topbar">
+      <button class="tool" id="undo">↶ Undo</button>
+      <button class="tool" id="redo">↷ Redo</button>
+      <span class="sep"></span>
+      <button class="tool frame" id="frameBtn">⊡ Frame</button>
+      <button class="tool" id="zoomOut">−</button>
+      <button class="tool" id="zoomIn">+</button>
+      <button class="tool" id="snap">⌗ Snap</button>
+      <div class="zoom">
+        <span><span class="kbd">space</span>+drag pan · scroll zoom</span>
+        <span>ZOOM <b id="zoomVal">40%</b></span>
+      </div>
+    </div>
+    <div class="viewport" id="viewport">
+      <div class="dots" id="dots"></div>
+      <div class="world" id="world">
+        <div class="liveframe" id="frame">
+          <div class="frame-label" id="frameLabel">LIVE AREA · 1920×1080</div>
+          <div id="content"></div>
+        </div>
+      </div>
+      <div id="ui" style="position:absolute;inset:0;pointer-events:none"></div>
+    </div>
+    <div class="statusbar">
+      <span class="dot" id="netDot"></span>
+      <span>sync: <b id="syncKind">local</b></span>
+      <span>channel: <b id="chanId">dev-local</b></span>
+      <span style="opacity:.7">ModDeck <b id="verTag">v0.1.0</b></span>
+    </div>
+  </main>
+
+  <!-- RIGHT: properties + mods + quick actions -->
+  <aside class="col right">
+    <div class="sect">Properties</div>
+    <div id="props"></div>
+
+    <div class="sect">Mods with Access <span class="mini">Phase 3</span></div>
+    <div class="prop mods">
+      <div class="mod"><div class="mav"></div><div class="mn">No mods yet</div><div class="me">—</div></div>
+      <div class="inline-in" style="margin:9px 0 0"><input placeholder="add mod username… (soon)" disabled><button disabled>ADD</button></div>
+    </div>
+
+    <div class="sect">Quick Actions</div>
+    <div class="links">
+      <div class="lk" id="getLink2">🔗 Get OBS Link</div>
+      <div class="lk">🔊 Soundboard</div>
+      <div class="lk">📖 Docs</div>
+      <div class="lk">⚙️ Settings</div>
+    </div>
+    <div style="padding:0 16px 18px"><button class="big push" id="getLink" style="font-size:12px">🔗 Get OBS Browser-Source Link</button></div>
+  </aside>
+</div>
+
+<script src="js/store.js"></script>
+<script src="js/widgets.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/dashboard.js"></script>
+<script>
+  // reflect sync info in status bar
+  window.addEventListener("load", () => {
+    document.getElementById("syncKind").textContent = (window.MD.sync.kind || "local");
+    document.getElementById("chanId").textContent = window.MD.sync.channelId || "dev-local";
+  });
+</script>
+</body>
+</html>

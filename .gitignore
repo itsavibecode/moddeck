@@ -1,0 +1,17 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# secrets — never commit (OAuth client secrets, Firebase service-account keys live in
+# `wrangler secret put` / GitHub Actions secrets, NOT the repo)
+.env
+.env.*
+*.token
+worker/.dev.vars
+.cloudflare-tokens/
+
+# node (only if a worker toolchain is added later)
+node_modules/

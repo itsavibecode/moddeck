@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModDeck Overlay</title>
+<link rel="stylesheet" href="css/overlay.css">
+</head>
+<body>
+<div id="fit"><div id="stage"></div></div>
+<div id="hint">Waiting for <b>ModDeck</b>…<small>Open your dashboard and hit <b>Push to Live</b></small></div>
+
+<script src="js/widgets.js"></script>
+<script src="js/sync.js"></script>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const channelId = params.get("c") || "dev-local";
+  const isPreview = params.get("preview") === "1";   // show the waiting hint only in-browser preview
+  const stage = document.getElementById("stage"), fit = document.getElementById("fit"), hint = document.getElementById("hint");
+  if (!isPreview) hint.style.display = "none";
+
+  // scale 1920x1080 to fit the window (OBS source is 1920x1080 => scale 1)
+  function resize() {
+    const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+    fit.style.transform = `scale(${s})`;
+  }
+  addEventListener("resize", resize); resize();
+
+  MD.sync.init({ channelId });
+  const layer = MD.widgets.Layer(stage);   // no wrapper => plain positioned widgets
+  MD.sync.onLive(function (board) {
+    if (!board || !board.order) return;
+    layer.render(board);
+    if (isPreview) hint.style.display = board.order.length ? "none" : "block";
+  });
+})();
+</script>
+</body>
+</html>
