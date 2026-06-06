@@ -19,8 +19,8 @@
     ["progress", "🎯", "Goal Bar"], ["poll", "📊", "Live Poll"], ["todo", "✅", "To-Do"],
     ["tally", "🔢", "Tally"], ["ticker", "📰", "Ticker"], ["eventlist", "📋", "Event List"],
     ["text", "📝", "Text"], ["image", "🖼️", "Image"], ["video", "🎬", "Video"],
-    ["shape", "⬛", "Shape"], ["qr", "🔳", "QR Code"], ["browser", "🌐", "Browser"],
-    ["customcode", "💻", "Custom Code"],
+    ["shape", "⬛", "Shape"], ["wheel", "🎡", "Prize Wheel"], ["qr", "🔳", "QR Code"],
+    ["browser", "🌐", "Browser"], ["customcode", "💻", "Custom Code"],
   ];
   function buildPalette() {
     const g = $("#palette"); g.innerHTML = "";
@@ -364,6 +364,17 @@
       add(mk("JS", "js", "// runs in a sandboxed iframe"));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
       note.innerHTML = "Runs in a <b>sandboxed</b> iframe (allow-scripts). Great for custom animations &amp; data tickers.";
+      add(note);
+    } else if (elx.type === "wheel") {
+      const ta = el("textarea"); ta.style.minHeight = "110px"; ta.value = p.segments;
+      ta.oninput = () => upp({ segments: ta.value }); add(labeled("Segments (one per line)", ta));
+      const spin = el("button", null, "🎡 SPIN THE WHEEL");
+      spin.style.cssText = "width:100%;padding:11px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:800;font-size:13px";
+      spin.onclick = () => { const segs = (S.getEl(elx.id).props.segments || "").split("\n").filter(s => s.trim()); const w = Math.floor(Math.random() * Math.max(1, segs.length)); upp({ winner: w, spinSeq: (S.getEl(elx.id).props.spinSeq || 0) + 1 }); toast("Spinning…"); };
+      add(labeled("", spin));
+      add(labeled("Accent (winner text)", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+      const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
+      note.innerHTML = "Spin fires on the live overlay too — viewers see the same result. Chat <code>!spin</code> wiring comes with the bot phase.";
       add(note);
     }
   }

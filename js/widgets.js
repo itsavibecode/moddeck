@@ -383,6 +383,55 @@
     update(el); return { node: n, update };
   };
 
+  R.wheel = function (el) {
+    const NS = "http://www.w3.org/2000/svg";
+    const PAL = ["#5b5bf0", "#0fb5a8", "#f59e0b", "#e5484d", "#a970ff", "#16a34a", "#ec4899", "#06b6d4"];
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative";
+    const wheelWrap = document.createElement("div"); wheelWrap.style.cssText = "position:relative;flex:1;aspect-ratio:1;max-height:84%;display:flex;align-items:center;justify-content:center";
+    const ptr = document.createElement("div"); ptr.style.cssText = "position:absolute;top:-2px;left:50%;transform:translateX(-50%);z-index:3;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:22px solid #fff;filter:drop-shadow(0 2px 3px rgba(0,0,0,.4))";
+    const svg = document.createElementNS(NS, "svg"); svg.setAttribute("viewBox", "0 0 100 100"); svg.style.cssText = "width:100%;height:100%;max-width:100%;max-height:100%";
+    const g = document.createElementNS(NS, "g"); g.style.transformOrigin = "50px 50px"; svg.appendChild(g);
+    wheelWrap.appendChild(svg); wheelWrap.appendChild(ptr);
+    const win = document.createElement("div"); win.style.cssText = "font-size:18px;font-weight:800;text-align:center;flex:none";
+    n.appendChild(wheelWrap); n.appendChild(win);
+    let segKey = "", baseRot = 0, lastSeq = null, N = 0;
+    function pt(a, r) { const rad = (a - 90) * Math.PI / 180; return [50 + r * Math.cos(rad), 50 + r * Math.sin(rad)]; }
+    function build(segs, color) {
+      g.innerHTML = ""; N = segs.length; const seg = 360 / N;
+      segs.forEach((label, i) => {
+        const a0 = i * seg, a1 = (i + 1) * seg, [x0, y0] = pt(a0, 50), [x1, y1] = pt(a1, 50);
+        const path = document.createElementNS(NS, "path");
+        path.setAttribute("d", `M50,50 L${x0.toFixed(2)},${y0.toFixed(2)} A50,50 0 0,1 ${x1.toFixed(2)},${y1.toFixed(2)} Z`);
+        path.setAttribute("fill", PAL[i % PAL.length]); path.setAttribute("stroke", "rgba(0,0,0,.25)"); path.setAttribute("stroke-width", ".5"); g.appendChild(path);
+        const [tx, ty] = pt(a0 + seg / 2, 33); const t = document.createElementNS(NS, "text");
+        t.setAttribute("x", tx.toFixed(2)); t.setAttribute("y", ty.toFixed(2)); t.setAttribute("fill", color || "#fff");
+        t.setAttribute("font-size", Math.max(3.5, Math.min(6, 34 / N))); t.setAttribute("font-weight", "800"); t.setAttribute("text-anchor", "middle"); t.setAttribute("dominant-baseline", "middle");
+        t.setAttribute("transform", `rotate(${a0 + seg / 2} ${tx.toFixed(2)} ${ty.toFixed(2)})`);
+        t.textContent = label.length > 12 ? label.slice(0, 11) + "…" : label; g.appendChild(t);
+      });
+      const hub = document.createElementNS(NS, "circle"); hub.setAttribute("cx", 50); hub.setAttribute("cy", 50); hub.setAttribute("r", 6); hub.setAttribute("fill", "#fff"); g.appendChild(hub);
+    }
+    function update(el) {
+      const p = el.props; const segs = (p.segments || "").split("\n").map(s => s.trim()).filter(Boolean); if (!segs.length) segs.push("—");
+      const key = segs.join("|") + p.color;
+      if (key !== segKey) { segKey = key; build(segs, p.color); }
+      if (p.spinSeq !== lastSeq) {
+        const firstRun = lastSeq === null; lastSeq = p.spinSeq;
+        const seg = 360 / segs.length, winner = Math.max(0, Math.min(segs.length - 1, p.winner || 0));
+        let need = (-((winner + 0.5) * seg)) % 360; if (need < 0) need += 360;
+        if (firstRun) { baseRot = need; g.style.transition = "none"; g.style.transform = `rotate(${need}deg)`; }
+        else { baseRot = Math.ceil((baseRot + 360 * 5) / 360) * 360 + need; g.style.transition = "transform 4.4s cubic-bezier(.16,.7,.13,1)"; g.style.transform = `rotate(${baseRot}deg)`; }
+        win.style.color = p.accent;
+        win.textContent = firstRun ? "" : "";
+        clearTimeout(win._t);
+        if (!firstRun) win._t = setTimeout(() => { win.textContent = "🏆 " + segs[winner]; }, 4400);
+        else win.textContent = "";
+      }
+    }
+    update(el); return { node: n, update, destroy() { clearTimeout(win._t); } };
+  };
+
   // =========================================================================
   function create(el) {
     const f = R[el.type]; if (!f) { const d = document.createElement("div"); d.textContent = el.type; return { node: d, update() {}, destroy() {} }; }

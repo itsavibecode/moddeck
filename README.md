@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.6.0 — Prize Wheel + inline text editing
+- **Prize Wheel** widget (🎡): editable segments, a Spin button that animates a weighted SVG wheel and
+  announces the winner — and spins identically on the live overlay so viewers see the same result.
+- **Inline text editing**: double-click any Text element to edit it right on the canvas (Enter to save,
+  Esc to cancel).
+
 ### v0.5.0 — Telestrator (on-stream drawing)
 - **Pen & Eraser** tools in the toolbar — draw freely over the canvas to highlight plays or diagram
   things; strokes render live on the overlay (SVG, scales with zoom). Pick a pen color, erase strokes,

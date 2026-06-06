@@ -241,6 +241,31 @@
   }
   function capture(e) { viewport.setPointerCapture && viewport.setPointerCapture(e.pointerId); }
 
+  // ---- inline text editing (double-click a text element) ----
+  let editing = null;
+  function onDblClick(e) {
+    if (penMode || editing) return;
+    const wrap = e.target.closest(".elwrap[data-id]"); if (!wrap) return;
+    const el = S().getEl(wrap.dataset.id); if (!el || el.type !== "text" || el.locked) return;
+    const a = w2s(el.x, el.y), b = w2s(el.x + el.w, el.y + el.h), p = el.props;
+    const ta = document.createElement("textarea");
+    ta.value = p.text || "";
+    ta.style.cssText = `position:absolute;left:${a.x}px;top:${a.y}px;width:${b.x - a.x}px;height:${b.y - a.y}px;` +
+      `z-index:200;border:2px solid var(--accent);border-radius:4px;resize:none;outline:none;padding:2px;` +
+      `font-family:${p.font || "Inter"},sans-serif;font-size:${p.size * view.scale}px;font-weight:${p.weight};` +
+      `color:${p.color};text-align:${p.align};background:rgba(20,25,45,.9);line-height:1.15;overflow:hidden`;
+    viewport.appendChild(ta); editing = { ta, id: el.id };
+    S().beginGesture();
+    ta.focus(); ta.select();
+    const done = (save) => { if (!editing) return; if (save) S().updateProps(el.id, { text: ta.value }); ta.remove(); editing = null; };
+    ta.addEventListener("blur", () => done(true));
+    ta.addEventListener("keydown", (ev) => {
+      ev.stopPropagation();
+      if (ev.key === "Escape") { ev.preventDefault(); done(false); }
+      else if (ev.key === "Enter" && !ev.shiftKey) { ev.preventDefault(); done(true); }
+    });
+  }
+
   function onWheel(e) {
     e.preventDefault();
     const r = viewport.getBoundingClientRect();
@@ -279,6 +304,7 @@
     layer = window.MD.widgets.Layer(contentEl, makeWrapper);
 
     viewport.addEventListener("pointerdown", onDown);
+    viewport.addEventListener("dblclick", onDblClick);
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
     viewport.addEventListener("wheel", onWheel, { passive: false });
