@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModDeck — the control deck for you & your mods</title>
+<meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
+<meta name="moddeck-version" content="0.7.0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#5b5bf0">
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://moddeck.bookhockeys.com/">
+<meta property="og:title" content="ModDeck — the control deck for you & your mods">
+<meta property="og:description" content="Drop one source into OBS, then let you and your mods run your overlay live. Kick · Twitch · YouTube. Free.">
+<meta property="og:image" content="https://moddeck.bookhockeys.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ModDeck — the control deck for you & your mods">
+<meta name="twitter:description" content="Browser-based overlay control for Kick, Twitch & YouTube. Let your mods help run the show.">
+<meta name="twitter:image" content="https://moddeck.bookhockeys.com/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f7fb; --panel:#fff; --line:#e6e8f0; --line2:#d3d7e3;
+    --ink:#12141d; --ink-dim:#5b6173; --ink-faint:#9aa0b2;
+    --accent:#5b5bf0; --accent-hov:#4a4ae0; --accent-soft:#ececfe; --accent2:#0fb5a8;
+    --k:#3a9c1e; --t:#7c3aed; --y:#dc2626;
+    --radius:16px; --shadow:0 1px 2px rgba(20,25,45,.06),0 10px 30px rgba(20,25,45,.07);
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+  .btn{display:inline-flex;align-items:center;gap:9px;border-radius:11px;padding:13px 22px;font-weight:700;font-size:15px;border:1px solid transparent;transition:.15s;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(91,91,240,.32)}
+  .btn.primary:hover{background:var(--accent-hov);transform:translateY(-1px)}
+  .btn.ghost{background:var(--panel);border-color:var(--line2);color:var(--ink)}
+  .btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;background:rgba(246,247,251,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;gap:14px;height:64px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;letter-spacing:-.3px}
+  .brand img{width:34px;height:34px}
+  .brand b{color:var(--accent)}
+  nav .links{margin-left:auto;display:flex;align-items:center;gap:8px}
+  nav .links a.t{padding:8px 12px;color:var(--ink-dim);font-weight:600;font-size:14px;border-radius:8px}
+  nav .links a.t:hover{color:var(--ink);background:var(--panel)}
+
+  /* hero */
+  .hero{position:relative;text-align:center;padding:84px 0 60px}
+  .hero::before{content:"";position:absolute;inset:0;z-index:-1;
+    background:radial-gradient(680px 360px at 50% -10%,rgba(91,91,240,.16),transparent 65%),radial-gradient(520px 320px at 85% 30%,rgba(15,181,168,.12),transparent 60%)}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--ink-dim);margin-bottom:22px;box-shadow:var(--shadow)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--accent2)}
+  h1{font-size:clamp(34px,6vw,62px);line-height:1.04;font-weight:900;letter-spacing:-1.5px;max-width:14ch;margin:0 auto}
+  h1 .grad{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{font-size:clamp(16px,2.4vw,20px);color:var(--ink-dim);max-width:60ch;margin:22px auto 30px}
+  .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .connects{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .connect{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:10px 16px;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
+  .connect:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+  .connect .b{width:9px;height:9px;border-radius:50%}
+  .connect.k .b{background:var(--k)} .connect.t .b{background:var(--t)} .connect.y .b{background:var(--y)}
+  .trust{margin-top:24px;font-size:13px;color:var(--ink-faint)}
+  .trust b{color:var(--ink-dim)}
+
+  /* mock preview */
+  .shot{max-width:980px;margin:46px auto 0;border-radius:18px;border:1px solid var(--line2);box-shadow:0 30px 70px rgba(20,25,45,.18);overflow:hidden;background:#11131c}
+  .shot .bar{height:36px;background:#1b1e2a;display:flex;align-items:center;gap:7px;padding:0 14px}
+  .shot .bar i{width:11px;height:11px;border-radius:50%;background:#3a3f52} .shot .bar i:nth-child(1){background:#ff5f57}.shot .bar i:nth-child(2){background:#febc2e}.shot .bar i:nth-child(3){background:#28c840}
+  .shot .body{aspect-ratio:16/9;position:relative;background:radial-gradient(circle at 30% 30%,#1c2233,#0f1118);overflow:hidden}
+  .shot .body .lbl{position:absolute;top:14px;left:16px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px}
+  .ov{position:absolute;border-radius:10px;backdrop-filter:blur(4px)}
+  .ov.chat{left:4%;bottom:7%;width:26%;background:rgba(10,12,22,.7);border:1px solid rgba(255,255,255,.12);padding:11px;font-size:11px;color:#cdd2e6}
+  .ov.chat b{color:var(--accent2)} .ov.chat .u{color:#9a9aff;font-weight:700}
+  .ov.timer{top:11%;right:6%;font-size:38px;font-weight:900;color:#fff;text-shadow:0 0 22px rgba(91,91,240,.6)}
+  .ov.goal{left:50%;top:9%;transform:translateX(-50%);width:34%;text-align:center;color:#fff;font-size:12px;font-weight:700}
+  .ov.goal .track{height:9px;border-radius:6px;background:rgba(255,255,255,.14);margin-top:6px;overflow:hidden}
+  .ov.goal .fill{height:100%;width:67%;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+
+  /* sections */
+  section{padding:66px 0}
+  .eyebrow{text-align:center;color:var(--accent);font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+  h2{text-align:center;font-size:clamp(26px,4vw,40px);font-weight:900;letter-spacing:-1px;margin:8px auto 0;max-width:18ch}
+  .lead{text-align:center;color:var(--ink-dim);max-width:58ch;margin:14px auto 0;font-size:16px}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px}
+  .step{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+  .step .n{width:34px;height:34px;border-radius:10px;background:var(--accent-soft);color:var(--accent);font-weight:900;display:grid;place-items:center;margin-bottom:14px}
+  .step h3{font-size:17px;font-weight:800;margin-bottom:6px}
+  .step p{color:var(--ink-dim);font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;transition:.15s}
+  .card:hover{border-color:var(--line2);box-shadow:var(--shadow);transform:translateY(-2px)}
+  .card .ic{font-size:24px}
+  .card h3{font-size:16px;font-weight:800;margin:12px 0 5px}
+  .card p{color:var(--ink-dim);font-size:13.5px}
+  .why{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .why .grid{grid-template-columns:repeat(3,1fr)}
+  .why .card{background:var(--bg)}
+
+  .faq{max-width:780px;margin:40px auto 0;display:flex;flex-direction:column;gap:10px}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  details[open]{border-color:var(--line2)}
+  summary{font-weight:700;cursor:pointer;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:"+";color:var(--accent);font-weight:900;font-size:20px}
+  details[open] summary::after{content:"−"}
+  details p{color:var(--ink-dim);font-size:14px;margin-top:10px}
+
+  .final{text-align:center;padding:80px 0}
+  .final h2{margin-bottom:22px}
+  footer{border-top:1px solid var(--line);padding:30px 0;color:var(--ink-faint);font-size:13px}
+  footer .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  footer .sp{margin-left:auto}
+  footer a:hover{color:var(--accent)}
+
+  @media(max-width:760px){.steps,.grid,.why .grid{grid-template-columns:1fr}.hero{padding:54px 0 40px}.ov.chat{display:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="/"><img src="favicon.svg" alt="">Mod<b>Deck</b></a>
+  <div class="links">
+    <a class="t" href="#features">Features</a>
+    <a class="t" href="#how">How it works</a>
+    <a class="t" href="#faq">FAQ</a>
+    <a class="btn primary" href="dashboard.html" style="padding:9px 16px;font-size:14px">Open Dashboard →</a>
+  </div>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="pill"><span class="dot"></span>Free · works with Kick, Twitch &amp; YouTube</div>
+  <h1>Turn your mods into <span class="grad">co-producers</span></h1>
+  <p class="sub">ModDeck is a browser-based control deck for your stream overlay. Drop <b>one</b> source into OBS, then you and your trusted mods build and run the on-screen graphics live — without ever touching your OBS, audio, or stream keys.</p>
+  <div class="cta">
+    <a class="btn primary" href="dashboard.html">▶ Try the live demo</a>
+    <a class="btn ghost" href="#how">See how it works</a>
+  </div>
+  <div class="connects">
+    <button class="connect k" data-p="Kick"><span class="b"></span>Connect Kick</button>
+    <button class="connect t" data-p="Twitch"><span class="b"></span>Connect Twitch</button>
+    <button class="connect y" data-p="YouTube"><span class="b"></span>Connect YouTube</button>
+  </div>
+  <div class="trust">No installs · No plugins · Your mods just open a link. <b>100% browser-based.</b></div>
+
+  <div class="shot" aria-hidden="true">
+    <div class="bar"><i></i><i></i><i></i></div>
+    <div class="body">
+      <div class="lbl">LIVE · 1920×1080</div>
+      <div class="ov goal">⭐ Sub Goal — 340 / 500<div class="track"><div class="fill"></div></div></div>
+      <div class="ov timer">12:04</div>
+      <div class="ov chat"><div style="font-size:9px;letter-spacing:1px;color:#7c8bff;font-weight:800;margin-bottom:6px">COMBINED CHAT</div>
+        <div><span class="u">ninjafan_</span>: let's gooo 🔥</div>
+        <div><span class="u">kayJ</span>: <b>poggers</b></div>
+        <div><span class="u">m0d_alex</span>: cleaned chat 🧹</div>
+      </div>
+    </div>
+  </div>
+</div></header>
+
+<section id="how"><div class="wrap">
+  <div class="eyebrow">How it works</div>
+  <h2>Live overlay control in three steps</h2>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Add one OBS source</h3><p>Copy your unique overlay link from the dashboard and paste it into a single OBS Browser source at 1920×1080. That's the only setup.</p></div>
+    <div class="step"><div class="n">2</div><h3>Build on the canvas</h3><p>Drag widgets onto a smooth pan/zoom canvas — chat, timers, polls, goal bars, alerts, a prize wheel, even a draw-on-stream pen. Tweak everything in a staging area off-air.</p></div>
+    <div class="step"><div class="n">3</div><h3>Push to live</h3><p>One click pushes staging to the live overlay. Invite your mods and they get the same controls from their own browser — phone, tablet, or desktop.</p></div>
+  </div>
+</div></section>
+
+<section id="features" class="why"><div class="wrap">
+  <div class="eyebrow">Everything on screen, one deck</div>
+  <h2>Widgets &amp; tools your mods can run</h2>
+  <div class="grid">
+    <div class="card"><div class="ic">💬</div><h3>Combined Chat</h3><p>Kick, Twitch &amp; YouTube chat unified on screen with platform icons.</p></div>
+    <div class="card"><div class="ic">🔔</div><h3>Event Alerts</h3><p>Sub / follow / raid / bits alert box with animations and a test trigger.</p></div>
+    <div class="card"><div class="ic">🎯</div><h3>Goals &amp; Polls</h3><p>Progress goal bars and live polls with animated vote results.</p></div>
+    <div class="card"><div class="ic">🎡</div><h3>Prize Wheel</h3><p>Spin a weighted wheel for giveaways — viewers see the same result.</p></div>
+    <div class="card"><div class="ic">✏️</div><h3>Telestrator</h3><p>Draw right on the stream to highlight plays, then clear in a click.</p></div>
+    <div class="card"><div class="ic">🔊</div><h3>Soundboard</h3><p>Trigger sound effects on the overlay from anywhere, with stop-all.</p></div>
+    <div class="card"><div class="ic">⏱️</div><h3>Timers &amp; Tickers</h3><p>Countdowns, count-ups, scrolling marquees and tally counters.</p></div>
+    <div class="card"><div class="ic">🖼️</div><h3>Media</h3><p>Images, slideshows, video, QR codes, browser sources &amp; custom HTML/JS.</p></div>
+    <div class="card"><div class="ic">⏲️</div><h3>Auto-Scheduler</h3><p>Loop any element's visibility on a timer for rotating logos &amp; watermarks.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <div class="eyebrow">Why ModDeck</div>
+  <h2>Built better where it counts</h2>
+  <div class="grid">
+    <div class="card"><div class="ic">🧈</div><h3>A canvas that behaves</h3><p>Proper pan, cursor-anchored zoom, and a one-tap "Frame" — no fighting the viewport to find your overlay.</p></div>
+    <div class="card"><div class="ic">🟣</div><h3>Truly multi-platform</h3><p>Kick, Twitch and YouTube as first-class citizens — not an afterthought.</p></div>
+    <div class="card"><div class="ic">🔒</div><h3>Safe by design</h3><p>Mods control a blank overlay canvas only — never your OBS settings, audio mixer, or stream keys.</p></div>
+  </div>
+</div></section>
+
+<section id="faq" class="why"><div class="wrap">
+  <div class="eyebrow">FAQ</div>
+  <h2>Good questions</h2>
+  <div class="faq">
+    <details open><summary>Can my mods break my stream?</summary><p>No. Mods control a blank web canvas that sits over your stream. They never get access to your OBS settings, audio mixer, or stream keys.</p></details>
+    <details><summary>Do mods need to install anything?</summary><p>Nothing. They open a link in any browser — desktop, tablet, or phone — and control the overlay with touch or mouse.</p></details>
+    <details><summary>Does it work alongside StreamElements / Streamlabs?</summary><p>Yes. Add ModDeck as one more OBS Browser source. It layers on top of whatever you already use.</p></details>
+    <details><summary>What if I don't have mods?</summary><p>It's great solo too — run it on your phone or a second monitor to trigger sounds, change scenes, and update widgets without alt-tabbing out of your game.</p></details>
+    <details><summary>Is it free?</summary><p>Yes — ModDeck is free to use. (This is an early build; live multi-account login and cross-device sync are landing soon.)</p></details>
+  </div>
+</div></section>
+
+<section class="final"><div class="wrap">
+  <h2>Ready to hand your mods the deck?</h2>
+  <a class="btn primary" href="dashboard.html">▶ Open the dashboard</a>
+</div></section>
+
+<footer><div class="wrap">
+  <a class="brand" href="/" style="font-size:16px"><img src="favicon.svg" alt="" style="width:24px;height:24px">Mod<b>Deck</b></a>
+  <span class="sp"></span>
+  <a href="dashboard.html">Dashboard</a>
+  <a href="#features">Features</a>
+  <a href="#faq">FAQ</a>
+  <span>· an independent project, not affiliated with Kick, Twitch, or YouTube</span>
+</div></footer>
+
+<script>
+  // Platform connect buttons — real OAuth lands with the backend phase; for now, open the demo.
+  document.querySelectorAll(".connect").forEach(b => b.addEventListener("click", () => {
+    const p = b.dataset.p;
+    b.innerHTML = `<span class="b"></span>Opening demo…`;
+    setTimeout(() => { location.href = "dashboard.html"; }, 500);
+  }));
+</script>
+</body>
+</html>

@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.7.0 — Landing page + branding
+- A real **landing page** (`index.html`) for moddeck.bookhockeys.com: hero, how-it-works, feature grid,
+  why-ModDeck, and FAQ, with platform "Connect" buttons (open the demo until live login ships).
+- **Branding kit**: SVG logo/favicon, apple-touch + PWA icons, and a 1200×630 OG/Twitter card generated
+  by `.scripts/build-og.py` (cairosvg→PNG). Favicons + theme-color wired into the dashboard too.
+
 ### v0.6.0 — Prize Wheel + inline text editing
 - **Prize Wheel** widget (🎡): editable segments, a Spin button that animates a weighted SVG wheel and
   announces the winner — and spins identically on the live overlay so viewers see the same result.
