@@ -2,14 +2,14 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.2.0";
+  window.MD.VERSION = "0.3.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
   const DEFAULTS = {
     text:  { w: 520, h: 120, props: { text: "Double-click to edit", size: 64, color: "#ffffff",
              weight: 800, align: "left", font: "Inter", bg: "transparent", stroke: 0, strokeColor: "#000000" } },
-    image: { w: 480, h: 320, props: { url: "", fit: "contain", radius: 12, opacity: 1 } },
+    image: { w: 480, h: 320, props: { url: "", slides: "", interval: 5, fit: "contain", radius: 12, opacity: 1 } },
     video: { w: 640, h: 360, props: { url: "", loop: true, muted: true, autoplay: true, radius: 12 } },
     timer: { w: 360, h: 150, props: { mode: "countdown", seconds: 600, label: "UNTIL BREAK",
              size: 72, color: "#ffffff", accent: "#0fb5a8", running: false } },
@@ -28,11 +28,19 @@
              options: [{ label: "Valorant", votes: 42 }, { label: "Minecraft", votes: 31 }, { label: "Just Chatting", votes: 18 }] } },
     alertbox: { w: 560, h: 200, props: { headline: "NEW FOLLOWER", sub: "welcome, friend!", icon: "🎉",
              accent: "#5b5bf0", bg: "rgba(10,12,22,.86)", color: "#ffffff", triggerSeq: 0 } },
+    qr:    { w: 240, h: 240, props: { data: "https://moddeck.bookhockeys.com", color: "#000000", bg: "#ffffff", label: "" } },
+    eventlist: { w: 360, h: 340, props: { title: "RECENT EVENTS", accent: "#0fb5a8", bg: "rgba(10,12,22,.72)", color: "#e6e9f5", max: 8,
+             events: [{ icon: "⭐", text: "kayJ subscribed" }, { icon: "🎉", text: "new follower: leoo" }, { icon: "💜", text: "grindset gifted 5 subs" }] } },
+    browser: { w: 640, h: 360, props: { url: "", radius: 8, interactive: false } },
+    customcode: { w: 480, h: 300, props: { html: "<div class=\"mdc\">Custom HTML widget</div>",
+             css: ".mdc{display:grid;place-items:center;height:100%;color:#fff;font:800 30px Inter,sans-serif}", js: "" } },
   };
   const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat",
-             progress:"Progress Goal", ticker:"Ticker", todo:"To-Do List", tally:"Tally", poll:"Live Poll", alertbox:"Alert Box" };
+             progress:"Progress Goal", ticker:"Ticker", todo:"To-Do List", tally:"Tally", poll:"Live Poll", alertbox:"Alert Box",
+             qr:"QR Code", eventlist:"Event List", browser:"Browser", customcode:"Custom Code" };
   const ICONS  = { text:"📝", image:"🖼️", video:"🎬", timer:"⏱️", shape:"⬛", chat:"💬",
-             progress:"🎯", ticker:"📰", todo:"✅", tally:"🔢", poll:"📊", alertbox:"🔔" };
+             progress:"🎯", ticker:"📰", todo:"✅", tally:"🔢", poll:"📊", alertbox:"🔔",
+             qr:"🔳", eventlist:"📋", browser:"🌐", customcode:"💻" };
 
   // ---- state ----
   // a "board" = { order:[ids], els:{id:el} }. We keep staging (editable) + live (broadcast).

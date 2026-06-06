@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.3.0 — Widget Wave 3 (media & utility)
+- Four new widgets (16 total): **QR Code** (live-generated), **Event List** feed, **Browser** source
+  (iframe, optional interactive), and **Custom HTML/CSS/JS** (sandboxed iframe).
+- **Image** widget upgraded to a **slideshow** (multiple URLs cycling on an interval).
+
 ### v0.2.0 — Widget Wave 2 + Auto-Scheduler
 - Six new widgets: **Progress Goal** bar, **Ticker** (scrolling marquee), **To-Do List**, **Tally
   Counter** (with +/−), **Live Poll** (animated vote bars), and an **Event Alert Box** with a

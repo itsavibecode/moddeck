@@ -17,8 +17,10 @@
   const PALETTE = [
     ["chat", "💬", "Combined Chat"], ["alertbox", "🔔", "Alert Box"], ["timer", "⏱️", "Timer"],
     ["progress", "🎯", "Goal Bar"], ["poll", "📊", "Live Poll"], ["todo", "✅", "To-Do"],
-    ["tally", "🔢", "Tally"], ["ticker", "📰", "Ticker"], ["text", "📝", "Text"],
-    ["image", "🖼️", "Image"], ["video", "🎬", "Video"], ["shape", "⬛", "Shape"],
+    ["tally", "🔢", "Tally"], ["ticker", "📰", "Ticker"], ["eventlist", "📋", "Event List"],
+    ["text", "📝", "Text"], ["image", "🖼️", "Image"], ["video", "🎬", "Video"],
+    ["shape", "⬛", "Shape"], ["qr", "🔳", "QR Code"], ["browser", "🌐", "Browser"],
+    ["customcode", "💻", "Custom Code"],
   ];
   function buildPalette() {
     const g = $("#palette"); g.innerHTML = "";
@@ -204,9 +206,11 @@
       add(labeled("Color", swatchRow(SWATCHES, p.color, c => upp({ color: c }))));
     } else if (elx.type === "image") {
       add(labeled("Image URL", url(p.url, v => upp({ url: v }))));
+      const ta = el("textarea"); ta.placeholder = "one URL per line for a slideshow"; ta.value = p.slides || "";
+      ta.oninput = () => upp({ slides: ta.value }); add(labeled("Slideshow URLs (optional)", ta));
+      add(labeled("Slide interval (s)", range(p.interval || 5, 1, 30, 1, v => upp({ interval: v }))));
       add(labeled("Fit", sel(p.fit, [["contain", "Contain"], ["cover", "Cover"], ["100% 100%", "Stretch"]], v => upp({ fit: v }))));
       add(labeled("Corner radius", range(p.radius, 0, 60, 1, v => upp({ radius: v }))));
-      add(labeled("Opacity", range(p.opacity, .1, 1, .05, v => upp({ opacity: v }))));
     } else if (elx.type === "video") {
       add(labeled("Video URL (mp4/webm)", url(p.url, v => upp({ url: v }))));
       add(labeled("Corner radius", range(p.radius, 0, 60, 1, v => upp({ radius: v }))));
@@ -289,6 +293,32 @@
       add(labeled("", trig));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
       note.innerHTML = "Real Sub/Follow/Raid/Bits events auto-fire this in a later phase.";
+      add(note);
+    } else if (elx.type === "qr") {
+      add(labeled("Data / URL", txt(p.data, v => upp({ data: v }))));
+      add(labeled("Caption (optional)", txt(p.label, v => upp({ label: v }))));
+      add(labeled("Modules", swatchRow(["#000000", "#5b5bf0", "#0fb5a8", "#ffffff"], p.color, c => upp({ color: c }))));
+      add(labeled("Background", swatchRow(["#ffffff", "#000000", "#11131c"], p.bg, c => upp({ bg: c }))));
+    } else if (elx.type === "eventlist") {
+      add(labeled("Title", txt(p.title, v => upp({ title: v }))));
+      const ta = el("textarea"); ta.style.minHeight = "90px";
+      ta.value = (p.events || []).map(e => (e.icon || "") + " " + e.text).join("\n");
+      ta.oninput = () => upp({ events: ta.value.split("\n").filter(l => l.trim()).map(l => { const m = l.trim().match(/^(\p{Emoji}|\S)?\s*(.*)$/u); return { icon: (m && m[1]) || "•", text: (m && m[2]) || l.trim() }; }) });
+      add(labeled("Events (icon + text per line)", ta));
+      add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+    } else if (elx.type === "browser") {
+      add(labeled("Website URL", url(p.url, v => upp({ url: v }))));
+      add(labeled("Corner radius", range(p.radius, 0, 40, 1, v => upp({ radius: v }))));
+      const w = el("label"); w.style.cssText = "display:flex;gap:6px;align-items:center;font-size:11px;color:var(--ink-dim);cursor:pointer";
+      const cb = el("input"); cb.type = "checkbox"; cb.checked = p.interactive; cb.onchange = () => upp({ interactive: cb.checked });
+      w.appendChild(cb); w.appendChild(document.createTextNode("Interactive (allow clicks)")); add(labeled("", w));
+    } else if (elx.type === "customcode") {
+      const mk = (lab, key, ph) => { const t = el("textarea"); t.style.minHeight = "70px"; t.style.fontFamily = "var(--mono)"; t.style.fontSize = "11px"; t.placeholder = ph; t.value = p[key] || ""; t.oninput = () => upp({ [key]: t.value }); return labeled(lab, t); };
+      add(mk("HTML", "html", "<div>…</div>"));
+      add(mk("CSS", "css", "div{color:#fff}"));
+      add(mk("JS", "js", "// runs in a sandboxed iframe"));
+      const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
+      note.innerHTML = "Runs in a <b>sandboxed</b> iframe (allow-scripts). Great for custom animations &amp; data tickers.";
       add(note);
     }
   }

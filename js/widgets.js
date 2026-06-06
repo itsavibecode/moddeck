@@ -58,18 +58,104 @@
 
   R.image = function (el) {
     const n = document.createElement("div");
-    n.style.cssText = "width:100%;height:100%;overflow:hidden";
+    n.style.cssText = "width:100%;height:100%;overflow:hidden;position:relative";
     const img = document.createElement("div");
-    img.style.cssText = "width:100%;height:100%;background-repeat:no-repeat;background-position:center";
+    img.style.cssText = "width:100%;height:100%;background-repeat:no-repeat;background-position:center;transition:opacity .5s";
     const ph = document.createElement("div");
     ph.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#5b6173;font-size:13px;background:#1c2030;border:1.5px dashed #3a4055;border-radius:inherit";
     ph.textContent = "🖼️ image URL";
-    function update(el) {
-      const p = el.props;
-      n.style.borderRadius = p.radius + "px"; n.style.opacity = p.opacity;
+    let slides = [], idx = 0, lastSwap = 0, cur = el;
+    function paint() {
+      const p = cur.props; n.style.borderRadius = p.radius + "px"; n.style.opacity = p.opacity;
+      slides = (p.slides ? p.slides.split(/[\n,]/).map(s => s.trim()).filter(Boolean) : []);
+      if (!slides.length && p.url) slides = [p.url];
       n.innerHTML = "";
-      if (p.url) { img.style.backgroundImage = `url("${p.url}")`; img.style.backgroundSize = p.fit; img.style.borderRadius = p.radius + "px"; n.appendChild(img); }
-      else n.appendChild(ph);
+      if (slides.length) {
+        if (idx >= slides.length) idx = 0;
+        img.style.backgroundImage = `url("${slides[idx]}")`; img.style.backgroundSize = p.fit; img.style.borderRadius = p.radius + "px";
+        n.appendChild(img);
+      } else n.appendChild(ph);
+    }
+    function tick() {
+      const p = cur.props; if (slides.length > 1 && Date.now() - lastSwap > (p.interval || 5) * 1000) { lastSwap = Date.now(); idx = (idx + 1) % slides.length; paint(); }
+    }
+    function update(el) { cur = el; paint(); }
+    tickers.add(tick); update(el);
+    return { node: n, update, destroy() { tickers.delete(tick); } };
+  };
+
+  R.qr = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px;box-sizing:border-box;border-radius:10px";
+    const box = document.createElement("div"); box.style.cssText = "flex:1;width:100%;display:flex;align-items:center;justify-content:center;min-height:0";
+    const lab = document.createElement("div"); lab.style.cssText = "font-size:14px;font-weight:700;flex:none";
+    n.appendChild(box); n.appendChild(lab);
+    let cur = "";
+    function update(el) {
+      const p = el.props; n.style.background = p.bg; lab.textContent = p.label || ""; lab.style.color = p.color;
+      lab.style.display = p.label ? "block" : "none";
+      const key = p.data + p.color + p.bg;
+      if (key === cur) return; cur = key;
+      box.innerHTML = "";
+      if (typeof window.qrcode === "function" && p.data) {
+        try {
+          const qr = window.qrcode(0, "M"); qr.addData(p.data); qr.make();
+          box.innerHTML = qr.createSvgTag({ cellSize: 6, margin: 1, scalable: true });
+          const svg = box.querySelector("svg");
+          if (svg) { svg.style.cssText = "width:100%;height:100%;max-width:100%;max-height:100%"; svg.querySelectorAll("path,rect").forEach((s, i) => { if (i > 0 || s.tagName === "path") s.setAttribute("fill", p.color); }); const bg0 = svg.querySelector("rect"); if (bg0) bg0.setAttribute("fill", p.bg); }
+        } catch (e) { box.textContent = "QR error"; }
+      } else { box.style.cssText += ";color:#5b6173;font-size:12px;text-align:center;word-break:break-all"; box.textContent = p.data || "QR data"; }
+    }
+    update(el); return { node: n, update };
+  };
+
+  R.eventlist = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;padding:11px 14px;box-sizing:border-box";
+    const hd = document.createElement("div"); hd.style.cssText = "font-size:13px;font-weight:800;letter-spacing:1.5px;margin-bottom:8px";
+    const list = document.createElement("div"); list.style.cssText = "display:flex;flex-direction:column;gap:7px;overflow:hidden";
+    n.appendChild(hd); n.appendChild(list);
+    function update(el) {
+      const p = el.props; n.style.background = p.bg; hd.textContent = p.title; hd.style.color = p.accent;
+      list.innerHTML = "";
+      (p.events || []).slice(0, p.max || 8).forEach(ev => {
+        const r = document.createElement("div"); r.style.cssText = `font-size:15px;color:${p.color};display:flex;gap:9px;align-items:center`;
+        r.innerHTML = `<span style="flex:none">${esc(ev.icon || "•")}</span><span>${esc(ev.text)}</span>`;
+        list.appendChild(r);
+      });
+    }
+    update(el); return { node: n, update };
+  };
+
+  R.browser = function (el) {
+    const n = document.createElement("div"); n.style.cssText = "width:100%;height:100%;overflow:hidden";
+    let cur = null;
+    function update(el) {
+      const p = el.props; n.style.borderRadius = p.radius + "px";
+      if (p.url !== cur) {
+        cur = p.url; n.innerHTML = "";
+        if (p.url) {
+          const f = document.createElement("iframe"); f.src = p.url;
+          f.style.cssText = `width:100%;height:100%;border:0;border-radius:${p.radius}px;pointer-events:${p.interactive ? "auto" : "none"}`;
+          n.appendChild(f);
+        } else {
+          const ph = document.createElement("div"); ph.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#5b6173;font-size:13px;background:#1c2030;border:1.5px dashed #3a4055;border-radius:inherit"; ph.textContent = "🌐 website URL"; n.appendChild(ph);
+        }
+      }
+      const f = n.querySelector("iframe"); if (f) f.style.pointerEvents = p.interactive ? "auto" : "none";
+    }
+    update(el); return { node: n, update };
+  };
+
+  R.customcode = function (el) {
+    const n = document.createElement("div"); n.style.cssText = "width:100%;height:100%;overflow:hidden";
+    const f = document.createElement("iframe"); f.setAttribute("sandbox", "allow-scripts");
+    f.style.cssText = "width:100%;height:100%;border:0;background:transparent"; n.appendChild(f);
+    let cur = "";
+    function update(el) {
+      const p = el.props; const key = p.html + "||" + p.css + "||" + p.js;
+      if (key === cur) return; cur = key;
+      f.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;overflow:hidden;background:transparent}${p.css || ""}</style></head><body>${p.html || ""}<script>try{${p.js || ""}}catch(e){}<\/script></body></html>`;
     }
     update(el); return { node: n, update };
   };
