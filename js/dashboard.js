@@ -155,6 +155,25 @@
     };
   }
 
+  // ---------- docs + settings ----------
+  function wireMisc() {
+    const d = $("#docsBtn"); if (d) d.onclick = () => window.open("docs.html", "_blank");
+    const s = $("#settingsBtn"); if (s) s.onclick = () => {
+      const back = el("div", "modal-back");
+      back.innerHTML = `<div class="modal">
+        <h3>⚙️ Settings</h3>
+        <p>ModDeck <b>v${window.MD.VERSION}</b> · sync: <b>${SY.kind}</b></p>
+        <div class="field"><label>Channel ID (overlay)</label><div class="obs-url">${channelId}</div></div>
+        <div class="field"><label>Canvas</label><div style="font-size:12.5px;color:var(--ink-dim)">${S.CANVAS_W} × ${S.CANVAS_H} (1080p)</div></div>
+        <div class="mrow"><button id="stClear" style="color:var(--danger)">Clear staging canvas</button><button id="stClose" class="primary">Done</button></div>
+      </div>`;
+      document.body.appendChild(back);
+      back.onclick = (e) => { if (e.target === back) back.remove(); };
+      $("#stClear", back).onclick = () => { S.loadIntoStaging({ order: [], els: {} }); toast("Staging cleared"); back.remove(); };
+      $("#stClose", back).onclick = () => back.remove();
+    };
+  }
+
   // ---------- properties ----------
   function field(label, inner) { const f = el("div", "field"); f.appendChild(el("label", null, label)); const w = el("div"); w.innerHTML = inner; f.appendChild(w.firstElementChild || w); return f; }
   function numInput(val, on) { const i = el("input"); i.type = "number"; i.value = Math.round(val); i.oninput = () => on(parseFloat(i.value) || 0); return i; }
@@ -412,7 +431,7 @@
       content: $("#content"), ui: $("#ui"), dots: $("#dots"),
       onViewChange: (s) => { $("#zoomVal").textContent = Math.round(s * 100) + "%"; },
     });
-    buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard();
+    buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireMisc();
     renderAccount(); renderLists(); updateLivePill(false);
     S.on("select", renderProps); renderProps();
     // seed a friendly starter so the canvas isn't empty on first load

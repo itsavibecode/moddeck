@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModDeck — Documentation</title>
+<meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
+<meta name="moddeck-version" content="0.8.0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#5b5bf0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f6f7fb;--panel:#fff;--line:#e6e8f0;--line2:#d3d7e3;--ink:#12141d;--ink-dim:#5b6173;--ink-faint:#9aa0b2;
+    --accent:#5b5bf0;--accent-soft:#ececfe;--accent2:#0fb5a8;--radius:14px;--shadow:0 1px 2px rgba(20,25,45,.06),0 8px 24px rgba(20,25,45,.06);
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+  nav{position:sticky;top:0;z-index:50;background:rgba(246,247,251,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  nav .in{max-width:1040px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}.brand img{width:30px;height:30px}.brand b{color:var(--accent)}
+  nav .sp{margin-left:auto}nav a.t{color:var(--ink-dim);font-weight:600;font-size:14px;padding:7px 11px;border-radius:8px}nav a.t:hover{color:var(--ink);background:var(--panel);text-decoration:none}
+  .layout{max-width:1040px;margin:0 auto;padding:34px 24px 80px;display:grid;grid-template-columns:200px 1fr;gap:38px}
+  aside{position:sticky;top:90px;align-self:start;display:flex;flex-direction:column;gap:3px}
+  aside a{color:var(--ink-dim);font-size:13.5px;font-weight:600;padding:7px 11px;border-radius:8px}
+  aside a:hover{background:var(--panel);color:var(--ink);text-decoration:none}
+  main{min-width:0}
+  h1{font-size:34px;font-weight:900;letter-spacing:-1px;margin-bottom:6px}
+  .tag{color:var(--ink-dim);margin-bottom:26px}
+  section{margin-bottom:38px;scroll-margin-top:80px}
+  h2{font-size:22px;font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;font-weight:800;margin:18px 0 6px}
+  p,li{color:var(--ink-dim);font-size:15px}ul,ol{padding-left:22px;margin:8px 0}li{margin:4px 0}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);margin:14px 0}
+  code{font-family:var(--mono);font-size:12.5px;background:var(--accent-soft);color:#3f3fc0;padding:2px 6px;border-radius:5px}
+  .kbd{font-family:var(--mono);font-size:12px;background:#fff;border:1px solid var(--line2);border-bottom-width:2px;border-radius:6px;padding:2px 7px;color:var(--ink)}
+  table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}th{color:var(--ink-faint);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  td:first-child{font-weight:600;color:var(--ink);white-space:nowrap}
+  .note{background:var(--accent-soft);border:1px solid #d9d9fb;border-radius:11px;padding:12px 15px;font-size:14px;color:#3f3fc0;margin:14px 0}
+  .wgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .w{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-size:13.5px}
+  .w b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px}
+  @media(max-width:760px){.layout{grid-template-columns:1fr}aside{position:static;flex-direction:row;flex-wrap:wrap;margin-bottom:10px}.wgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><div class="in">
+  <a class="brand" href="index.html"><img src="favicon.svg" alt="">Mod<b>Deck</b></a>
+  <span class="sp"></span>
+  <a class="t" href="index.html">Home</a>
+  <a class="t" href="dashboard.html">Open Dashboard →</a>
+</div></nav>
+
+<div class="layout">
+  <aside>
+    <a href="#start">Quick start</a>
+    <a href="#obs">OBS setup</a>
+    <a href="#mods">Inviting mods</a>
+    <a href="#staging">Staging &amp; Live</a>
+    <a href="#controls">Canvas &amp; shortcuts</a>
+    <a href="#widgets">Widget reference</a>
+    <a href="#tools">Soundboard &amp; pen</a>
+    <a href="#faq">FAQ</a>
+  </aside>
+
+  <main>
+    <h1>Documentation</h1>
+    <div class="tag">Everything you need to run your overlay with ModDeck.</div>
+
+    <section id="start">
+      <h2>Quick start</h2>
+      <ol>
+        <li>Open the <a href="dashboard.html">dashboard</a>.</li>
+        <li>Click <b>Get OBS Browser-Source Link</b> and copy the URL.</li>
+        <li>In OBS, add a <b>Browser</b> source, paste the URL, and set it to <b>1920×1080</b>.</li>
+        <li>Drag widgets onto the canvas, then hit <b>Push to Live</b> — your OBS source updates instantly.</li>
+      </ol>
+      <div class="note">ModDeck is browser-based — nothing to install. Your mods just open a link.</div>
+    </section>
+
+    <section id="obs">
+      <h2>OBS setup</h2>
+      <p>Add the overlay as a single Browser source per scene:</p>
+      <table>
+        <tr><th>Setting</th><th>Value</th></tr>
+        <tr><td>Source type</td><td>Browser</td></tr>
+        <tr><td>URL</td><td><code>…/overlay.html?c=YOUR_CHANNEL</code> (use Get OBS Link)</td></tr>
+        <tr><td>Resolution</td><td>1920 × 1080</td></tr>
+        <tr><td>Audio</td><td>Check “Control audio via OBS” if you use the soundboard</td></tr>
+        <tr><td>Performance</td><td>Leave “Shutdown source when not visible” <b>off</b></td></tr>
+      </table>
+      <p>The overlay background is transparent, so only your widgets show over your scene.</p>
+    </section>
+
+    <section id="mods">
+      <h2>Inviting mods</h2>
+      <p>ModDeck is built so your moderators can run the overlay <b>without any access to your OBS, audio mixer, or stream keys</b> — they only control a blank web canvas that sits over your stream.</p>
+      <div class="note">Live multi-account login and the mod allow-list are landing in the next release. Today the dashboard runs in a local/demo channel so you can build and preview everything.</div>
+    </section>
+
+    <section id="staging">
+      <h2>Staging &amp; Live</h2>
+      <p>You always edit the <b>staging</b> canvas — viewers never see it. When something looks right:</p>
+      <ul>
+        <li><b>Push to Live</b> — copies staging onto the live overlay your viewers see.</li>
+        <li><b>Swap Live / Stage</b> — exchanges them, so you can pull the current live layout back to edit.</li>
+        <li><b>Presets</b> save a single styled layout; <b>Scenes</b> save the whole canvas for 1-click recall.</li>
+      </ul>
+    </section>
+
+    <section id="controls">
+      <h2>Canvas &amp; keyboard shortcuts</h2>
+      <table>
+        <tr><th>Action</th><th>How</th></tr>
+        <tr><td>Pan</td><td>Hold <span class="kbd">Space</span> + drag, or middle-mouse drag</td></tr>
+        <tr><td>Zoom</td><td>Scroll (toward cursor) · toolbar <span class="kbd">+</span>/<span class="kbd">−</span></td></tr>
+        <tr><td>Recenter</td><td><b>Frame</b> button</td></tr>
+        <tr><td>Select</td><td>Click · <span class="kbd">Shift</span>+click multi · drag a box on empty space</td></tr>
+        <tr><td>Move / resize</td><td>Drag the element · drag a corner handle</td></tr>
+        <tr><td>Nudge</td><td>Arrow keys (<span class="kbd">Shift</span> = 10px)</td></tr>
+        <tr><td>Edit text</td><td>Double-click a text element (<span class="kbd">Enter</span> save, <span class="kbd">Esc</span> cancel)</td></tr>
+        <tr><td>Duplicate / Delete</td><td><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">D</span> · <span class="kbd">Delete</span></td></tr>
+        <tr><td>Undo / Redo</td><td><span class="kbd">Ctrl/Cmd</span>+<span class="kbd">Z</span> · add <span class="kbd">Shift</span> to redo</td></tr>
+      </table>
+    </section>
+
+    <section id="widgets">
+      <h2>Widget reference</h2>
+      <p>17 widgets, each with its own properties (position, size, opacity, rotation, FX filters, and an optional auto-scheduler):</p>
+      <div class="wgrid">
+        <div class="w"><b>💬 Combined Chat</b>Kick/Twitch/YouTube chat with platform icons.</div>
+        <div class="w"><b>🔔 Alert Box</b>Sub/follow/raid alerts with animation + test trigger.</div>
+        <div class="w"><b>⏱️ Timer</b>Countdown or count-up with a label.</div>
+        <div class="w"><b>🎯 Progress Goal</b>Animated goal bar (subs, follows, bits…).</div>
+        <div class="w"><b>📊 Live Poll</b>Question + options with animated vote bars.</div>
+        <div class="w"><b>✅ To-Do List</b>Checklist with done states.</div>
+        <div class="w"><b>🔢 Tally</b>Big counter with +/−.</div>
+        <div class="w"><b>📰 Ticker</b>Scrolling marquee text.</div>
+        <div class="w"><b>📋 Event List</b>Recent-events feed.</div>
+        <div class="w"><b>🎡 Prize Wheel</b>Spin for giveaways; same result on stream.</div>
+        <div class="w"><b>📝 Text</b>Headlines &amp; lower-thirds (inline editable).</div>
+        <div class="w"><b>🖼️ Image / Slideshow</b>One image or a cycling set.</div>
+        <div class="w"><b>🎬 Video</b>Looping/auto-playing video.</div>
+        <div class="w"><b>⬛ Shape</b>Rectangles, circles, pills.</div>
+        <div class="w"><b>🔳 QR Code</b>Live-generated, recolorable.</div>
+        <div class="w"><b>🌐 Browser</b>Embed any website (optional interactive).</div>
+        <div class="w"><b>💻 Custom Code</b>Sandboxed HTML/CSS/JS.</div>
+      </div>
+    </section>
+
+    <section id="tools">
+      <h2>Soundboard &amp; telestrator</h2>
+      <h3>🔊 Soundboard</h3>
+      <p>Open it from <b>Quick Actions → Soundboard</b>. Add MP3/WAV URLs and hit Play to fire a sound through the overlay (it plays in OBS). <b>Stop All</b> cuts everything.</p>
+      <h3>✏️ Telestrator (draw on stream)</h3>
+      <p>Use the <b>Pen</b> / <b>Erase</b> tools in the toolbar to draw over your stream in real time — great for analyzing plays. Pick a color, erase strokes, or <b>Clear</b> the whole drawing. Hold <span class="kbd">Space</span> to pan while the pen is active.</p>
+    </section>
+
+    <section id="faq">
+      <h2>FAQ</h2>
+      <h3>Can mods break my stream?</h3>
+      <p>No — they only control the overlay canvas, never your OBS, audio, or keys.</p>
+      <h3>Does it work with StreamElements / Streamlabs?</h3>
+      <p>Yes. Add ModDeck as one more Browser source on top of your existing setup.</p>
+      <h3>Is it free?</h3>
+      <p>Yes. (Early build — live login &amp; cross-device sync are on the way.)</p>
+      <p style="margin-top:18px"><a href="index.html">← Back to home</a></p>
+    </section>
+  </main>
+</div>
+</body>
+</html>

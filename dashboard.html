@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="moddeck-version" content="0.7.0">
+<meta name="moddeck-version" content="0.8.0">
 <title>ModDeck — Dashboard</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=0.7.0">
+<link rel="stylesheet" href="css/app.css?v=0.8.0">
 </head>
 <body>
 <div class="app">
@@ -82,7 +82,7 @@
       <span class="dot" id="netDot"></span>
       <span>sync: <b id="syncKind">local</b></span>
       <span>channel: <b id="chanId">dev-local</b></span>
-      <span style="opacity:.7">ModDeck <b id="verTag">v0.7.0</b></span>
+      <span style="opacity:.7">ModDeck <b id="verTag">v0.8.0</b></span>
     </div>
   </main>
 
@@ -101,19 +101,19 @@
     <div class="links">
       <div class="lk" id="getLink2">🔗 Get OBS Link</div>
       <div class="lk" id="sbBtn">🔊 Soundboard</div>
-      <div class="lk">📖 Docs</div>
-      <div class="lk">⚙️ Settings</div>
+      <div class="lk" id="docsBtn">📖 Docs</div>
+      <div class="lk" id="settingsBtn">⚙️ Settings</div>
     </div>
     <div style="padding:0 16px 18px"><button class="big push" id="getLink" style="font-size:12px">🔗 Get OBS Browser-Source Link</button></div>
   </aside>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<script src="js/store.js?v=0.7.0"></script>
-<script src="js/widgets.js?v=0.7.0"></script>
-<script src="js/sync.js?v=0.7.0"></script>
-<script src="js/canvas.js?v=0.7.0"></script>
-<script src="js/dashboard.js?v=0.7.0"></script>
+<script src="js/store.js?v=0.8.0"></script>
+<script src="js/widgets.js?v=0.8.0"></script>
+<script src="js/sync.js?v=0.8.0"></script>
+<script src="js/canvas.js?v=0.8.0"></script>
+<script src="js/dashboard.js?v=0.8.0"></script>
 <script>
   // reflect sync info in status bar
   window.addEventListener("load", () => {

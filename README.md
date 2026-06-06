@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.8.0 — Docs page + Settings
+- A full **documentation page** (`docs.html`): quick start, OBS setup table, inviting mods, staging vs
+  live, canvas/keyboard-shortcut reference, the 17-widget reference, and soundboard/telestrator guides.
+- Wired the previously-inert quick actions: **Docs** opens the docs page; **Settings** opens a panel
+  (version, sync mode, channel ID, canvas size, and clear-staging). Docs linked from the landing nav.
+
 ### v0.7.0 — Landing page + branding
 - A real **landing page** (`index.html`) for moddeck.bookhockeys.com: hero, how-it-works, feature grid,
   why-ModDeck, and FAQ, with platform "Connect" buttons (open the demo until live login ships).
