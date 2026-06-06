@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.8.1 — Wording refresh
+- Reworded the hero/OG headline to **“Put your mods in the director's chair”** (regenerated the OG card)
+  so the messaging is our own rather than echoing other tools.
+
 ### v0.8.0 — Docs page + Settings
 - A full **documentation page** (`docs.html`): quick start, OBS setup table, inviting mods, staging vs
   live, canvas/keyboard-shortcut reference, the 17-widget reference, and soundboard/telestrator guides.

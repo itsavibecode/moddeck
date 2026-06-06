@@ -39,7 +39,7 @@ OG = '''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBo
     <rect x="24" y="70" width="19" height="9" rx="4.5" fill="#0fb5a8"/>
   </g>
   <text x="210" y="222" font-family="Inter,Arial,sans-serif" font-size="76" font-weight="900" fill="#fff" letter-spacing="-2">Mod<tspan fill="#8b8bff">Deck</tspan></text>
-  <text x="92" y="330" font-family="Inter,Arial,sans-serif" font-size="44" font-weight="800" fill="#eef0f8" letter-spacing="-1">Turn your mods into co-producers.</text>
+  <text x="92" y="330" font-family="Inter,Arial,sans-serif" font-size="44" font-weight="800" fill="#eef0f8" letter-spacing="-1">Put your mods in the director&#39;s chair.</text>
   <text x="92" y="392" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="500" fill="#9aa0b8">Browser-based stream-overlay control. Drop one source into OBS,</text>
   <text x="92" y="430" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="500" fill="#9aa0b8">then run the show together — live.</text>
   <g font-family="Inter,Arial,sans-serif" font-size="22" font-weight="800">
