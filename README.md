@@ -66,6 +66,15 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.9.0 — Real Kick login (auth foundation)
+- **Kick OAuth login** end to end: PKCE in the browser → a **Cloudflare Worker** (`worker/`) exchanges
+  the code with the client secret and mints a **Firebase custom token** → the browser signs into Firebase.
+  "Connect Kick" on the landing page and a live account header (username, avatar, log out) on the dashboard.
+- Added `js/config.js`, `js/auth.js`, `auth/kick.html` (callback), `database.rules.json` (RTDB rules with
+  owner + mod-allow-list access), and the Worker (dependency-free WebCrypto signing, no jose).
+- Demo mode is untouched — the app still works fully without logging in. Real-time Firebase sync flips on
+  next, once the Worker is deployed with its secrets.
+
 ### v0.8.2 — SEO + branded 404
 - Added `robots.txt`, `sitemap.xml`, and a branded **404 page**. First public deploy: live at
   **itsavibecode.github.io/moddeck** (custom domain moddeck.bookhockeys.com pending DNS).

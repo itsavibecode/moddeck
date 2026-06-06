@@ -416,10 +416,27 @@
     box.appendChild(note); host.appendChild(box);
   }
 
-  // ---------- account header (sample until Phase 2 auth) ----------
+  // ---------- account header (real Kick login when configured) ----------
   function renderAccount() {
-    $("#acctName").textContent = "bookhockeys";
-    $("#badges").innerHTML = `<span class="pf k">KICK</span><span class="pf t">TWITCH</span><span class="pf y">YT</span>`;
+    const action = $("#acctAction"), av = $("#acctAv");
+    const loggedOut = () => {
+      $("#acctName").textContent = "Demo mode";
+      $("#badges").innerHTML = `<span class="pf off">NOT SIGNED IN</span>`;
+      av.style.backgroundImage = "";
+      action.innerHTML = `<button id="connectKick" style="background:var(--k-bg);color:var(--k);border:1px solid #cdeecb;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:800;cursor:pointer">⚡ Connect Kick</button>`;
+      const b = $("#connectKick"); if (b) b.onclick = () => window.MD.auth && MD.auth.startKick();
+    };
+    if (!window.MD.auth) { loggedOut(); return; }
+    MD.auth.onAuth((user) => {
+      if (user) {
+        const p = MD.auth.profile() || {};
+        $("#acctName").textContent = p.username || user.displayName || "Streamer";
+        $("#badges").innerHTML = `<span class="pf k">KICK</span>`;
+        if (p.picture) av.style.backgroundImage = `url("${p.picture}")`;
+        action.innerHTML = `<a id="logout" style="font-size:11px;color:var(--accent);cursor:pointer;font-weight:600">Log out</a> <span style="font-size:10px;color:var(--ink-faint)">· real-time sync coming online</span>`;
+        const lo = $("#logout"); if (lo) lo.onclick = () => MD.auth.signOut().then(() => location.reload());
+      } else loggedOut();
+    });
   }
 
   // ---------- boot ----------

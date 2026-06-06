@@ -1,0 +1,19 @@
+name = "moddeck-worker"
+main = "src/index.js"
+compatibility_date = "2026-04-30"
+compatibility_flags = ["nodejs_compat"]
+
+# Pin to the sevendwarfs Cloudflare account (personal). The machine's default
+# wrangler auth resolves to the umbrella account, so pinning makes a wrong-account
+# deploy fail loudly. Run `cf sevendwarfs` (or use the wrangler wrapper that loads
+# T:\.cloudflare-tokens\sevendwarfs.token) before deploying.
+account_id = "fe16eca597b8d5afa20dfe7b2550640b"
+
+[vars]
+KICK_CLIENT_ID = "REPLACE_WITH_KICK_CLIENT_ID"          # public
+KICK_REDIRECT_URI = "https://moddeck.bookhockeys.com/auth/kick"
+FIREBASE_PROJECT_ID = "moddeck"
+
+# Secrets — set via `wrangler secret put`, never committed:
+#   wrangler secret put KICK_CLIENT_SECRET
+#   wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON

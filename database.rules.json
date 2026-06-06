@@ -1,0 +1,36 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "channels": {
+      "$cid": {
+        ".read": true,
+
+        "meta":     { ".write": "auth != null && $cid === auth.uid" },
+        "live":     { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
+        "staging":  { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
+        "soundCue": { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
+
+        "presence": {
+          "$uid": { ".write": "auth != null && auth.uid === $uid" }
+        },
+
+        "modNames": { ".write": "auth != null && $cid === auth.uid" },
+
+        "mods": {
+          "$uid": {
+            ".write": "auth != null && ($cid === auth.uid || (auth.uid === $uid && root.child('channels').child($cid).child('modNames').child(auth.token.uname).exists()))"
+          }
+        }
+      }
+    },
+
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}

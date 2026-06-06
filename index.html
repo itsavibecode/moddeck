@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.8.2">
+<meta name="moddeck-version" content="0.9.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#5b5bf0">
@@ -227,10 +227,13 @@
   <span>· an independent project, not affiliated with Kick, Twitch, or YouTube</span>
 </div></footer>
 
+<script src="js/config.js?v=0.9.0"></script>
+<script src="js/auth.js?v=0.9.0"></script>
 <script>
-  // Platform connect buttons — real OAuth lands with the backend phase; for now, open the demo.
+  // Kick = real login; Twitch/YouTube open the demo until their OAuth lands.
   document.querySelectorAll(".connect").forEach(b => b.addEventListener("click", () => {
     const p = b.dataset.p;
+    if (p === "Kick" && window.MD && MD.auth) { b.innerHTML = `<span class="b"></span>Redirecting to Kick…`; MD.auth.startKick(); return; }
     b.innerHTML = `<span class="b"></span>Opening demo…`;
     setTimeout(() => { location.href = "dashboard.html"; }, 500);
   }));
