@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.8.2 — SEO + branded 404
+- Added `robots.txt`, `sitemap.xml`, and a branded **404 page**. First public deploy: live at
+  **itsavibecode.github.io/moddeck** (custom domain moddeck.bookhockeys.com pending DNS).
+
 ### v0.8.1 — Wording refresh
 - Reworded the hero/OG headline to **“Put your mods in the director's chair”** (regenerated the OG card)
   so the messaging is our own rather than echoing other tools.
