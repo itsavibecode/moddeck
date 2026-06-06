@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.1.1 — Universal element properties
+- Every element now supports **Opacity**, **Rotation**, and **FX filters** (Blur, Brightness,
+  Saturation, Hue) plus a one-click **Fill Live Area** — applied identically on the dashboard preview
+  and the live overlay via a shared `applyBox` renderer. Matches the depth of Poltergeist's properties
+  panel; more (per-layer overlay URLs, animation timeline, chatbot builder) is mapped for later phases.
+
 ### v0.1.0 — Phase 1 foundation
 - First working build: infinite pan/zoom canvas with a crisp, unscaled selection layer (fixes the
   janky-canvas problem these tools usually have), select/drag/resize/multi-select/marquee/snap/

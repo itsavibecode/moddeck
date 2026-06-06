@@ -63,8 +63,7 @@
     board.order.forEach((id, idx) => {
       const rec = layer.instances.get(id); if (!rec) return; const el = board.els[id];
       const w = rec.wrap;
-      w.style.left = el.x + "px"; w.style.top = el.y + "px"; w.style.width = el.w + "px"; w.style.height = el.h + "px";
-      w.style.zIndex = idx; w.style.display = el.hidden ? "none" : "block";
+      window.MD.widgets.applyBox(w, el, idx);
       w.style.pointerEvents = el.locked ? "none" : "auto";
       w.classList.toggle("locked", !!el.locked);
     });

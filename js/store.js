@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.1.0";
+  window.MD.VERSION = "0.1.1";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -74,6 +74,7 @@
     const x = at ? Math.round(at.x - w / 2) : Math.round((CANVAS_W - w) / 2);
     const y = at ? Math.round(at.y - h / 2) : Math.round((CANVAS_H - h) / 2);
     const el = { id, type, x, y, w, h, locked: false, hidden: false,
+                 opacity: 1, rotation: 0, fx: { blur: 0, brightness: 1, saturate: 1, hue: 0 },
                  props: JSON.parse(JSON.stringify(d.props)) };
     pushHistory();
     state.staging.els[id] = el; state.staging.order.push(id);

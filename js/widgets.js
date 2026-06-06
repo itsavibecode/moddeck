@@ -166,6 +166,27 @@
     return f(el);
   }
 
+  // apply universal element box: geometry + z + opacity + rotation + FX filters.
+  // Used by BOTH the overlay layer and the dashboard canvas so they render identically.
+  function applyBox(wrap, el, idx) {
+    wrap.style.left = el.x + "px"; wrap.style.top = el.y + "px";
+    wrap.style.width = el.w + "px"; wrap.style.height = el.h + "px";
+    if (idx != null) wrap.style.zIndex = idx;
+    wrap.style.display = el.hidden ? "none" : "block";
+    wrap.style.opacity = (el.opacity == null ? 1 : el.opacity);
+    const rot = el.rotation || 0;
+    wrap.style.transform = rot ? `rotate(${rot}deg)` : "";
+    const fx = el.fx;
+    if (fx) {
+      const f = [];
+      if (fx.blur) f.push(`blur(${fx.blur}px)`);
+      if (fx.brightness != null && fx.brightness !== 1) f.push(`brightness(${fx.brightness})`);
+      if (fx.saturate != null && fx.saturate !== 1) f.push(`saturate(${fx.saturate})`);
+      if (fx.hue) f.push(`hue-rotate(${fx.hue}deg)`);
+      wrap.style.filter = f.join(" ");
+    } else wrap.style.filter = "";
+  }
+
   // A WidgetLayer diffs a board {order, els} onto a container, reusing instances by id.
   // wrapEl(id) optionally returns a wrapper element to place content into (dashboard uses
   // this to add selection handles); overlay passes none and we create plain positioned divs.
@@ -189,11 +210,7 @@
           rec = { wrap, inst, type: el.type }; insts.set(id, rec); container.appendChild(wrap);
         }
         // position the wrapper (overlay path; dashboard supplies its own via makeWrapper update)
-        if (!makeWrapper) {
-          rec.wrap.style.left = el.x + "px"; rec.wrap.style.top = el.y + "px";
-          rec.wrap.style.width = el.w + "px"; rec.wrap.style.height = el.h + "px";
-          rec.wrap.style.zIndex = idx; rec.wrap.style.display = el.hidden ? "none" : "block";
-        }
+        if (!makeWrapper) applyBox(rec.wrap, el, idx);
         rec.inst.update(el);
       });
       // remove gone
@@ -202,5 +219,5 @@
     return { render, instances: insts };
   }
 
-  window.MD.widgets = { create, Layer, LABELS: { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat" } };
+  window.MD.widgets = { create, Layer, applyBox, LABELS: { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat" } };
 })();

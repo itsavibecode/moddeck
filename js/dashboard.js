@@ -142,7 +142,28 @@
     xy.appendChild(numInput(elx.x, v => up({ x: v }))); xy.appendChild(numInput(elx.y, v => up({ y: v }))); fxy.appendChild(xy); pos.appendChild(fxy);
     const fwh = el("div", "field"); fwh.appendChild(el("label", null, "W / H")); const wh = el("div", "xy");
     wh.appendChild(numInput(elx.w, v => up({ w: v }))); wh.appendChild(numInput(elx.h, v => up({ h: v }))); fwh.appendChild(wh); pos.appendChild(fwh);
+    const fill = el("button", null, "⛶ Fill Live Area");
+    fill.style.cssText = "width:100%;margin-top:4px;padding:8px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:600;color:var(--ink-dim);font-size:11px";
+    fill.onclick = () => up({ x: 0, y: 0, w: S.CANVAS_W, h: S.CANVAS_H });
+    pos.appendChild(fill);
     host.appendChild(pos);
+
+    // universal Transform & FX (opacity, rotation, blur/brightness/saturate/hue)
+    const fxBox = el("div", "prop"); fxBox.innerHTML = `<h4><span class="dot"></span>Transform &amp; FX</h4>`;
+    const rng = (label, val, min, max, step, on) => {
+      const f = el("div", "field"); const l = el("label", null, label + ` <b style="color:var(--ink-dim)">${(+val).toFixed(step < 1 ? 2 : 0)}</b>`);
+      const i = el("input"); i.type = "range"; i.min = min; i.max = max; i.step = step; i.value = val;
+      i.oninput = () => { l.querySelector("b").textContent = (+i.value).toFixed(step < 1 ? 2 : 0); on(parseFloat(i.value)); };
+      f.appendChild(l); f.appendChild(i); return f;
+    };
+    const fx = elx.fx || { blur: 0, brightness: 1, saturate: 1, hue: 0 };
+    fxBox.appendChild(rng("Opacity", elx.opacity == null ? 1 : elx.opacity, 0, 1, .05, v => up({ opacity: v })));
+    fxBox.appendChild(rng("Rotation°", elx.rotation || 0, -180, 180, 1, v => up({ rotation: v })));
+    fxBox.appendChild(rng("Blur", fx.blur || 0, 0, 20, .5, v => up({ fx: Object.assign({}, elx.fx, { blur: v }) })));
+    fxBox.appendChild(rng("Brightness", fx.brightness == null ? 1 : fx.brightness, 0, 2, .05, v => up({ fx: Object.assign({}, elx.fx, { brightness: v }) })));
+    fxBox.appendChild(rng("Saturation", fx.saturate == null ? 1 : fx.saturate, 0, 2, .05, v => up({ fx: Object.assign({}, elx.fx, { saturate: v }) })));
+    fxBox.appendChild(rng("Hue°", fx.hue || 0, 0, 360, 1, v => up({ fx: Object.assign({}, elx.fx, { hue: v }) })));
+    host.appendChild(fxBox);
 
     // type-specific
     const tp = el("div", "prop"); tp.innerHTML = `<h4><span class="dot"></span>Content</h4>`;
