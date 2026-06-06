@@ -3,7 +3,7 @@
 (function () {
   window.MD = window.MD || {};
   window.MD.config = {
-    kickClientId: "REPLACE_WITH_KICK_CLIENT_ID",
+    kickClientId: "01KTFN1XEM335BE7QAKXD15G0H",
     kickRedirect: "https://moddeck.bookhockeys.com/auth/kick",
     kickScope: "user:read channel:read",
     workerUrl: "https://moddeck-worker.sevendwarfs.workers.dev",

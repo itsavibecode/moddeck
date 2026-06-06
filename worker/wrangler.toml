@@ -10,7 +10,7 @@ compatibility_flags = ["nodejs_compat"]
 account_id = "fe16eca597b8d5afa20dfe7b2550640b"
 
 [vars]
-KICK_CLIENT_ID = "REPLACE_WITH_KICK_CLIENT_ID"          # public
+KICK_CLIENT_ID = "01KTFN1XEM335BE7QAKXD15G0H"          # public
 KICK_REDIRECT_URI = "https://moddeck.bookhockeys.com/auth/kick"
 FIREBASE_PROJECT_ID = "moddeck"
 
