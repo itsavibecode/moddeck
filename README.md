@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.4.0 — Remote Soundboard
+- A **Soundboard** (🔊 quick action): add MP3/WAV sounds and trigger them on the live overlay (plays
+  through the OBS browser source), with **Stop All**. One-shot cues ride a new `publishSound`/`onSound`
+  channel in the sync layer (works today over BroadcastChannel; ready for Firebase RTDB).
+
 ### v0.3.0 — Widget Wave 3 (media & utility)
 - Four new widgets (16 total): **QR Code** (live-generated), **Event List** feed, **Browser** source
   (iframe, optional interactive), and **Custom HTML/CSS/JS** (sandboxed iframe).

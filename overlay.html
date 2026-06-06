@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck Overlay</title>
-<link rel="stylesheet" href="css/overlay.css">
+<link rel="stylesheet" href="css/overlay.css?v=0.4.0">
 </head>
 <body>
 <div id="fit"><div id="stage"></div></div>
 <div id="hint">Waiting for <b>ModDeck</b>…<small>Open your dashboard and hit <b>Push to Live</b></small></div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-<script src="js/widgets.js"></script>
-<script src="js/sync.js"></script>
+<script src="js/widgets.js?v=0.4.0"></script>
+<script src="js/sync.js?v=0.4.0"></script>
 <script>
 (function () {
   const params = new URLSearchParams(location.search);
@@ -30,6 +30,15 @@
 
   MD.sync.init({ channelId });
   MD.widgets.enableScheduler();             // loop visibility of auto-scheduled elements
+
+  // remote soundboard: play one-shot cues; track for stop-all
+  const playing = [];
+  MD.sync.onSound(function (p) {
+    if (!p) return;
+    if (p.stop) { playing.forEach(a => { try { a.pause(); a.currentTime = 0; } catch {} }); playing.length = 0; return; }
+    if (p.url) { const a = new Audio(p.url); a.volume = p.volume == null ? 1 : p.volume; playing.push(a); a.play().catch(() => {}); a.onended = () => { const i = playing.indexOf(a); if (i >= 0) playing.splice(i, 1); }; }
+  });
+
   const layer = MD.widgets.Layer(stage);   // no wrapper => plain positioned widgets
   MD.sync.onLive(function (board) {
     if (!board || !board.order) return;

@@ -110,6 +110,45 @@
     };
   }
 
+  // ---------- soundboard ----------
+  function sounds() { try { return JSON.parse(localStorage.getItem(keyOf("sounds")) || "[]"); } catch { return []; } }
+  function saveSounds(a) { localStorage.setItem(keyOf("sounds"), JSON.stringify(a)); }
+  function wireSoundboard() {
+    $("#sbBtn").onclick = () => {
+      const back = el("div", "modal-back");
+      back.innerHTML = `<div class="modal" style="max-width:520px">
+        <h3>🔊 Remote Soundboard</h3>
+        <p>Trigger sound effects on the live overlay (plays through your OBS browser source). Your mods get the same buttons.</p>
+        <div id="sbList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px;max-height:300px;overflow:auto"></div>
+        <div style="display:flex;gap:7px;margin-bottom:12px">
+          <input id="sbName" placeholder="name" style="flex:1;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
+          <input id="sbUrl" placeholder="https://…mp3 / wav" style="flex:2;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
+          <button class="primary" id="sbAdd" style="border:none;background:var(--accent);color:#fff;border-radius:8px;padding:0 14px;font-weight:700">Add</button>
+        </div>
+        <div class="mrow"><button id="sbStop" style="color:var(--danger)">⏹ Stop All</button><button id="sbClose">Close</button></div>
+      </div>`;
+      document.body.appendChild(back);
+      back.onclick = (e) => { if (e.target === back) back.remove(); };
+      const render = () => {
+        const host = $("#sbList", back); const arr = sounds(); host.innerHTML = "";
+        if (!arr.length) { host.appendChild(el("div", "list-empty", "No sounds yet — add one above.")); return; }
+        arr.forEach((s, i) => {
+          const row = el("div"); row.style.cssText = "display:flex;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px";
+          row.innerHTML = `<span style="flex:1;font-size:12.5px;font-weight:600">${s.name}</span>`;
+          const play = el("button", null, "▶ Play"); play.style.cssText = "border:none;background:var(--accent);color:#fff;border-radius:7px;padding:6px 12px;font-weight:700;font-size:11px";
+          play.onclick = () => { SY.publishSound({ url: s.url }); toast(`Played ${s.name}`); };
+          const del = el("button", null, "✕"); del.style.cssText = "border:1px solid var(--line2);background:#fff;color:var(--ink-faint);border-radius:7px;padding:6px 9px";
+          del.onclick = () => { const a = sounds(); a.splice(i, 1); saveSounds(a); render(); };
+          row.appendChild(play); row.appendChild(del); host.appendChild(row);
+        });
+      };
+      render();
+      $("#sbAdd", back).onclick = () => { const n = $("#sbName", back).value.trim(), u = $("#sbUrl", back).value.trim(); if (!u) return; const a = sounds(); a.push({ name: n || ("Sound " + (a.length + 1)), url: u }); saveSounds(a); $("#sbName", back).value = ""; $("#sbUrl", back).value = ""; render(); };
+      $("#sbStop", back).onclick = () => { SY.publishSound({ stop: true }); toast("Stopped all audio"); };
+      $("#sbClose", back).onclick = () => back.remove();
+    };
+  }
+
   // ---------- properties ----------
   function field(label, inner) { const f = el("div", "field"); f.appendChild(el("label", null, label)); const w = el("div"); w.innerHTML = inner; f.appendChild(w.firstElementChild || w); return f; }
   function numInput(val, on) { const i = el("input"); i.type = "number"; i.value = Math.round(val); i.oninput = () => on(parseFloat(i.value) || 0); return i; }
@@ -356,7 +395,7 @@
       content: $("#content"), ui: $("#ui"), dots: $("#dots"),
       onViewChange: (s) => { $("#zoomVal").textContent = Math.round(s * 100) + "%"; },
     });
-    buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs();
+    buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard();
     renderAccount(); renderLists(); updateLivePill(false);
     S.on("select", renderProps); renderProps();
     // seed a friendly starter so the canvas isn't empty on first load

@@ -10,11 +10,15 @@
   function localBackend(channelId) {
     const KEY = "moddeck:" + channelId + ":live";
     const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("moddeck:" + channelId) : null;
-    const liveCbs = [];
+    const liveCbs = [], soundCbs = [];
     function readStored() {
       try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
     }
-    if (bc) bc.onmessage = (e) => { if (e.data && e.data.type === "live") liveCbs.forEach(cb => cb(e.data.payload)); };
+    if (bc) bc.onmessage = (e) => {
+      if (!e.data) return;
+      if (e.data.type === "live") liveCbs.forEach(cb => cb(e.data.payload));
+      else if (e.data.type === "sound") soundCbs.forEach(cb => cb(e.data.payload));
+    };
     window.addEventListener("storage", (e) => {
       if (e.key === KEY && e.newValue) { try { liveCbs.forEach(cb => cb(JSON.parse(e.newValue).payload)); } catch {} }
     });
@@ -30,6 +34,8 @@
         const stored = readStored();
         if (stored && stored.payload) setTimeout(() => cb(stored.payload), 0);
       },
+      publishSound(payload) { if (bc) bc.postMessage({ type: "sound", payload }); soundCbs.forEach(cb => cb(payload)); },
+      onSound(cb) { soundCbs.push(cb); },
       publishPresence() {/* no-op locally */},
       onPresence() {/* no-op locally */},
     };
@@ -45,6 +51,8 @@
       kind: "firebase",
       publishLive(payload) { ref.child("live").set(payload); },
       onLive(cb) { ref.child("live").on("value", s => { const v = s.val(); if (v) cb(v); }); },
+      publishSound(payload) { ref.child("soundCue").set(Object.assign({}, payload, { t: Date.now() })); },
+      onSound(cb) { ref.child("soundCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
       publishPresence(uid, p) { ref.child("presence/" + uid).set(p); },
       onPresence(cb) { ref.child("presence").on("value", s => cb(s.val() || {})); },
     };
@@ -65,6 +73,8 @@
     get kind() { return backend ? backend.kind : null; },
     publishLive(payload) { backend && backend.publishLive(payload); },
     onLive(cb) { backend && backend.onLive(cb); },
+    publishSound(payload) { backend && backend.publishSound(payload); },
+    onSound(cb) { backend && backend.onSound(cb); },
     publishPresence(uid, p) { backend && backend.publishPresence(uid, p); },
     onPresence(cb) { backend && backend.onPresence(cb); },
   };
