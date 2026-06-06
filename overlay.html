@@ -28,6 +28,7 @@
   addEventListener("resize", resize); resize();
 
   MD.sync.init({ channelId });
+  MD.widgets.enableScheduler();             // loop visibility of auto-scheduled elements
   const layer = MD.widgets.Layer(stage);   // no wrapper => plain positioned widgets
   MD.sync.onLive(function (board) {
     if (!board || !board.order) return;

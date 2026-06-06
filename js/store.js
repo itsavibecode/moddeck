@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.1.1";
+  window.MD.VERSION = "0.2.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -17,9 +17,22 @@
              border: 0, borderColor: "#ffffff" } },
     chat:  { w: 380, h: 460, props: { title: "COMBINED CHAT", accent: "#0fb5a8", bg: "rgba(10,12,22,.72)",
              text: "#e6e9f5", max: 8, showPlatform: true, sources: { kick: "", twitch: "", youtube: "" } } },
+    progress: { w: 480, h: 96, props: { label: "⭐ Sub Goal", current: 340, target: 500, accent: "#5b5bf0",
+             bg: "rgba(10,12,22,.72)", color: "#ffffff", showPercent: true } },
+    ticker: { w: 1000, h: 64, props: { text: "Welcome to the stream!  •  Follow for more  •  New video Friday",
+             speed: 70, bg: "rgba(10,12,22,.85)", color: "#ffffff", size: 30 } },
+    todo:  { w: 360, h: 340, props: { title: "TO-DO", accent: "#0fb5a8", bg: "rgba(10,12,22,.72)", color: "#e6e9f5",
+             items: [{ text: "Warm up", done: true }, { text: "Ranked grind", done: false }, { text: "Viewer games", done: false }] } },
+    tally: { w: 300, h: 180, props: { label: "DEATHS", count: 7, accent: "#e5484d", color: "#ffffff", bg: "rgba(10,12,22,.72)" } },
+    poll:  { w: 480, h: 340, props: { question: "Next game?", accent: "#5b5bf0", bg: "rgba(10,12,22,.72)", color: "#e6e9f5",
+             options: [{ label: "Valorant", votes: 42 }, { label: "Minecraft", votes: 31 }, { label: "Just Chatting", votes: 18 }] } },
+    alertbox: { w: 560, h: 200, props: { headline: "NEW FOLLOWER", sub: "welcome, friend!", icon: "🎉",
+             accent: "#5b5bf0", bg: "rgba(10,12,22,.86)", color: "#ffffff", triggerSeq: 0 } },
   };
-  const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat" };
-  const ICONS  = { text:"📝", image:"🖼️", video:"🎬", timer:"⏱️", shape:"⬛", chat:"💬" };
+  const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat",
+             progress:"Progress Goal", ticker:"Ticker", todo:"To-Do List", tally:"Tally", poll:"Live Poll", alertbox:"Alert Box" };
+  const ICONS  = { text:"📝", image:"🖼️", video:"🎬", timer:"⏱️", shape:"⬛", chat:"💬",
+             progress:"🎯", ticker:"📰", todo:"✅", tally:"🔢", poll:"📊", alertbox:"🔔" };
 
   // ---- state ----
   // a "board" = { order:[ids], els:{id:el} }. We keep staging (editable) + live (broadcast).
@@ -75,6 +88,7 @@
     const y = at ? Math.round(at.y - h / 2) : Math.round((CANVAS_H - h) / 2);
     const el = { id, type, x, y, w, h, locked: false, hidden: false,
                  opacity: 1, rotation: 0, fx: { blur: 0, brightness: 1, saturate: 1, hue: 0 },
+                 schedule: { enabled: false, showSec: 10, hideSec: 60 },
                  props: JSON.parse(JSON.stringify(d.props)) };
     pushHistory();
     state.staging.els[id] = el; state.staging.order.push(id);

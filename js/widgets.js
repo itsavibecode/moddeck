@@ -12,6 +12,14 @@
   const tickers = new Set();
   setInterval(() => tickers.forEach(fn => { try { fn(); } catch {} }), 250);
 
+  // ---- shared keyframes (injected once) ----
+  (function injectCss() {
+    const s = document.createElement("style");
+    s.textContent = "@keyframes md-marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}" +
+      "@keyframes md-alert-in{0%{transform:translateY(18px) scale(.92);opacity:0}60%{transform:translateY(-3px) scale(1.02);opacity:1}100%{transform:translateY(0) scale(1);opacity:1}}";
+    document.head.appendChild(s);
+  })();
+
   // ---- sample chat feed (until real adapters land in Phase 5) ----
   const SAMPLE = [
     { p: "kick", u: "ninjafan_", m: "let's gooo 🔥" },
@@ -160,6 +168,115 @@
     return { node: n, update, destroy() { tickers.delete(tick); } };
   };
 
+  R.progress = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;gap:8px;padding:12px 16px;border-radius:12px;box-sizing:border-box";
+    const lab = document.createElement("div"), barWrap = document.createElement("div"), fill = document.createElement("div");
+    lab.style.cssText = "font-size:16px;font-weight:700;display:flex;justify-content:space-between;gap:10px";
+    barWrap.style.cssText = "height:14px;border-radius:9px;overflow:hidden;background:rgba(255,255,255,.14)";
+    fill.style.cssText = "height:100%;border-radius:9px;transition:width .5s cubic-bezier(.4,0,.2,1)";
+    barWrap.appendChild(fill); n.appendChild(lab); n.appendChild(barWrap);
+    function update(el) {
+      const p = el.props; n.style.background = p.bg; lab.style.color = p.color;
+      const pct = p.target > 0 ? Math.min(100, Math.round((p.current / p.target) * 100)) : 0;
+      lab.innerHTML = `<span>${esc(p.label)}</span><span style="color:${p.accent}">${p.current}/${p.target}${p.showPercent ? " · " + pct + "%" : ""}</span>`;
+      fill.style.width = pct + "%"; fill.style.background = `linear-gradient(90deg, ${p.accent}, ${p.accent}cc)`;
+    }
+    update(el); return { node: n, update };
+  };
+
+  R.ticker = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;align-items:center;overflow:hidden;border-radius:10px";
+    const track = document.createElement("div");
+    track.style.cssText = "display:flex;white-space:nowrap;will-change:transform";
+    const a = document.createElement("span"), b = document.createElement("span");
+    a.style.paddingRight = b.style.paddingRight = "60px"; track.appendChild(a); track.appendChild(b); n.appendChild(track);
+    let cur = "";
+    function update(el) {
+      const p = el.props; n.style.background = p.bg;
+      a.textContent = b.textContent = p.text;
+      a.style.cssText = b.style.cssText = `padding-right:60px;font-size:${p.size}px;font-weight:700;color:${p.color}`;
+      const dur = Math.max(6, (p.text.length * 0.9) * (60 / Math.max(10, p.speed)));
+      if (cur !== p.text + p.speed) { cur = p.text + p.speed; track.style.animation = "none"; void track.offsetWidth; track.style.animation = `md-marquee ${dur}s linear infinite`; }
+    }
+    update(el); return { node: n, update };
+  };
+
+  R.todo = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden;border-radius:12px;padding:11px 14px;box-sizing:border-box";
+    const hd = document.createElement("div"); hd.style.cssText = "font-size:13px;font-weight:800;letter-spacing:1.5px;margin-bottom:8px";
+    const list = document.createElement("div"); list.style.cssText = "display:flex;flex-direction:column;gap:7px;overflow:hidden";
+    n.appendChild(hd); n.appendChild(list);
+    function update(el) {
+      const p = el.props; n.style.background = p.bg; hd.textContent = p.title; hd.style.color = p.accent;
+      list.innerHTML = "";
+      (p.items || []).forEach(it => {
+        const r = document.createElement("div"); r.style.cssText = `font-size:16px;color:${p.color};display:flex;gap:9px;align-items:center;${it.done ? "opacity:.55" : ""}`;
+        r.innerHTML = `<span style="color:${p.accent};font-weight:800">${it.done ? "☑" : "☐"}</span><span style="${it.done ? "text-decoration:line-through" : ""}">${esc(it.text)}</span>`;
+        list.appendChild(r);
+      });
+    }
+    update(el); return { node: n, update };
+  };
+
+  R.tally = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-radius:12px";
+    const c = document.createElement("div"), lab = document.createElement("div");
+    c.style.cssText = "font-weight:800;line-height:1;font-variant-numeric:tabular-nums";
+    lab.style.cssText = "font-weight:700;letter-spacing:3px;text-transform:uppercase";
+    n.appendChild(c); n.appendChild(lab);
+    function update(el) {
+      const p = el.props; n.style.background = p.bg;
+      c.textContent = p.count; c.style.color = p.color; c.style.fontSize = Math.min(el.h * .5, el.w * .4) + "px";
+      lab.textContent = p.label; lab.style.color = p.accent; lab.style.fontSize = "14px";
+    }
+    update(el); return { node: n, update };
+  };
+
+  R.poll = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;gap:9px;overflow:hidden;border-radius:12px;padding:13px 16px;box-sizing:border-box";
+    const q = document.createElement("div"); q.style.cssText = "font-size:18px;font-weight:800";
+    const opts = document.createElement("div"); opts.style.cssText = "display:flex;flex-direction:column;gap:8px";
+    n.appendChild(q); n.appendChild(opts);
+    function update(el) {
+      const p = el.props; n.style.background = p.bg; q.textContent = p.question; q.style.color = p.color;
+      const total = (p.options || []).reduce((s, o) => s + (+o.votes || 0), 0) || 1;
+      opts.innerHTML = "";
+      (p.options || []).forEach(o => {
+        const pct = Math.round((+o.votes || 0) / total * 100);
+        const row = document.createElement("div"); row.style.cssText = "position:relative;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.1);padding:7px 11px";
+        const bar = document.createElement("div"); bar.style.cssText = `position:absolute;left:0;top:0;bottom:0;width:${pct}%;background:${p.accent};opacity:.55;transition:width .5s`;
+        const txt = document.createElement("div"); txt.style.cssText = `position:relative;display:flex;justify-content:space-between;font-size:15px;font-weight:600;color:${p.color}`;
+        txt.innerHTML = `<span>${esc(o.label)}</span><span>${pct}%</span>`;
+        row.appendChild(bar); row.appendChild(txt); opts.appendChild(row);
+      });
+    }
+    update(el); return { node: n, update };
+  };
+
+  R.alertbox = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;align-items:center;gap:16px;border-radius:14px;padding:0 22px;box-sizing:border-box;overflow:hidden";
+    const ic = document.createElement("div"); ic.style.cssText = "font-size:48px;line-height:1;flex:none";
+    const txt = document.createElement("div"); txt.style.cssText = "display:flex;flex-direction:column;gap:4px;min-width:0";
+    const hl = document.createElement("div"), sub = document.createElement("div");
+    hl.style.cssText = "font-size:30px;font-weight:800;line-height:1.05";
+    sub.style.cssText = "font-size:18px;opacity:.85";
+    txt.appendChild(hl); txt.appendChild(sub); n.appendChild(ic); n.appendChild(txt);
+    let lastSeq = null;
+    function update(el) {
+      const p = el.props; n.style.background = p.bg; n.style.borderLeft = `5px solid ${p.accent}`;
+      ic.textContent = p.icon || "🎉"; hl.textContent = p.headline; hl.style.color = p.color;
+      sub.textContent = p.sub; sub.style.color = p.accent;
+      if (p.triggerSeq !== lastSeq) { lastSeq = p.triggerSeq; n.style.animation = "none"; void n.offsetWidth; n.style.animation = "md-alert-in .6s cubic-bezier(.2,.8,.2,1)"; }
+    }
+    update(el); return { node: n, update };
+  };
+
   // =========================================================================
   function create(el) {
     const f = R[el.type]; if (!f) { const d = document.createElement("div"); d.textContent = el.type; return { node: d, update() {}, destroy() {} }; }
@@ -185,6 +302,22 @@
       if (fx.hue) f.push(`hue-rotate(${fx.hue}deg)`);
       wrap.style.filter = f.join(" ");
     } else wrap.style.filter = "";
+    // auto-scheduler: tag so the overlay's scheduler loop can toggle visibility over time
+    if (el.schedule && el.schedule.enabled) wrap.dataset.sched = (el.schedule.showSec || 10) + "," + (el.schedule.hideSec || 60);
+    else delete wrap.dataset.sched;
+  }
+
+  // overlay-only: loop visibility of scheduled elements (dashboard keeps them visible for editing)
+  let schedOn = false;
+  function enableScheduler() {
+    if (schedOn) return; schedOn = true;
+    setInterval(() => {
+      document.querySelectorAll("[data-sched]").forEach(w => {
+        const parts = w.dataset.sched.split(",").map(Number), cyc = (parts[0] + parts[1]) * 1000;
+        if (cyc <= 0) return;
+        w.style.display = (Date.now() % cyc) < parts[0] * 1000 ? "block" : "none";
+      });
+    }, 400);
   }
 
   // A WidgetLayer diffs a board {order, els} onto a container, reusing instances by id.
@@ -219,5 +352,5 @@
     return { render, instances: insts };
   }
 
-  window.MD.widgets = { create, Layer, applyBox, LABELS: { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat" } };
+  window.MD.widgets = { create, Layer, applyBox, enableScheduler };
 })();

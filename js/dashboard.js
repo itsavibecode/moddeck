@@ -15,7 +15,9 @@
 
   // ---------- palette ----------
   const PALETTE = [
-    ["chat", "💬", "Combined Chat"], ["timer", "⏱️", "Timer"], ["text", "📝", "Text"],
+    ["chat", "💬", "Combined Chat"], ["alertbox", "🔔", "Alert Box"], ["timer", "⏱️", "Timer"],
+    ["progress", "🎯", "Goal Bar"], ["poll", "📊", "Live Poll"], ["todo", "✅", "To-Do"],
+    ["tally", "🔢", "Tally"], ["ticker", "📰", "Ticker"], ["text", "📝", "Text"],
     ["image", "🖼️", "Image"], ["video", "🎬", "Video"], ["shape", "⬛", "Shape"],
   ];
   function buildPalette() {
@@ -170,6 +172,8 @@
     buildTypeFields(elx, tp, up, upp);
     host.appendChild(tp);
 
+    buildScheduler(elx, host);
+
     // actions
     const act = el("div", "prop"); act.innerHTML = `<h4><span class="dot"></span>Arrange</h4>`;
     const grid = el("div"); grid.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:7px";
@@ -239,7 +243,72 @@
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
       note.innerHTML = "Showing a <b>sample feed</b>. Live Kick / Twitch / YouTube chat connects in a later phase.";
       add(note);
+    } else if (elx.type === "progress") {
+      add(labeled("Label", txt(p.label, v => upp({ label: v }))));
+      const cur = el("div", "field"); cur.appendChild(el("label", null, "Current / Target")); const xy = el("div", "xy");
+      xy.appendChild(numInput(p.current, v => upp({ current: v }))); xy.appendChild(numInput(p.target, v => upp({ target: v }))); cur.appendChild(xy); add(cur);
+      add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+    } else if (elx.type === "ticker") {
+      const ta = el("textarea"); ta.value = p.text; ta.oninput = () => upp({ text: ta.value }); add(labeled("Ticker text", ta));
+      add(labeled("Speed", range(p.speed, 20, 200, 5, v => upp({ speed: v }))));
+      add(labeled("Font size", range(p.size, 14, 64, 1, v => upp({ size: v }))));
+      add(labeled("Color", swatchRow(SWATCHES, p.color, c => upp({ color: c }))));
+    } else if (elx.type === "todo") {
+      add(labeled("Title", txt(p.title, v => upp({ title: v }))));
+      const ta = el("textarea"); ta.style.minHeight = "90px";
+      ta.value = (p.items || []).map(i => (i.done ? "x " : "") + i.text).join("\n");
+      ta.oninput = () => upp({ items: ta.value.split("\n").filter(l => l.trim()).map(l => { const d = /^x\s+/i.test(l); return { text: l.replace(/^x\s+/i, ""), done: d }; }) });
+      add(labeled("Items (prefix 'x ' = done)", ta));
+      add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+    } else if (elx.type === "tally") {
+      add(labeled("Label", txt(p.label, v => upp({ label: v }))));
+      const ctl = el("div"); ctl.style.cssText = "display:flex;gap:7px;align-items:center";
+      const minus = el("button", null, "−"); const plus = el("button", null, "+");
+      [minus, plus].forEach(b => b.style.cssText = "width:34px;padding:7px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:800;color:var(--ink-dim)");
+      const numWrap = el("div"); numWrap.style.flex = "1"; numWrap.appendChild(numInput(p.count, v => upp({ count: v })));
+      minus.onclick = () => upp({ count: (S.getEl(elx.id).props.count || 0) - 1 });
+      plus.onclick = () => upp({ count: (S.getEl(elx.id).props.count || 0) + 1 });
+      ctl.appendChild(minus); ctl.appendChild(numWrap); ctl.appendChild(plus); add(labeled("Count", ctl));
+      add(labeled("Number color", swatchRow(SWATCHES, p.color, c => upp({ color: c }))));
+      add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+    } else if (elx.type === "poll") {
+      add(labeled("Question", txt(p.question, v => upp({ question: v }))));
+      const ta = el("textarea"); ta.style.minHeight = "90px";
+      ta.value = (p.options || []).map(o => o.label + ", " + (o.votes || 0)).join("\n");
+      ta.oninput = () => upp({ options: ta.value.split("\n").filter(l => l.trim()).map(l => { const m = l.split(","); return { label: (m[0] || "").trim(), votes: parseInt(m[1]) || 0 }; }) });
+      add(labeled("Options (Label, votes)", ta));
+      add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+    } else if (elx.type === "alertbox") {
+      add(labeled("Headline", txt(p.headline, v => upp({ headline: v }))));
+      add(labeled("Subtext", txt(p.sub, v => upp({ sub: v }))));
+      add(labeled("Icon (emoji)", txt(p.icon, v => upp({ icon: v }))));
+      add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+      const trig = el("button", null, "▶ Trigger Test Alert");
+      trig.style.cssText = "width:100%;margin-top:4px;padding:9px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:700";
+      trig.onclick = () => { upp({ triggerSeq: (S.getEl(elx.id).props.triggerSeq || 0) + 1 }); toast("Alert triggered"); };
+      add(labeled("", trig));
+      const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
+      note.innerHTML = "Real Sub/Follow/Raid/Bits events auto-fire this in a later phase.";
+      add(note);
     }
+  }
+
+  // universal auto-scheduler section (loops element visibility on the live overlay)
+  function buildScheduler(elx, host) {
+    const sc = elx.schedule || { enabled: false, showSec: 10, hideSec: 60 };
+    const box = el("div", "prop"); box.innerHTML = `<h4><span class="dot"></span>Auto-Scheduler</h4>`;
+    const toggle = el("label"); toggle.style.cssText = "display:flex;gap:7px;align-items:center;font-size:11.5px;color:var(--ink-dim);cursor:pointer;margin-bottom:8px";
+    const cb = el("input"); cb.type = "checkbox"; cb.checked = sc.enabled;
+    cb.onchange = () => S.updateEl(elx.id, { schedule: Object.assign({}, S.getEl(elx.id).schedule, { enabled: cb.checked }) });
+    toggle.appendChild(cb); toggle.appendChild(document.createTextNode("Loop visibility on a timer"));
+    box.appendChild(toggle);
+    const xy = el("div", "xy");
+    const mk = (label, key, val) => { const f = el("div"); f.style.flex = "1"; f.appendChild(el("label", null, label)); f.firstChild.style.cssText = "font-size:10px;color:var(--ink-faint);display:block;margin-bottom:4px;font-weight:600"; f.appendChild(numInput(val, v => S.updateEl(elx.id, { schedule: Object.assign({}, S.getEl(elx.id).schedule, { [key]: v }) }))); return f; };
+    xy.appendChild(mk("Show (s)", "showSec", sc.showSec)); xy.appendChild(mk("Hide (s)", "hideSec", sc.hideSec));
+    box.appendChild(xy);
+    const note = el("div"); note.style.cssText = "font-size:10px;color:var(--ink-faint);line-height:1.4;margin-top:7px";
+    note.textContent = "Fades the element in/out over time on the live overlay (great for rotating logos/watermarks). Stays visible here while editing.";
+    box.appendChild(note); host.appendChild(box);
   }
 
   // ---------- account header (sample until Phase 2 auth) ----------

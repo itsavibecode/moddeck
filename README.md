@@ -66,6 +66,14 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.2.0 — Widget Wave 2 + Auto-Scheduler
+- Six new widgets: **Progress Goal** bar, **Ticker** (scrolling marquee), **To-Do List**, **Tally
+  Counter** (with +/−), **Live Poll** (animated vote bars), and an **Event Alert Box** with a
+  test-trigger and entrance animation. All render identically on the dashboard and the live overlay.
+- **Auto-Scheduler**: any element can loop its visibility on a timer (show/hide seconds) on the live
+  overlay — perfect for rotating sponsor logos, slideshows, or watermarks — while staying visible in
+  the editor. Twelve widgets total now in the palette.
+
 ### v0.1.1 — Universal element properties
 - Every element now supports **Opacity**, **Rotation**, and **FX filters** (Blur, Brightness,
   Saturation, Hue) plus a one-click **Fill Live Area** — applied identically on the dashboard preview
