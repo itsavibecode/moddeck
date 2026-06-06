@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.4.0";
+  window.MD.VERSION = "0.5.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -34,10 +34,11 @@
     browser: { w: 640, h: 360, props: { url: "", radius: 8, interactive: false } },
     customcode: { w: 480, h: 300, props: { html: "<div class=\"mdc\">Custom HTML widget</div>",
              css: ".mdc{display:grid;place-items:center;height:100%;color:#fff;font:800 30px Inter,sans-serif}", js: "" } },
+    draw:  { w: 1920, h: 1080, props: { strokes: [] } },   // telestrator layer (created by the pen tool)
   };
   const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat",
              progress:"Progress Goal", ticker:"Ticker", todo:"To-Do List", tally:"Tally", poll:"Live Poll", alertbox:"Alert Box",
-             qr:"QR Code", eventlist:"Event List", browser:"Browser", customcode:"Custom Code" };
+             qr:"QR Code", eventlist:"Event List", browser:"Browser", customcode:"Custom Code", draw:"Drawing" };
   const ICONS  = { text:"📝", image:"🖼️", video:"🎬", timer:"⏱️", shape:"⬛", chat:"💬",
              progress:"🎯", ticker:"📰", todo:"✅", tally:"🔢", poll:"📊", alertbox:"🔔",
              qr:"🔳", eventlist:"📋", browser:"🌐", customcode:"💻" };

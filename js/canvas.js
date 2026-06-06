@@ -13,6 +13,7 @@
   const view = { x: 0, y: 0, scale: 0.4 };
   const MINS = 0.06, MAXS = 4;
   let spaceDown = false, snap = false;
+  let penMode = null, penColor = "#ff3d3d", penWidth = 6, drawId = null, curStroke = null;
   let onViewChange = () => {};
 
   // ---- transforms ----
@@ -64,7 +65,7 @@
       const rec = layer.instances.get(id); if (!rec) return; const el = board.els[id];
       const w = rec.wrap;
       window.MD.widgets.applyBox(w, el, idx);
-      w.style.pointerEvents = el.locked ? "none" : "auto";
+      w.style.pointerEvents = (el.locked || el.type === "draw") ? "none" : "auto";
       w.classList.toggle("locked", !!el.locked);
     });
   }
@@ -119,15 +120,38 @@
     return { x, y, guides: lines };
   }
 
+  // ---- telestrator (pen / eraser) ----
+  function ensureDraw() {
+    const ord = S().state.staging.order;
+    for (const id of ord) if (S().getEl(id).type === "draw") return id;
+    const el = S().addElement("draw"); S().updateEl(el.id, { x: 0, y: 0, locked: true }, { silent: true });
+    S().clearSelection(); return el.id;
+  }
+  function worldPt(e) { const r = viewport.getBoundingClientRect(); return s2w(e.clientX - r.left, e.clientY - r.top); }
+  function eraseAt(p) {
+    const el = S().getEl(drawId); if (!el) return;
+    const th = penWidth + 14;
+    const keep = (el.props.strokes || []).filter(s => !s.pts.some(pt => Math.hypot(pt[0] - p.x, pt[1] - p.y) < th));
+    if (keep.length !== el.props.strokes.length) S().updateProps(drawId, { strokes: keep });
+  }
+  function startDraw(e) {
+    drawId = ensureDraw(); S().beginGesture(); mode = "draw";
+    const p = worldPt(e);
+    if (penMode === "eraser") eraseAt(p);
+    else { const strokes = (S().getEl(drawId).props.strokes || []).slice(); curStroke = { color: penColor, width: penWidth, pts: [[Math.round(p.x), Math.round(p.y)]] }; strokes.push(curStroke); S().updateProps(drawId, { strokes }); }
+    capture(e);
+  }
+
   // ---- pointer interaction ----
-  let mode = null;  // 'pan' | 'drag' | 'resize' | 'marquee'
+  let mode = null;  // 'pan' | 'drag' | 'resize' | 'marquee' | 'draw'
   let start = null, marqueeEl = null, dragData = null;
 
   function onDown(e) {
-    if (e.button === 1 || (e.button === 0 && spaceDown)) {           // pan
+    if (e.button === 1 || (e.button === 0 && spaceDown)) {           // pan (space overrides pen)
       mode = "pan"; start = { mx: e.clientX, my: e.clientY, vx: view.x, vy: view.y };
       viewport.classList.add("panning"); e.preventDefault(); capture(e); return;
     }
+    if (penMode && e.button === 0) { startDraw(e); e.preventDefault(); return; }   // telestrator
     if (e.button !== 0) return;
     const handle = e.target.closest("[data-handle]");
     if (handle) {                                                     // resize
@@ -162,6 +186,12 @@
     }
     if (mode === "pan") {
       view.x = start.vx + (e.clientX - start.mx); view.y = start.vy + (e.clientY - start.my); applyView(); return;
+    }
+    if (mode === "draw") {
+      const p = worldPt(e);
+      if (penMode === "eraser") eraseAt(p);
+      else if (curStroke) { curStroke.pts.push([Math.round(p.x), Math.round(p.y)]); S().updateProps(drawId, { strokes: S().getEl(drawId).props.strokes }); }
+      return;
     }
     if (mode === "drag") {
       const dx = (e.clientX - dragData.mx) / view.scale, dy = (e.clientY - dragData.my) / view.scale;
@@ -204,6 +234,8 @@
       if (hits.length) S().select(hits, start.additive);
     } else if (mode === "drag" || mode === "resize") {
       S().commit(mode); clearGuides();
+    } else if (mode === "draw") {
+      S().commit("draw"); curStroke = null;
     }
     mode = null; dragData = null; viewport.classList.remove("panning");
   }
@@ -265,6 +297,9 @@
     init, frameLiveArea, renderWorld, renderUI,
     zoomIn: () => zoomTo(1.2), zoomOut: () => zoomTo(1 / 1.2), resetZoom: () => frameLiveArea(true),
     setSnap: (v) => { snap = v; }, getSnap: () => snap,
+    setPen: (m, opts) => { penMode = m; if (opts) { if (opts.color) penColor = opts.color; if (opts.width) penWidth = opts.width; } viewport.style.cursor = m ? "crosshair" : ""; },
+    getPen: () => penMode,
+    clearDraw: () => { const ord = S().state.staging.order; for (const id of ord) if (S().getEl(id).type === "draw") { S().updateProps(id, { strokes: [] }); return; } },
     getScale: () => view.scale,
     setLiveFlag: (on) => { frame.classList.toggle("is-live", on); frameLabel.classList.toggle("live", on); },
     s2w, w2s,

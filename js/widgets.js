@@ -363,6 +363,26 @@
     update(el); return { node: n, update };
   };
 
+  R.draw = function (el) {
+    const NS = "http://www.w3.org/2000/svg";
+    const n = document.createElement("div"); n.style.cssText = "width:100%;height:100%;pointer-events:none";
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 1920 1080"); svg.setAttribute("preserveAspectRatio", "none");
+    svg.style.cssText = "width:100%;height:100%;overflow:visible"; n.appendChild(svg);
+    function update(el) {
+      const strokes = el.props.strokes || []; svg.innerHTML = "";
+      strokes.forEach(s => {
+        if (!s.pts || !s.pts.length) return;
+        const pl = document.createElementNS(NS, "polyline");
+        pl.setAttribute("points", s.pts.map(p => p[0] + "," + p[1]).join(" "));
+        pl.setAttribute("fill", "none"); pl.setAttribute("stroke", s.color);
+        pl.setAttribute("stroke-width", s.width); pl.setAttribute("stroke-linecap", "round"); pl.setAttribute("stroke-linejoin", "round");
+        svg.appendChild(pl);
+      });
+    }
+    update(el); return { node: n, update };
+  };
+
   // =========================================================================
   function create(el) {
     const f = R[el.type]; if (!f) { const d = document.createElement("div"); d.textContent = el.type; return { node: d, update() {}, destroy() {} }; }

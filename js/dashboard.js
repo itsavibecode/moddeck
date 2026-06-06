@@ -84,6 +84,12 @@
     $("#zoomOut").onclick = () => C.zoomOut();
     const snapBtn = $("#snap");
     snapBtn.onclick = () => { const v = !C.getSnap(); C.setSnap(v); snapBtn.classList.toggle("on", v); };
+    // telestrator pen / eraser
+    const pen = $("#pen"), eraser = $("#eraser"), penColor = $("#penColor");
+    pen.onclick = () => { const on = C.getPen() !== "pen"; C.setPen(on ? "pen" : null, { color: penColor.value, width: 6 }); pen.classList.toggle("on", on); eraser.classList.remove("on"); };
+    eraser.onclick = () => { const on = C.getPen() !== "eraser"; C.setPen(on ? "eraser" : null, { color: penColor.value, width: 6 }); eraser.classList.toggle("on", on); pen.classList.remove("on"); };
+    penColor.oninput = () => { if (C.getPen() === "pen") C.setPen("pen", { color: penColor.value }); };
+    $("#penClear").onclick = () => { C.clearDraw(); toast("Cleared drawing"); };
     S.on("change", refreshUndo); refreshUndo();
   }
   function refreshUndo() { $("#undo").disabled = !S.canUndo(); $("#redo").disabled = !S.canRedo(); }

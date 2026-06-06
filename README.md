@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.5.0 — Telestrator (on-stream drawing)
+- **Pen & Eraser** tools in the toolbar — draw freely over the canvas to highlight plays or diagram
+  things; strokes render live on the overlay (SVG, scales with zoom). Pick a pen color, erase strokes,
+  or **Clear** the whole drawing. Hold **Space** to pan even while the pen is active.
+
 ### v0.4.0 — Remote Soundboard
 - A **Soundboard** (🔊 quick action): add MP3/WAV sounds and trigger them on the live overlay (plays
   through the OBS browser source), with **Stop All**. One-shot cues ride a new `publishSound`/`onSound`
