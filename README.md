@@ -66,6 +66,17 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.20.0 — Mods + invite links 🎛️
+- **Mods can now run your overlay.** Sign in, add a mod by Kick username under **Mods with Access**, and
+  click **Copy mod invite link**. Your mod opens the link, signs in with Kick, and edits *your* overlay
+  (canvas + Push to Live) — with **zero access to your OBS, audio mixer, or stream keys**.
+- **Live presence** — a green dot shows which mods are online and editing right now.
+- **Instant revoke** — remove a mod with the ✕ and their access is pulled immediately (allow-list +
+  registration both cleared). Anyone who opens the link without being on your list is locked out and asked
+  to have you add them.
+- Enforced by Firebase security rules (write access keyed to your channel owner UID + the mod allow-list),
+  not just the UI.
+
 ### v0.19.2 — Hero text layout
 - Headline "From Mod to Director" forced to one line (wraps only on small screens); sub-line split so
   "Approve your mods to control your overlay from a browser" sits above "with one simple OBS source change."

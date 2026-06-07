@@ -47,27 +47,143 @@
     const p = $("#livePill"); p.classList.toggle("on", on);
     p.innerHTML = `<i></i>${on ? "LIVE" : "OFFLINE"}`;
   }
-  // switch the whole dashboard from demo (local) to real-time Firebase sync on login
-  let liveMode = false;
+  // switch the whole dashboard from demo (local) to real-time Firebase sync on login.
+  // Two modes: OWNER (editing your own channel) or MOD (editing a streamer's channel via ?channel=).
+  let liveMode = false, editChannel = null, amOwner = true;
   function goLive(user) {
     if (liveMode || !window.MD._fb || !window.MD._fb.db) return;
-    liveMode = true; channelId = user.uid;
-    try { SY.init({ backend: "firebase", db: window.MD._fb.db, channelId }); }
+    liveMode = true;
+    const db = window.MD._fb.db;
+    const prof = MD.auth.profile() || {};
+    const target = editChannel || user.uid;
+    amOwner = (target === user.uid);
+    channelId = target;
+    try { SY.init({ backend: "firebase", db, channelId: target }); }
     catch (e) { console.error(e); liveMode = false; return; }
     const sk = $("#syncKind"), ci = $("#chanId");
-    if (sk) sk.textContent = "firebase"; if (ci) ci.textContent = channelId;
+    if (sk) sk.textContent = "firebase"; if (ci) ci.textContent = target;
     renderLists();
+
+    // MOD: self-register so the rules grant write access (requires the streamer to have added your username)
+    if (!amOwner) {
+      db.ref("channels/" + target + "/mods/" + user.uid)
+        .set({ username: prof.username || "", uname: (prof.username || "").toLowerCase(), addedAt: Date.now() })
+        .then(function () { toast("Connected as mod 🎛️", "ok"); })
+        .catch(function () { modDenied(prof); });
+    }
+
+    // presence — who's editing right now (auto-clears on disconnect)
+    try {
+      const pref = db.ref("channels/" + target + "/presence/" + user.uid);
+      pref.set({ username: prof.username || "", t: Date.now(), owner: amOwner });
+      pref.onDisconnect().remove();
+    } catch (e) {}
+
     // restore this channel's saved staging from the cloud (or push current up if cloud is empty)
     SY.loadStaging(function (board) {
       if (board && board.order && board.order.length) S.loadIntoStaging(board);
-      else scheduleStagingWrite();
+      else if (amOwner) scheduleStagingWrite();
     });
-    // connect this channel's real Kick chat + record the chatroom id so the overlay can connect too
-    const prof = MD.auth.profile() || {};
-    if (window.MD.chat && prof.username) MD.chat.connectBySlug(prof.username).then(function (roomId) {
-      if (roomId) { try { SY.publishMeta({ slug: prof.username, chatroomId: roomId }); } catch (e) {} toast("Kick chat connected 💬", "ok"); }
+
+    // chat: owner connects by slug + records the chatroom id; mod connects via the saved chatroom id
+    if (amOwner) {
+      if (window.MD.chat && prof.username) MD.chat.connectBySlug(prof.username).then(function (roomId) {
+        if (roomId) { try { SY.publishMeta({ slug: prof.username, chatroomId: roomId }); } catch (e) {} toast("Kick chat connected 💬", "ok"); }
+      });
+    } else if (window.MD.chat && SY.loadMeta) {
+      SY.loadMeta(function (meta) { if (meta && meta.chatroomId) { try { MD.chat.connectKick(meta.chatroomId); } catch (e) {} } });
+    }
+
+    wireMods(target, user);
+    toast(amOwner ? "Real-time sync on" : "Editing as mod", "ok");
+  }
+
+  // ---------- mods + invite links ----------
+  function modDenied(prof) {
+    const banner = $("#modBanner");
+    if (banner) {
+      banner.style.display = "block"; banner.style.color = "var(--danger)"; banner.style.background = "#fdecec";
+      banner.innerHTML = "Not authorized yet. Ask the streamer to add <b>" + ((prof.username || "").toLowerCase()) + "</b> as a mod, then reload.";
+    }
+    toast("Not a mod here yet — ask the streamer to add you", "err");
+  }
+  function modInviteLink(target) {
+    const base = location.href.replace(/dashboard\.html.*$/, "").replace(/\/$/, "");
+    return base + "/dashboard.html?channel=" + encodeURIComponent(target);
+  }
+  function removeMod(target, uname, mods) {
+    const db = window.MD._fb.db, base = db.ref("channels/" + target);
+    base.child("modNames/" + uname).remove();
+    Object.keys(mods || {}).forEach(function (uid) {
+      const u = ((mods[uid] && (mods[uid].uname || mods[uid].username)) || "").toLowerCase();
+      if (u === uname) base.child("mods/" + uid).remove();
     });
-    toast("Real-time sync on", "ok");
+    toast("Removed mod " + uname);
+  }
+  function renderModList(target, isOwner) {
+    const db = window.MD._fb.db, base = db.ref("channels/" + target), host = $("#modList");
+    if (!host) return;
+    let names = {}, mods = {}, pres = {};
+    function paint() {
+      host.innerHTML = "";
+      const unames = Object.keys(names);
+      if (!unames.length) { host.appendChild(el("div", "list-empty", isOwner ? "No mods yet — add a Kick username below." : "—")); }
+      const online = {};
+      Object.keys(pres).forEach(function (uid) { const u = ((pres[uid] && pres[uid].username) || "").toLowerCase(); if (u) online[u] = true; });
+      unames.forEach(function (u) {
+        const on = !!online[u];
+        const row = el("div", "mod", `<div class="mav"></div><div class="mn">${u}</div><div class="me${on ? " on" : ""}">${on ? "ONLINE" : "offline"}</div>`);
+        if (!on) row.querySelector(".mav").style.background = "#cbd5e1";
+        if (isOwner) { const rm = el("div", "rm", "✕"); rm.style.cursor = "pointer"; rm.onclick = () => removeMod(target, u, mods); row.appendChild(rm); }
+        host.appendChild(row);
+      });
+    }
+    base.child("modNames").on("value", function (s) { names = s.val() || {}; paint(); });
+    base.child("mods").on("value", function (s) { mods = s.val() || {}; paint(); });
+    base.child("presence").on("value", function (s) { pres = s.val() || {}; paint(); });
+  }
+  let _modsWired = false;
+  function wireMods(target, user) {
+    const addRow = $("#addModRow"), linkBtn = $("#modLinkBtn"), note = $("#modNote"), banner = $("#modBanner");
+    if (amOwner) {
+      if (addRow) addRow.style.display = "";
+      if (linkBtn) linkBtn.style.display = "block";
+      if (banner) banner.style.display = "none";
+      if (note) note.innerHTML = "Add a mod by Kick username, then send them the <b>invite link</b>. They sign in with Kick and can edit your overlay — but never your OBS, audio, or stream key.";
+      if (!_modsWired) {
+        _modsWired = true;
+        const addBtn = $("#addModBtn"), inp = $("#addModInput");
+        const doAdd = () => {
+          const u = (inp.value || "").trim().toLowerCase().replace(/^@/, "");
+          if (!u) return;
+          if (/[.#$\[\]\/]/.test(u)) { toast("Invalid username", "err"); return; }
+          window.MD._fb.db.ref("channels/" + target + "/modNames/" + u).set(true)
+            .then(() => { toast("Added mod " + u, "ok"); inp.value = ""; })
+            .catch(() => toast("Could not add mod", "err"));
+        };
+        if (addBtn) addBtn.onclick = doAdd;
+        if (inp) inp.onkeydown = (e) => { if (e.key === "Enter") doAdd(); };
+        if (linkBtn) linkBtn.onclick = () => {
+          const link = modInviteLink(target);
+          navigator.clipboard.writeText(link).then(() => toast("Mod invite link copied 🔗", "ok"));
+          const back = el("div", "modal-back");
+          back.innerHTML = `<div class="modal"><h3>🔗 Mod Invite Link</h3>
+            <p>Add the mod's Kick username above first, then send them this link. They sign in with Kick and can edit <b>this</b> overlay — nothing else.</p>
+            <div class="obs-url">${link}</div>
+            <div class="mrow"><button id="miClose">Close</button><button class="primary" id="miCopy">Copy link</button></div></div>`;
+          document.body.appendChild(back);
+          back.onclick = (e) => { if (e.target === back) back.remove(); };
+          $("#miClose", back).onclick = () => back.remove();
+          $("#miCopy", back).onclick = () => { navigator.clipboard.writeText(link).then(() => toast("Copied", "ok")); back.remove(); };
+        };
+      }
+    } else {
+      if (addRow) addRow.style.display = "none";
+      if (linkBtn) linkBtn.style.display = "none";
+      if (banner) { banner.style.display = "block"; banner.textContent = "🎛️ You're modding this channel."; }
+      if (note) note.innerHTML = "You can edit the canvas and Push to Live. Only the streamer can add or remove mods.";
+    }
+    renderModList(target, amOwner);
   }
   // persist the staging canvas (debounced) to whatever backend is active (localStorage in demo, RTDB live)
   let _stagingTimer = null;
@@ -510,6 +626,7 @@
   // ---------- boot ----------
   function init() {
     viewport = $("#viewport"); channelId = "dev-local";
+    editChannel = (new URLSearchParams(location.search)).get("channel") || null;
     SY.init({ channelId });
     C.init({
       viewport, world: $("#world"), frame: $("#frame"), frameLabel: $("#frameLabel"),

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="moddeck-version" content="0.19.2">
+<meta name="moddeck-version" content="0.20.0">
 <title>ModDeck — Dashboard</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=0.19.2">
+<link rel="stylesheet" href="css/app.css?v=0.20.0">
 </head>
 <body>
 <div class="app">
@@ -97,10 +97,13 @@
     <div class="sect">Properties</div>
     <div id="props"></div>
 
-    <div class="sect">Mods with Access <span class="mini">Phase 3</span></div>
+    <div class="sect">Mods with Access</div>
     <div class="prop mods">
-      <div class="mod"><div class="mav"></div><div class="mn">No mods yet</div><div class="me">—</div></div>
-      <div class="inline-in" style="margin:9px 0 0"><input placeholder="add mod username… (soon)" disabled><button disabled>ADD</button></div>
+      <div id="modBanner" style="display:none;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin-bottom:9px"></div>
+      <div id="modList"></div>
+      <div class="inline-in" id="addModRow" style="margin:9px 0 0;display:none"><input id="addModInput" placeholder="add mod kick username…"><button id="addModBtn">ADD</button></div>
+      <button id="modLinkBtn" style="width:100%;margin-top:8px;padding:8px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:700;color:var(--ink-dim);font-size:11px;display:none">🔗 Copy mod invite link</button>
+      <div id="modNote" style="font-size:10px;color:var(--ink-faint);margin-top:7px;line-height:1.5">Sign in to manage mods.</div>
     </div>
 
     <div class="sect">Quick Actions</div>
@@ -119,16 +122,16 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-<script src="js/firebase-config.js?v=0.19.2"></script>
-<script src="js/config.js?v=0.19.2"></script>
-<script src="js/auth.js?v=0.19.2"></script>
-<script src="js/icons.js?v=0.19.2"></script>
-<script src="js/store.js?v=0.19.2"></script>
-<script src="js/widgets.js?v=0.19.2"></script>
-<script src="js/sync.js?v=0.19.2"></script>
-<script src="js/chat-kick.js?v=0.19.2"></script>
-<script src="js/canvas.js?v=0.19.2"></script>
-<script src="js/dashboard.js?v=0.19.2"></script>
+<script src="js/firebase-config.js?v=0.20.0"></script>
+<script src="js/config.js?v=0.20.0"></script>
+<script src="js/auth.js?v=0.20.0"></script>
+<script src="js/icons.js?v=0.20.0"></script>
+<script src="js/store.js?v=0.20.0"></script>
+<script src="js/widgets.js?v=0.20.0"></script>
+<script src="js/sync.js?v=0.20.0"></script>
+<script src="js/chat-kick.js?v=0.20.0"></script>
+<script src="js/canvas.js?v=0.20.0"></script>
+<script src="js/dashboard.js?v=0.20.0"></script>
 <script>
   // reflect sync info in status bar
   window.addEventListener("load", () => {

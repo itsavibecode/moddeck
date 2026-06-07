@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — Documentation</title>
 <meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
-<meta name="moddeck-version" content="0.8.2">
+<meta name="moddeck-version" content="0.20.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#5b5bf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -98,7 +98,13 @@
     <section id="mods">
       <h2>Inviting mods</h2>
       <p>ModDeck is built so your moderators can run the overlay <b>without any access to your OBS, audio mixer, or stream keys</b> — they only control a blank web canvas that sits over your stream.</p>
-      <div class="note">Live multi-account login and the mod allow-list are landing in the next release. Today the dashboard runs in a local/demo channel so you can build and preview everything.</div>
+      <ol>
+        <li>Sign in with Kick. In the right panel under <b>Mods with Access</b>, type your mod's Kick username and click <b>ADD</b>.</li>
+        <li>Click <b>Copy mod invite link</b> and send it to them (DM, Discord, wherever).</li>
+        <li>They open the link, sign in with Kick, and land in <i>your</i> channel — they can edit the canvas and Push to Live alongside you.</li>
+      </ol>
+      <p>A green dot next to a name means that mod is online and editing right now. Remove a mod any time with the <b>✕</b> — that instantly revokes their access.</p>
+      <div class="note">Only the exact Kick usernames you add can edit your overlay. Anyone else who opens the link is asked to have you add them first — they can't touch your channel.</div>
     </section>
 
     <section id="staging">
