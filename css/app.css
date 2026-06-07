@@ -28,7 +28,7 @@ input,select{font-family:inherit}
 .col{height:100vh;overflow:hidden;display:flex;flex-direction:column;min-width:0}
 .sidebar{background:var(--panel);border-right:1px solid var(--line)}
 .right{background:var(--panel);border-left:1px solid var(--line)}
-.scroll{overflow-y:auto;flex:1}
+.scroll{overflow-y:auto;flex:1;min-height:0}
 
 /* ---- brand / header ---- */
 .brand{display:flex;align-items:center;gap:11px;padding:16px 18px;border-bottom:1px solid var(--line)}

@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.12.1 — Fix: right panel scrolling
+- The right Properties panel now scrolls when its content is taller than the window (it was clipping for
+  widgets with many properties). Wrapped it in a scroll container to match the left sidebar.
+
 ### v0.12.0 — Discord Highlights widget
 - New **Discord Highlights** widget (⭐): shows messages your community "stars" in Discord on your stream,
   Discord-blurple styled with avatar + name + message and an entrance animation. Configurable title, accent,
