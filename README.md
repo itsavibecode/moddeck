@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.16.0 — Landing polish + BETA branding
+- Wordmark is one cohesive "ModDeck" again (dropped the two-tone split), with a candy-blue **BETA** badge
+  and a **version pill** by the dashboard logo.
+- Landing hero **video moved up** (tighter spacing), added a **mute/unmute "Tap for sound"** button, and the
+  demo chat is now **per-clip** (each playlist video shows its own matching chat — placeholder text for now).
+
 ### v0.15.0 — Line-SVG palette icons
 - Replaced the emoji widget icons with clean **line SVG icons** (tinted with the accent color, identical
   on every device) across all 21 widgets — `js/icons.js`.

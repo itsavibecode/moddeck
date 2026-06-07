@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.12.3">
+<meta name="moddeck-version" content="0.16.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#5b5bf0">
@@ -46,31 +46,34 @@
   nav .wrap{display:flex;align-items:center;gap:14px;height:64px}
   .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;letter-spacing:-.3px}
   .brand img{width:34px;height:34px}
-  .brand b{color:var(--accent)}
+  .beta{font-size:9.5px;font-weight:800;letter-spacing:1px;background:#5cc8ff;color:#053048;
+    padding:2px 7px;border-radius:6px;margin-left:2px;vertical-align:middle;box-shadow:0 0 0 1px rgba(92,200,255,.4)}
   nav .links{margin-left:auto;display:flex;align-items:center;gap:8px}
   nav .links a.t{padding:8px 12px;color:var(--ink-dim);font-weight:600;font-size:14px;border-radius:8px}
   nav .links a.t:hover{color:var(--ink);background:var(--panel)}
 
   /* hero */
-  .hero{position:relative;text-align:center;padding:84px 0 60px}
+  .hero{position:relative;text-align:center;padding:40px 0 56px}
   .hero::before{content:"";position:absolute;inset:0;z-index:-1;
     background:radial-gradient(680px 360px at 50% -10%,rgba(91,91,240,.16),transparent 65%),radial-gradient(520px 320px at 85% 30%,rgba(15,181,168,.12),transparent 60%)}
   .pill{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--ink-dim);margin-bottom:22px;box-shadow:var(--shadow)}
   .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--accent2)}
   h1{font-size:clamp(34px,6vw,62px);line-height:1.04;font-weight:900;letter-spacing:-1.5px;max-width:14ch;margin:0 auto}
   h1 .grad{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .sub{font-size:clamp(16px,2.4vw,20px);color:var(--ink-dim);max-width:60ch;margin:22px auto 30px}
+  .sub{font-size:clamp(16px,2.4vw,20px);color:var(--ink-dim);max-width:60ch;margin:16px auto 22px}
   .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  .connects{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+  .connects{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
   .connect{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:10px 16px;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s}
   .connect:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
   .connect .b{width:9px;height:9px;border-radius:50%}
   .connect.k .b{background:var(--k)} .connect.t .b{background:var(--t)} .connect.y .b{background:var(--y)}
-  .trust{margin-top:24px;font-size:13px;color:var(--ink-faint)}
+  .trust{margin-top:14px;font-size:13px;color:var(--ink-faint)}
   .trust b{color:var(--ink-dim)}
 
   /* mock preview */
-  .shot{max-width:980px;margin:46px auto 0;border-radius:18px;border:1px solid var(--line2);box-shadow:0 30px 70px rgba(20,25,45,.18);overflow:hidden;background:#11131c}
+  .shot{max-width:980px;margin:26px auto 0;border-radius:18px;border:1px solid var(--line2);box-shadow:0 30px 70px rgba(20,25,45,.18);overflow:hidden;background:#11131c}
+  .muteBtn{position:absolute;top:12px;right:12px;z-index:3;background:rgba(10,12,22,.72);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px)}
+  .muteBtn:hover{background:rgba(91,91,240,.85)}
   .shot .bar{height:36px;background:#1b1e2a;display:flex;align-items:center;gap:7px;padding:0 14px}
   .shot .bar i{width:11px;height:11px;border-radius:50%;background:#3a3f52} .shot .bar i:nth-child(1){background:#ff5f57}.shot .bar i:nth-child(2){background:#febc2e}.shot .bar i:nth-child(3){background:#28c840}
   .shot .body{aspect-ratio:16/9;position:relative;background:radial-gradient(circle at 30% 30%,#1c2233,#0f1118);overflow:hidden}
@@ -126,7 +129,7 @@
 </head>
 <body>
 <nav><div class="wrap">
-  <a class="brand" href="/"><img src="favicon.svg" alt="">Mod<b>Deck</b></a>
+  <a class="brand" href="/"><img src="favicon.svg" alt="">ModDeck<span class="beta">BETA</span></a>
   <div class="links">
     <a class="t" href="#features">Features</a>
     <a class="t" href="#how">How it works</a>
@@ -155,13 +158,12 @@
     <div class="bar"><i></i><i></i><i></i></div>
     <div class="body">
       <video id="demoVid" muted playsinline autoplay preload="auto"></video>
+      <button id="muteBtn" class="muteBtn" type="button">🔇 Tap for sound</button>
       <div class="lbl">LIVE · 1920×1080</div>
       <div class="ov goal">⭐ Sub Goal — 340 / 500<div class="track"><div class="fill"></div></div></div>
       <div class="ov timer">12:04</div>
       <div class="ov chat"><div style="font-size:9px;letter-spacing:1px;color:#7c8bff;font-weight:800;margin-bottom:6px">COMBINED CHAT</div>
-        <div><span class="u">ninjafan_</span>: let's gooo 🔥</div>
-        <div><span class="u">kayJ</span>: <b>poggers</b></div>
-        <div><span class="u">m0d_alex</span>: cleaned chat 🧹</div>
+        <div id="heroChatLines"></div>
       </div>
     </div>
   </div>
@@ -221,7 +223,7 @@
 </div></section>
 
 <footer><div class="wrap">
-  <a class="brand" href="/" style="font-size:16px"><img src="favicon.svg" alt="" style="width:24px;height:24px">Mod<b>Deck</b></a>
+  <a class="brand" href="/" style="font-size:16px"><img src="favicon.svg" alt="" style="width:24px;height:24px">ModDeck</a>
   <span class="sp"></span>
   <a href="dashboard.html">Dashboard</a>
   <a href="docs.html">Docs</a>
@@ -231,18 +233,45 @@
 </div></footer>
 
 <script>
-  // Hero stream background — rotate through the demo clips as a playlist behind the overlay.
+  // Hero stream background — rotate clips as a playlist behind the overlay, with per-clip demo chat.
   (function () {
-    var clips = ["video/sjchampton1.mp4", "video/ebzsjcice.mp4"], i = 0;
-    var v = document.getElementById("demoVid");
+    // each clip pairs a video with chat lines that match what's happening in it.
+    // TODO: replace the chat arrays with the real usernames/context per clip.
+    var CLIPS = [
+      { src: "video/sjchampton1.mp4", chat: [
+        { u: "ninjafan_", m: "let's gooo 🔥" },
+        { u: "kayJ", m: "<b>poggers</b>" },
+        { u: "m0d_alex", m: "cleaned chat 🧹" },
+      ] },
+      { src: "video/ebzsjcice.mp4", chat: [
+        { u: "streamer", m: "ty for the raid!" },
+        { u: "z3ke", m: "W stream" },
+        { u: "leoo", m: "first time catching live!" },
+      ] },
+    ];
+    var i = 0, v = document.getElementById("demoVid"), lines = document.getElementById("heroChatLines");
     if (!v) return;
     v.muted = true;
-    function next() { v.src = clips[i++ % clips.length]; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    function renderChat(c) {
+      if (!lines) return;
+      lines.innerHTML = c.map(function (x) { return '<div><span class="u">' + x.u + '</span>: ' + x.m + '</div>'; }).join("");
+    }
+    function next() {
+      var clip = CLIPS[i++ % CLIPS.length];
+      v.src = clip.src; renderChat(clip.chat);
+      var p = v.play(); if (p && p.catch) p.catch(function () {});
+    }
     v.addEventListener("ended", next);
     next();
-    // fallback: if a browser blocks muted autoplay, kick it off on the first interaction
     ["pointerdown", "scroll", "keydown"].forEach(function (ev) {
       window.addEventListener(ev, function once() { if (v.paused) v.play().catch(function () {}); window.removeEventListener(ev, once); }, { once: true, passive: true });
+    });
+    // mute / unmute button
+    var mb = document.getElementById("muteBtn");
+    if (mb) mb.addEventListener("click", function () {
+      v.muted = !v.muted;
+      if (!v.muted) { v.volume = 1; v.play().catch(function () {}); }
+      mb.innerHTML = v.muted ? "🔇 Tap for sound" : "🔊 Sound on";
     });
   })();
 </script>
