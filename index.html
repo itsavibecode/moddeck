@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.16.2">
+<meta name="moddeck-version" content="0.16.3">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#5b5bf0">
@@ -142,7 +142,7 @@
 <header class="hero"><div class="wrap">
   <div class="pill"><span class="dot"></span>Free · works with Kick, Twitch &amp; YouTube</div>
   <h1>Put your mods in the <span class="grad">director's chair</span></h1>
-  <p class="sub">ModDeck is a browser-based control deck for your stream overlay. Drop <b>one</b> source into OBS, then you and your trusted mods build and run the on-screen graphics live — without ever touching your OBS, audio, or stream keys.</p>
+  <p class="sub">Approve your mods to control your overlay from a browser with <b>one simple OBS source change</b>.</p>
   <div class="cta">
     <a class="btn primary" href="dashboard.html">▶ Try the live demo</a>
     <a class="btn ghost" href="#how">See how it works</a>
@@ -238,12 +238,12 @@
     // each clip pairs a video with chat lines that match what's happening in it.
     // TODO: replace the chat arrays with the real usernames/context per clip.
     var CLIPS = [
-      { src: "video/sjchampton1.mp4", chat: [
+      { src: "video/sjchampton1.mp4?a=1", chat: [
         { u: "ninjafan_", m: "let's gooo 🔥" },
         { u: "kayJ", m: "<b>poggers</b>" },
         { u: "m0d_alex", m: "cleaned chat 🧹" },
       ] },
-      { src: "video/ebzsjcice.mp4", chat: [
+      { src: "video/ebzsjcice.mp4?a=1", chat: [
         { u: "streamer", m: "ty for the raid!" },
         { u: "z3ke", m: "W stream" },
         { u: "leoo", m: "first time catching live!" },

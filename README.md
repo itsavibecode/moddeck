@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.16.3 — Hero copy + audible demo clips
+- New, punchier hero line: "Approve your mods to control your overlay from a browser with one simple OBS
+  source change."
+- Re-encoded the hero clips **with audio** (the earlier compression had stripped it), so the **Tap for sound**
+  button actually plays sound. Cache-busted the video URLs.
+
 ### v0.16.2 — Wordmark/BETA alignment
 - Vertically centered the **BETA** badge against the "ModDeck" wordmark (tightened wordmark line-height so
   box-center matches optical-center) in both the landing nav and the dashboard.
