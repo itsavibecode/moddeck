@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.21.1 — Kicks-donation alerts
+- Added the `kicks:read` scope to sign-in so **💚 Kicks donations** fire alerts alongside follows/subs/gifts
+  (the worker already subscribes to `kicks.gifted`). Check **"Read KICKs related information"** in your Kick app.
+
 ### v0.21.0 — Real Kick alerts 🔔
 - **On-stream alerts fire from real Kick events** — follows, new subs, resubs, gift subs, and Kicks
   donations. Drop an **Alert Box** widget to set where/how they look; events animate in there

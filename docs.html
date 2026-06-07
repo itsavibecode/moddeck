@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — Documentation</title>
 <meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
-<meta name="moddeck-version" content="0.21.0">
+<meta name="moddeck-version" content="0.21.1">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#5b5bf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,7 +118,8 @@
       <h3>One-time setup</h3>
       <p>Real events need two things wired in your <a href="https://kick.com/settings/developer" target="_blank" rel="noopener">Kick developer app</a>:</p>
       <ol>
-        <li>Add the <b>events:subscribe</b> scope to the app (ModDeck requests it at sign-in).</li>
+        <li>Check <b>"Subscribe to events (read chat feed, follows, subscribes, gifts)"</b> — and, for
+          Kicks-donation alerts, also <b>"Read KICKs related information"</b>. (ModDeck requests these at sign-in.)</li>
         <li>Set the app's <b>Webhook URL</b> to
           <code>https://moddeck-worker.sevendwarfs.workers.dev/kick/webhook</code>.</li>
       </ol>
