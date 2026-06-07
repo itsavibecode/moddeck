@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.11.0 — Real-time Firebase sync
+- On Kick login the dashboard switches from the local demo bus to **Firebase Realtime Database** sync on
+  your own channel (`channelId == your uid`); **Push to Live** now writes to RTDB and any `overlay.html?c=<uid>`
+  (your OBS source, anywhere) updates live. The overlay auto-uses Firebase for real channels and the local
+  bus for the `dev-local` demo. Soundboard cues ride the same path. (Requires the Worker's secrets, published
+  RTDB rules, and Firebase Authentication enabled.)
+
 ### v0.10.0 — Emoji Combo widget
 - New **Emoji Combo** widget (🔥): watches chat for repeated emotes and shows live "xN" combos, with the
   hottest emote emphasized — configurable show-after count, combo timeout, and max emotes. Real combo logic

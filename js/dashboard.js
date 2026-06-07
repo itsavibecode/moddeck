@@ -45,6 +45,18 @@
     const p = $("#livePill"); p.classList.toggle("on", on);
     p.innerHTML = `<i></i>${on ? "LIVE" : "OFFLINE"}`;
   }
+  // switch the whole dashboard from demo (local) to real-time Firebase sync on login
+  let liveMode = false;
+  function goLive(user) {
+    if (liveMode || !window.MD._fb || !window.MD._fb.db) return;
+    liveMode = true; channelId = user.uid;
+    try { SY.init({ backend: "firebase", db: window.MD._fb.db, channelId }); }
+    catch (e) { console.error(e); liveMode = false; return; }
+    const sk = $("#syncKind"), ci = $("#chanId");
+    if (sk) sk.textContent = "firebase"; if (ci) ci.textContent = channelId;
+    renderLists();
+    toast("Real-time sync on", "ok");
+  }
 
   // ---------- presets & scenes (localStorage, per channel) ----------
   const keyOf = (kind) => `moddeck:${channelId}:${kind}`;
@@ -441,8 +453,9 @@
         $("#acctName").textContent = p.username || user.displayName || "Streamer";
         $("#badges").innerHTML = `<span class="pf k">KICK</span>`;
         if (p.picture) av.style.backgroundImage = `url("${p.picture}")`;
-        action.innerHTML = `<a id="logout" style="font-size:11px;color:var(--accent);cursor:pointer;font-weight:600">Log out</a> <span style="font-size:10px;color:var(--ink-faint)">· real-time sync coming online</span>`;
+        action.innerHTML = `<a id="logout" style="font-size:11px;color:var(--accent);cursor:pointer;font-weight:600">Log out</a> <span style="font-size:10px;color:var(--ink-faint)">· synced</span>`;
         const lo = $("#logout"); if (lo) lo.onclick = () => MD.auth.signOut().then(() => location.reload());
+        goLive(user);
       } else loggedOut();
     });
   }
