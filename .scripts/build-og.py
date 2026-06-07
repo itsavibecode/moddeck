@@ -18,6 +18,17 @@ ICON = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path d="M13 29.5 32 39.5 51 29.5" fill="none" stroke="#fff" stroke-width="3" opacity="0.5" stroke-linejoin="round"/>
   <path d="M39 35l2.3 11 2.6-4.4 4.6.7z" fill="#0fb5a8" stroke="#11131c" stroke-width="1.2" stroke-linejoin="round"/></svg>'''
 
+# ---- app avatar (FULL-BLEED square — no transparent corners, crops cleanly to a circle) ----
+AVATAR = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#6d6dff"/><stop offset="1" stop-color="#5b5bf0"/></linearGradient></defs>
+  <rect x="0" y="0" width="64" height="64" fill="url(#g)"/>
+  <g transform="translate(0,1.5)">
+    <path d="M32 13 51 23 32 33 13 23z" fill="#fff"/>
+    <path d="M13 29.5 32 39.5 51 29.5" fill="none" stroke="#fff" stroke-width="3" opacity="0.5" stroke-linejoin="round"/>
+    <path d="M39 35l2.3 11 2.6-4.4 4.6.7z" fill="#0fb5a8" stroke="#11131c" stroke-width="1.2" stroke-linejoin="round"/>
+  </g></svg>'''
+
 # ---- 1200x630 OG card ----
 OG = '''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
@@ -54,4 +65,7 @@ print("wrote og.png")
 for size, name in [(180, "icons/apple-touch-icon.png"), (192, "icons/icon-192.png"), (512, "icons/icon-512.png"), (32, "icons/favicon-32.png")]:
     cairosvg.svg2png(bytestring=ICON.encode(), write_to=os.path.join(HERE, name), output_width=size, output_height=size)
     print("wrote", name)
+# full-bleed avatar for the Kick app (1024 for crispness)
+cairosvg.svg2png(bytestring=AVATAR.encode(), write_to=os.path.join(HERE, "icons/app-avatar.png"), output_width=1024, output_height=1024)
+print("wrote icons/app-avatar.png")
 print("done.")
