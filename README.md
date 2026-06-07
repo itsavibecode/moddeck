@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.12.2 — Fix: overlay font
+- The overlay now loads the **Inter** font (it only loaded on the dashboard before), so live overlay text
+  matches the editor exactly instead of falling back to a system font.
+
 ### v0.12.1 — Fix: right panel scrolling
 - The right Properties panel now scrolls when its content is taller than the window (it was clipping for
   widgets with many properties). Wrapped it in a scroll container to match the left sidebar.

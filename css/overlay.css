@@ -1,7 +1,8 @@
 /* ModDeck overlay — transparent OBS browser source. Renders the LIVE board 1:1 at 1920x1080. */
 html,body{margin:0;height:100%;background:transparent;overflow:hidden}
 #fit{position:absolute;top:0;left:0;transform-origin:0 0}
-#stage{position:relative;width:1920px;height:1080px;overflow:hidden}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
 #stage>div{position:absolute}            /* widget wrappers */
 #hint{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-family:Inter,system-ui,sans-serif;
   color:rgba(255,255,255,.5);font-size:22px;font-weight:600;text-align:center;pointer-events:none;
