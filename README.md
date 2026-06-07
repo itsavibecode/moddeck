@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.18.0 — Logo F + platform theming
+- New official logo: **Logo F** (overlay layers + control cursor). Updated favicon, app/PWA icons, and OG card,
+  and unified the wordmark to one-color "ModDeck".
+- **Full platform theming:** the logo tile turns the platform's color once you log in — Kick green, Twitch
+  purple, YouTube red (default indigo when logged out). Applied to the dashboard logo + overlay watermark via
+  a shared `MD.logoSvg(platform)` helper.
+
 ### v0.17.3 — New hero headline
 - Hero headline is now **"From Mod to Director"** (was "Put your mods in the director's chair"); regenerated
   the OG/social card to match.

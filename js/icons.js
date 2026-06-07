@@ -31,4 +31,23 @@
   const out = {};
   Object.keys(I).forEach(k => { out[k] = svg(I[k]); });
   window.MD.ICONS_SVG = out;
+
+  // ModDeck logo mark (F: layers + cursor), full-platform-themed tile.
+  // platform: "kick" | "twitch" | "youtube" | undefined (default brand)
+  window.MD.logoSvg = function (platform) {
+    const T = {
+      default: ["#6d6dff", "#5b5bf0", "#0fb5a8", "#11131c"],
+      kick:    ["#5dff2b", "#33cc0d", "#ffffff", "rgba(0,0,0,.35)"],
+      twitch:  ["#b388ff", "#9146FF", "#ffffff", "rgba(0,0,0,.35)"],
+      youtube: ["#ff6b6b", "#ff0000", "#ffffff", "rgba(0,0,0,.35)"],
+    };
+    const c = T[platform] || T.default, gid = "lg_" + (platform || "d");
+    return '<svg viewBox="0 0 64 64" style="width:100%;height:100%;display:block">' +
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></linearGradient></defs>' +
+      '<rect x="4" y="4" width="56" height="56" rx="15" fill="url(#' + gid + ')"/>' +
+      '<path d="M32 13 51 23 32 33 13 23z" fill="#fff"/>' +
+      '<path d="M13 29.5 32 39.5 51 29.5" fill="none" stroke="#fff" stroke-width="3" opacity=".5" stroke-linejoin="round"/>' +
+      '<path d="M39 35l2.3 11 2.6-4.4 4.6.7z" fill="' + c[2] + '" stroke="' + c[3] + '" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+  };
 })();

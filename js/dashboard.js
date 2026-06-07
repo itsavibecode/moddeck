@@ -478,7 +478,8 @@
 
   // ---------- account header (real Kick login when configured) ----------
   function renderAccount() {
-    const action = $("#acctAction"), av = $("#acctAv");
+    const action = $("#acctAction"), av = $("#acctAv"), brandLogo = $("#brandLogo");
+    if (brandLogo && window.MD.logoSvg) brandLogo.innerHTML = MD.logoSvg();   // default brand mark
     const loggedOut = () => {
       $("#acctName").textContent = "Demo mode";
       $("#badges").innerHTML = `<span class="pf off">NOT SIGNED IN</span>`;
@@ -491,6 +492,7 @@
       if (user) {
         const p = MD.auth.profile() || {};
         $("#acctName").textContent = p.username || user.displayName || "Streamer";
+        if (brandLogo && window.MD.logoSvg) brandLogo.innerHTML = MD.logoSvg(p.platform);  // platform-themed
         $("#badges").innerHTML = `<span class="pf k">KICK</span>`;
         if (p.picture) av.style.backgroundImage = `url("${p.picture}")`;
         action.innerHTML = `<a id="logout" style="font-size:11px;color:var(--accent);cursor:pointer;font-weight:600">Log out</a> <span style="font-size:10px;color:var(--ink-faint)">· synced</span>`;

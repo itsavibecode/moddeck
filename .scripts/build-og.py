@@ -14,10 +14,9 @@ ICON = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
     <stop offset="0" stop-color="#6d6dff"/><stop offset="1" stop-color="#5b5bf0"/></linearGradient></defs>
   <rect x="4" y="4" width="56" height="56" rx="15" fill="url(#g)"/>
-  <rect x="18" y="17" width="28" height="22" rx="4" fill="#fff"/>
-  <circle cx="24" cy="24" r="3" fill="#5b5bf0"/>
-  <rect x="18" y="45" width="28" height="5" rx="2.5" fill="#fff" opacity="0.92"/>
-  <rect x="18" y="45" width="11" height="5" rx="2.5" fill="#0fb5a8"/></svg>'''
+  <path d="M32 13 51 23 32 33 13 23z" fill="#fff"/>
+  <path d="M13 29.5 32 39.5 51 29.5" fill="none" stroke="#fff" stroke-width="3" opacity="0.5" stroke-linejoin="round"/>
+  <path d="M39 35l2.3 11 2.6-4.4 4.6.7z" fill="#0fb5a8" stroke="#11131c" stroke-width="1.2" stroke-linejoin="round"/></svg>'''
 
 # ---- 1200x630 OG card ----
 OG = '''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
@@ -31,14 +30,13 @@ OG = '''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBo
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect width="1200" height="630" fill="url(#glow)"/>
-  <g transform="translate(90,150)">
-    <rect x="0" y="0" width="96" height="96" rx="26" fill="url(#g)"/>
-    <rect x="24" y="22" width="48" height="38" rx="7" fill="#fff"/>
-    <circle cx="34" cy="32" r="5" fill="#5b5bf0"/>
-    <rect x="24" y="70" width="48" height="9" rx="4.5" fill="#fff" opacity="0.92"/>
-    <rect x="24" y="70" width="19" height="9" rx="4.5" fill="#0fb5a8"/>
+  <g transform="translate(90,150) scale(1.5)">
+    <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#g)"/>
+    <path d="M32 13 51 23 32 33 13 23z" fill="#fff"/>
+    <path d="M13 29.5 32 39.5 51 29.5" fill="none" stroke="#fff" stroke-width="3" opacity="0.5" stroke-linejoin="round"/>
+    <path d="M39 35l2.3 11 2.6-4.4 4.6.7z" fill="#0fb5a8" stroke="#11131c" stroke-width="1.2" stroke-linejoin="round"/>
   </g>
-  <text x="210" y="222" font-family="Inter,Arial,sans-serif" font-size="76" font-weight="900" fill="#fff" letter-spacing="-2">Mod<tspan fill="#8b8bff">Deck</tspan></text>
+  <text x="214" y="222" font-family="Inter,Arial,sans-serif" font-size="76" font-weight="900" fill="#fff" letter-spacing="-2">ModDeck</text>
   <text x="92" y="330" font-family="Inter,Arial,sans-serif" font-size="44" font-weight="800" fill="#eef0f8" letter-spacing="-1">From Mod to Director.</text>
   <text x="92" y="392" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="500" fill="#9aa0b8">Browser-based stream-overlay control. Drop one source into OBS,</text>
   <text x="92" y="430" font-family="Inter,Arial,sans-serif" font-size="27" font-weight="500" fill="#9aa0b8">then run the show together — live.</text>
