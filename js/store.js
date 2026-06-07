@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.9.0";
+  window.MD.VERSION = "0.10.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -35,15 +35,18 @@
     customcode: { w: 480, h: 300, props: { html: "<div class=\"mdc\">Custom HTML widget</div>",
              css: ".mdc{display:grid;place-items:center;height:100%;color:#fff;font:800 30px Inter,sans-serif}", js: "" } },
     draw:  { w: 1920, h: 1080, props: { strokes: [] } },   // telestrator layer (created by the pen tool)
+    emojicombo: { w: 460, h: 120, props: { comboTimeout: 5000, startAt: 3, max: 5,
+             bg: "rgba(10,12,22,.72)", color: "#ffffff", accent: "#0fb5a8" } },
     wheel: { w: 440, h: 500, props: { segments: "Nitro\n100 bits\nShoutout\nNothing\nFollow\nSub gift",
              winner: 0, spinSeq: 0, accent: "#5b5bf0", color: "#ffffff" } },
   };
   const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat",
              progress:"Progress Goal", ticker:"Ticker", todo:"To-Do List", tally:"Tally", poll:"Live Poll", alertbox:"Alert Box",
-             qr:"QR Code", eventlist:"Event List", browser:"Browser", customcode:"Custom Code", draw:"Drawing", wheel:"Prize Wheel" };
+             qr:"QR Code", eventlist:"Event List", browser:"Browser", customcode:"Custom Code", draw:"Drawing", wheel:"Prize Wheel",
+             emojicombo:"Emoji Combo" };
   const ICONS  = { text:"📝", image:"🖼️", video:"🎬", timer:"⏱️", shape:"⬛", chat:"💬",
              progress:"🎯", ticker:"📰", todo:"✅", tally:"🔢", poll:"📊", alertbox:"🔔",
-             qr:"🔳", eventlist:"📋", browser:"🌐", customcode:"💻", wheel:"🎡" };
+             qr:"🔳", eventlist:"📋", browser:"🌐", customcode:"💻", wheel:"🎡", emojicombo:"🔥" };
 
   // ---- state ----
   // a "board" = { order:[ids], els:{id:el} }. We keep staging (editable) + live (broadcast).

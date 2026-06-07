@@ -432,6 +432,55 @@
     update(el); return { node: n, update, destroy() { clearTimeout(win._t); } };
   };
 
+  // Emote combo counter — watches chat for repeated emotes and shows live "xN" combos.
+  // Fed by the demo generator today; when real chat is wired, call MD.pushEmote(emoteKey, {img,url})
+  // and set MD.chatConnected = true (the demo generator then stands down).
+  window.MD.emoteSinks = window.MD.emoteSinks || new Set();
+  window.MD.pushEmote = function (key, opts) { window.MD.emoteSinks.forEach(fn => { try { fn(key, opts); } catch {} }); };
+  R.emojicombo = function (el) {
+    const POOL = ["🔥", "😂", "💀", "🎉", "👀", "🤣", "😭", "🗿", "💚", "❤️"];
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:16px;border-radius:12px;padding:8px 14px;box-sizing:border-box;overflow:hidden";
+    let cur = el; const combos = new Map(); let hot = POOL[0], lastSpawn = 0;
+    function ingest(key, amt) { const c = combos.get(key) || { count: 0, last: 0 }; c.count += (amt || 1); c.last = Date.now(); combos.set(key, c); }
+    window.MD.emoteSinks.add(ingest);
+    function demo() {
+      if (window.MD.chatConnected) return;                 // real chat takes over when connected
+      const now = Date.now();
+      if (now - lastSpawn > 350 + Math.random() * 420) {
+        lastSpawn = now;
+        if (Math.random() < 0.12) hot = POOL[Math.floor(Math.random() * POOL.length)];
+        ingest(hot, 1 + Math.floor(Math.random() * 3));
+        if (Math.random() < 0.4) ingest(POOL[Math.floor(Math.random() * POOL.length)], 1);
+      }
+    }
+    function render() {
+      const p = cur.props; n.style.background = p.bg;
+      const now = Date.now(), to = p.comboTimeout || 5000;
+      for (const [k, c] of combos) if (now - c.last > to) combos.delete(k);
+      const active = [...combos.entries()].filter(([, c]) => c.count >= (p.startAt || 3))
+        .sort((a, b) => b[1].count - a[1].count).slice(0, p.max || 5);
+      n.innerHTML = "";
+      if (!active.length) return;
+      const maxC = active[0][1].count;
+      active.forEach(([k, c]) => {
+        const lead = c.count === maxC;
+        const chip = document.createElement("div");
+        chip.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .2s" + (lead ? ";transform:scale(1.18)" : "");
+        const e = document.createElement("div");
+        e.style.cssText = `font-size:${lead ? 46 : 34}px;line-height:1` + (lead ? `;filter:drop-shadow(0 0 10px ${p.accent})` : "");
+        if (/^https?:/.test(k)) { e.innerHTML = `<img src="${k}" style="height:1em;width:auto;vertical-align:middle">`; } else e.textContent = k;
+        const cnt = document.createElement("div"); cnt.textContent = "x" + c.count;
+        cnt.style.cssText = `font-size:${lead ? 21 : 15}px;font-weight:800;color:${p.accent}`;
+        chip.appendChild(e); chip.appendChild(cnt); n.appendChild(chip);
+      });
+    }
+    function tick() { demo(); render(); }
+    function update(el) { cur = el; render(); }
+    tickers.add(tick); update(el);
+    return { node: n, update, destroy() { tickers.delete(tick); window.MD.emoteSinks.delete(ingest); } };
+  };
+
   // =========================================================================
   function create(el) {
     const f = R[el.type]; if (!f) { const d = document.createElement("div"); d.textContent = el.type; return { node: d, update() {}, destroy() {} }; }

@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.10.0 — Emoji Combo widget
+- New **Emoji Combo** widget (🔥): watches chat for repeated emotes and shows live "xN" combos, with the
+  hottest emote emphasized — configurable show-after count, combo timeout, and max emotes. Real combo logic
+  runs on a demo feed today and switches to live Kick chat automatically when the chat phase lands (via the
+  `MD.pushEmote` hook). 18 widgets in the palette.
+
 ### v0.9.0 — Real Kick login (auth foundation)
 - **Kick OAuth login** end to end: PKCE in the browser → a **Cloudflare Worker** (`worker/`) exchanges
   the code with the client secret and mints a **Firebase custom token** → the browser signs into Firebase.

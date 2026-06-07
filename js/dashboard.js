@@ -17,7 +17,7 @@
   const PALETTE = [
     ["chat", "💬", "Combined Chat"], ["alertbox", "🔔", "Alert Box"], ["timer", "⏱️", "Timer"],
     ["progress", "🎯", "Goal Bar"], ["poll", "📊", "Live Poll"], ["todo", "✅", "To-Do"],
-    ["tally", "🔢", "Tally"], ["ticker", "📰", "Ticker"], ["eventlist", "📋", "Event List"],
+    ["tally", "🔢", "Tally"], ["emojicombo", "🔥", "Emoji Combo"], ["ticker", "📰", "Ticker"], ["eventlist", "📋", "Event List"],
     ["text", "📝", "Text"], ["image", "🖼️", "Image"], ["video", "🎬", "Video"],
     ["shape", "⬛", "Shape"], ["wheel", "🎡", "Prize Wheel"], ["qr", "🔳", "QR Code"],
     ["browser", "🌐", "Browser"], ["customcode", "💻", "Custom Code"],
@@ -394,6 +394,14 @@
       add(labeled("Accent (winner text)", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
       note.innerHTML = "Spin fires on the live overlay too — viewers see the same result. Chat <code>!spin</code> wiring comes with the bot phase.";
+      add(note);
+    } else if (elx.type === "emojicombo") {
+      add(labeled("Show after (count)", range(p.startAt, 2, 25, 1, v => upp({ startAt: v }))));
+      add(labeled("Combo timeout (ms)", numInput(p.comboTimeout, v => upp({ comboTimeout: v }))));
+      add(labeled("Max emotes shown", range(p.max, 1, 8, 1, v => upp({ max: v }))));
+      add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+      const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
+      note.innerHTML = "Counts emotes spammed in chat and shows live combos. Showing a <b>demo feed</b> — it switches to your real Kick chat when the chat phase lands.";
       add(note);
     }
   }
