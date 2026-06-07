@@ -96,7 +96,7 @@
     }
 
     wireMods(target, user);
-    if (amOwner) startBotRunner(target);   // run the chatbot from the streamer's session
+    if (amOwner) { startBotRunner(target); startMediaController(); }   // run the chatbot + media auto-advance from the streamer's session
     toast(amOwner ? "Real-time sync on" : "Editing as mod", "ok");
   }
 
@@ -420,11 +420,61 @@
     const m = String(u || "").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{6,})/);
     return m ? m[1] : null;
   }
+  // ---- media auto-advance (owner's dashboard drives it; overlay is unauthed so can't self-advance) ----
+  // A hidden, muted YouTube player mirrors /media/now to detect when a video ends, then plays the next
+  // approved request. A duration timer is a fallback in case the tab is backgrounded and ENDED is throttled.
+  let _ytReady = null, _ytPlayer = null, _mediaCtrl = false, _mediaQ = {}, _advTimer = null;
+  function autoAdvanceOn() { return localStorage.getItem(keyOf("mediaAuto")) !== "0"; }   // default on
+  function loadYT() {
+    if (_ytReady) return _ytReady;
+    _ytReady = new Promise(function (res) {
+      if (window.YT && window.YT.Player) return res();
+      window.onYouTubeIframeAPIReady = function () { res(); };
+      const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(s);
+    });
+    return _ytReady;
+  }
+  function nextApprovedId() {
+    const ids = Object.keys(_mediaQ).filter(id => (_mediaQ[id].status || "") === "approved");
+    ids.sort((a, b) => (_mediaQ[a].t || 0) - (_mediaQ[b].t || 0));
+    return ids[0];
+  }
+  function advanceMedia() {
+    const id = nextApprovedId();
+    if (id) { const it = _mediaQ[id]; SY.playMedia({ videoId: it.videoId, title: it.title, requester: it.requester, amount: it.amount }); SY.updateMedia(id, { status: "played" }); }
+    else SY.stopMedia();
+  }
+  function startMediaController() {
+    if (_mediaCtrl) return; _mediaCtrl = true;
+    SY.onMediaQueue(q => { _mediaQ = q || {}; });
+    SY.onMediaNow(now => {
+      clearTimeout(_advTimer);
+      if (!autoAdvanceOn() || !now || !now.videoId) return;
+      loadYT().then(() => {
+        let hold = document.getElementById("ytctrl");
+        if (!hold) { hold = document.createElement("div"); hold.id = "ytctrl"; hold.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:1px;height:1px"; document.body.appendChild(hold); }
+        if (!_ytPlayer) {
+          _ytPlayer = new YT.Player(hold, {
+            height: "1", width: "1", videoId: now.videoId, playerVars: { autoplay: 1, mute: 1 },
+            events: {
+              onReady: e => { try { e.target.mute(); e.target.playVideo(); } catch (_) {} },
+              onStateChange: e => {
+                if (e.data === YT.PlayerState.PLAYING) { try { const d = _ytPlayer.getDuration(); if (d > 0) { clearTimeout(_advTimer); _advTimer = setTimeout(advanceMedia, (d + 2) * 1000); } } catch (_) {} }
+                if (e.data === YT.PlayerState.ENDED) { clearTimeout(_advTimer); advanceMedia(); }
+              },
+            },
+          });
+        } else { try { _ytPlayer.loadVideoById(now.videoId); _ytPlayer.mute(); } catch (_) {} }
+      });
+    });
+  }
+
   function wireMedia() {
     $("#mediaBtn").onclick = () => {
       const back = el("div", "modal-back");
       back.innerHTML = `<div class="modal" style="max-width:620px">
         <h3>📺 Media Queue</h3>
+        <label style="display:flex;gap:7px;align-items:center;font-size:11.5px;color:var(--ink-dim);cursor:pointer;margin-bottom:12px"><input type="checkbox" id="mAuto"> Auto-advance to the next approved video when one ends</label>
         <div id="mNowWrap" style="margin-bottom:12px"></div>
         <div style="font-weight:800;font-size:13px;margin-bottom:7px">Requests</div>
         <div id="mList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px;max-height:300px;overflow:auto"></div>
@@ -464,6 +514,8 @@
       }
       SY.onMediaQueue(q => { queue = q || {}; paintList(); });
       SY.onMediaNow(v => { now = v; paintNow(); });
+      const autoCb = $("#mAuto", back); autoCb.checked = autoAdvanceOn();
+      autoCb.onchange = () => { localStorage.setItem(keyOf("mediaAuto"), autoCb.checked ? "1" : "0"); toast(autoCb.checked ? "Auto-advance on" : "Auto-advance off"); };
       $("#mTestAdd", back).onclick = () => {
         const u = $("#mTestUrl", back).value.trim(); const vid = ytId(u); if (!vid) { toast("Not a YouTube link", "err"); return; }
         SY.pushMedia({ videoId: vid, title: "Test request", requester: "you", amount: 0, status: "pending" });

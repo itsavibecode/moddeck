@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.26.0 — Media Share auto-advance
+- Approved videos now play **back-to-back automatically** — when one ends, the next approved request starts.
+  Driven from the streamer's dashboard via a hidden, muted YouTube player that detects the end (with a
+  duration-based fallback for backgrounded tabs). Toggle in the Media Queue (on by default).
+
 ### v0.25.0 — Chatbot posting (live)
 - The chatbot now **actually posts to Kick chat** as the ModDeck bot: timed messages fire on their interval
   and `!commands` are answered from live chat (with cooldowns), while the streamer's dashboard is open.
