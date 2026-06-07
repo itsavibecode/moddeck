@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.23.0 — Chatbot foundation
+- New **🤖 Chatbot** panel: define **commands** (`!trigger` → reply, with cooldown) and **timed messages**
+  (post every N minutes), each toggleable on/off. Saved per channel.
+- This release ships the **config layer**; actually posting to Kick chat turns on once the ModDeck bot is
+  connected to your Kick app (the chat-posting layer is the next step).
+
 ### v0.22.0 — Custom alerts (sound, text, GIF)
 - Each alert event (Follow, Sub, Resub, Gift subs, Kicks) now has its own **icon, message, sound effect,
   and optional GIF** in the Alert Box properties, each toggleable on/off.

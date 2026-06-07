@@ -301,6 +301,82 @@
     };
   }
 
+  // ---------- chatbot (commands + timed messages) ----------
+  function botCommands() { try { return JSON.parse(localStorage.getItem(keyOf("botCommands")) || "[]"); } catch { return []; } }
+  function saveBotCommands(a) { localStorage.setItem(keyOf("botCommands"), JSON.stringify(a)); }
+  function botTimers() { try { return JSON.parse(localStorage.getItem(keyOf("botTimers")) || "[]"); } catch { return []; } }
+  function saveBotTimers(a) { localStorage.setItem(keyOf("botTimers"), JSON.stringify(a)); }
+  function wireBot() {
+    $("#botBtn").onclick = () => {
+      const back = el("div", "modal-back");
+      back.innerHTML = `<div class="modal" style="max-width:600px">
+        <h3>🤖 Chatbot</h3>
+        <div style="font-size:11px;color:var(--ink-faint);background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin-bottom:14px">
+          Define your bot here now. <b>Posting to chat turns on</b> once the ModDeck bot is connected to your Kick app (one-time setup — coming next).</div>
+
+        <div style="font-weight:800;font-size:13px;margin-bottom:7px">⌨️ Commands</div>
+        <div id="cmdList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px;max-height:200px;overflow:auto"></div>
+        <div style="display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap">
+          <input id="cmdTrig" placeholder="!discord" style="flex:1;min-width:90px;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
+          <input id="cmdReply" placeholder="Join: discord.gg/…" style="flex:2;min-width:140px;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
+          <input id="cmdCd" type="number" value="30" title="cooldown (s)" style="width:70px;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
+          <button class="primary" id="cmdAdd" style="border:none;background:var(--accent);color:#fff;border-radius:8px;padding:0 14px;font-weight:700">Add</button>
+        </div>
+
+        <div style="font-weight:800;font-size:13px;margin-bottom:7px">⏲️ Timed messages</div>
+        <div id="timList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px;max-height:200px;overflow:auto"></div>
+        <div style="display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap">
+          <input id="timText" placeholder="Don't forget to follow! 💜" style="flex:2;min-width:160px;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
+          <input id="timEvery" type="number" value="10" title="every N minutes" style="width:80px;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
+          <button class="primary" id="timAdd" style="border:none;background:var(--accent);color:#fff;border-radius:8px;padding:0 14px;font-weight:700">Add</button>
+        </div>
+        <div class="mrow"><button id="botClose" class="primary">Done</button></div>
+      </div>`;
+      document.body.appendChild(back);
+      back.onclick = (e) => { if (e.target === back) back.remove(); };
+      const toggleChip = (on) => `<span style="font-size:9px;font-weight:800;padding:2px 7px;border-radius:20px;background:${on ? "#16331a" : "#3a3030"};color:${on ? "#7dff5a" : "#ff8a8a"}">${on ? "ON" : "OFF"}</span>`;
+      function renderCmds() {
+        const host = $("#cmdList", back), arr = botCommands(); host.innerHTML = "";
+        if (!arr.length) { host.appendChild(el("div", "list-empty", "No commands yet.")); return; }
+        arr.forEach((c, i) => {
+          const row = el("div"); row.style.cssText = "display:flex;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px";
+          row.innerHTML = `<b style="font-size:12px;color:var(--accent)">${c.trigger}</b><span style="flex:1;font-size:11.5px;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.reply}</span><span style="font-size:10px;color:var(--ink-faint)">${c.cooldown||0}s</span>`;
+          const tog = el("button", null, toggleChip(c.on !== false)); tog.style.cssText = "border:none;background:none;cursor:pointer;padding:0";
+          tog.onclick = () => { const a = botCommands(); a[i].on = a[i].on === false; saveBotCommands(a); renderCmds(); };
+          const del = el("button", null, "✕"); del.style.cssText = "border:1px solid var(--line2);background:#fff;color:var(--ink-faint);border-radius:7px;padding:4px 8px";
+          del.onclick = () => { const a = botCommands(); a.splice(i, 1); saveBotCommands(a); renderCmds(); };
+          row.appendChild(tog); row.appendChild(del); host.appendChild(row);
+        });
+      }
+      function renderTimers() {
+        const host = $("#timList", back), arr = botTimers(); host.innerHTML = "";
+        if (!arr.length) { host.appendChild(el("div", "list-empty", "No timed messages yet.")); return; }
+        arr.forEach((t, i) => {
+          const row = el("div"); row.style.cssText = "display:flex;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px";
+          row.innerHTML = `<span style="flex:1;font-size:11.5px;color:var(--ink-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.text}</span><span style="font-size:10px;color:var(--ink-faint)">every ${t.everyMin||10}m</span>`;
+          const tog = el("button", null, toggleChip(t.on !== false)); tog.style.cssText = "border:none;background:none;cursor:pointer;padding:0";
+          tog.onclick = () => { const a = botTimers(); a[i].on = a[i].on === false; saveBotTimers(a); renderTimers(); };
+          const del = el("button", null, "✕"); del.style.cssText = "border:1px solid var(--line2);background:#fff;color:var(--ink-faint);border-radius:7px;padding:4px 8px";
+          del.onclick = () => { const a = botTimers(); a.splice(i, 1); saveBotTimers(a); renderTimers(); };
+          row.appendChild(tog); row.appendChild(del); host.appendChild(row);
+        });
+      }
+      renderCmds(); renderTimers();
+      $("#cmdAdd", back).onclick = () => {
+        let trig = ($("#cmdTrig", back).value || "").trim(); const reply = ($("#cmdReply", back).value || "").trim();
+        if (!trig || !reply) return; if (trig[0] !== "!") trig = "!" + trig;
+        const a = botCommands(); a.push({ trigger: trig.toLowerCase(), reply, cooldown: parseInt($("#cmdCd", back).value) || 0, on: true });
+        saveBotCommands(a); $("#cmdTrig", back).value = ""; $("#cmdReply", back).value = ""; renderCmds();
+      };
+      $("#timAdd", back).onclick = () => {
+        const text = ($("#timText", back).value || "").trim(); if (!text) return;
+        const a = botTimers(); a.push({ text, everyMin: Math.max(1, parseInt($("#timEvery", back).value) || 10), on: true });
+        saveBotTimers(a); $("#timText", back).value = ""; renderTimers();
+      };
+      $("#botClose", back).onclick = () => back.remove();
+    };
+  }
+
   // ---------- docs + settings ----------
   function wireMisc() {
     const d = $("#docsBtn"); if (d) d.onclick = () => window.open("docs.html", "_blank");
@@ -667,7 +743,7 @@
       content: $("#content"), ui: $("#ui"), dots: $("#dots"),
       onViewChange: (s) => { $("#zoomVal").textContent = Math.round(s * 100) + "%"; },
     });
-    buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireMisc();
+    buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireBot(); wireMisc();
     // auto-clip feedback (real clip-cut via the platform API lands in the bot phase)
     window.MD.fireClip = function (info) { toast("📎 Auto-clip: " + (info && info.emote) + " ×" + (info && info.count) + " (demo)", "ok"); try { SY.publishClip(info || {}); } catch (e) {} };
     renderAccount(); renderLists(); updateLivePill(false);
