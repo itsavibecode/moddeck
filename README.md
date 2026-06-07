@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.17.0 — Auto-clip on emote threshold
+- The **Emoji Combo** widget can now **auto-clip** hype moments: set an "Auto-clip at" emote count and it
+  fires once when a combo crosses it (with a Test button). The trigger plumbing + `MD.fireClip` hook ship
+  now; the actual clip-cut activates with live chat + the platform clip API in the bot phase (Twitch's
+  Create Clip is official; Kick when available).
+
 ### v0.16.4 — Richer landing demo
 - The landing hero mock now showcases more widgets — added a **Viewer Count** and an **Emoji Combo** strip
   alongside the goal bar, timer, and chat — so visitors see ModDeck's variety at a glance.

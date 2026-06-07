@@ -425,8 +425,13 @@
       add(labeled("Combo timeout (ms)", numInput(p.comboTimeout, v => upp({ comboTimeout: v }))));
       add(labeled("Max emotes shown", range(p.max, 1, 8, 1, v => upp({ max: v }))));
       add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+      add(labeled("Auto-clip at (count, 0 = off)", numInput(p.clipAt || 0, v => upp({ clipAt: v }))));
+      const clipBtn = el("button", null, "📎 Test auto-clip");
+      clipBtn.style.cssText = "width:100%;padding:9px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:700;color:var(--ink-dim);font-size:11px";
+      clipBtn.onclick = () => { if (window.MD.fireClip) MD.fireClip({ emote: "🔥", count: p.clipAt || 50 }); };
+      add(labeled("", clipBtn));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
-      note.innerHTML = "Counts emotes spammed in chat and shows live combos. Showing a <b>demo feed</b> — it switches to your real Kick chat when the chat phase lands.";
+      note.innerHTML = "Counts emotes spammed in chat and shows live combos. <b>Auto-clip</b> fires when an emote hits your threshold — the actual clip is cut once live chat + the platform clip API are connected (bot phase). Demo feed for now.";
       add(note);
     } else if (elx.type === "discord") {
       add(labeled("Title", txt(p.title, v => upp({ title: v }))));
@@ -505,6 +510,8 @@
       onViewChange: (s) => { $("#zoomVal").textContent = Math.round(s * 100) + "%"; },
     });
     buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireMisc();
+    // auto-clip feedback (real clip-cut via the platform API lands in the bot phase)
+    window.MD.fireClip = function (info) { toast("📎 Auto-clip: " + (info && info.emote) + " ×" + (info && info.count) + " (demo)", "ok"); };
     renderAccount(); renderLists(); updateLivePill(false);
     S.on("select", renderProps); renderProps();
     // persist staging on edits, and restore it on load (so a refresh never loses your layout)

@@ -437,11 +437,13 @@
   // and set MD.chatConnected = true (the demo generator then stands down).
   window.MD.emoteSinks = window.MD.emoteSinks || new Set();
   window.MD.pushEmote = function (key, opts) { window.MD.emoteSinks.forEach(fn => { try { fn(key, opts); } catch {} }); };
+  // auto-clip hook — overridden by the dashboard (and, in the bot phase, calls the platform clip API)
+  window.MD.fireClip = window.MD.fireClip || function () {};
   R.emojicombo = function (el) {
     const POOL = ["🔥", "😂", "💀", "🎉", "👀", "🤣", "😭", "🗿", "💚", "❤️"];
     const n = document.createElement("div");
     n.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:16px;border-radius:12px;padding:8px 14px;box-sizing:border-box;overflow:hidden";
-    let cur = el; const combos = new Map(); let hot = POOL[0], lastSpawn = 0;
+    let cur = el; const combos = new Map(), clipped = new Set(); let hot = POOL[0], lastSpawn = 0;
     function ingest(key, amt) { const c = combos.get(key) || { count: 0, last: 0 }; c.count += (amt || 1); c.last = Date.now(); combos.set(key, c); }
     window.MD.emoteSinks.add(ingest);
     function demo() {
@@ -457,9 +459,11 @@
     function render() {
       const p = cur.props; n.style.background = p.bg;
       const now = Date.now(), to = p.comboTimeout || 5000;
-      for (const [k, c] of combos) if (now - c.last > to) combos.delete(k);
+      for (const [k, c] of combos) if (now - c.last > to) { combos.delete(k); clipped.delete(k); }
       const active = [...combos.entries()].filter(([, c]) => c.count >= (p.startAt || 3))
         .sort((a, b) => b[1].count - a[1].count).slice(0, p.max || 5);
+      // auto-clip: fire once when an emote's combo crosses the threshold
+      if (p.clipAt > 0) active.forEach(([k, c]) => { if (c.count >= p.clipAt && !clipped.has(k)) { clipped.add(k); try { window.MD.fireClip({ emote: k, count: c.count }); } catch (e) {} } });
       n.innerHTML = "";
       if (!active.length) return;
       const maxC = active[0][1].count;

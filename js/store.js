@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.16.4";
+  window.MD.VERSION = "0.17.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -35,7 +35,7 @@
     customcode: { w: 480, h: 300, props: { html: "<div class=\"mdc\">Custom HTML widget</div>",
              css: ".mdc{display:grid;place-items:center;height:100%;color:#fff;font:800 30px Inter,sans-serif}", js: "" } },
     draw:  { w: 1920, h: 1080, props: { strokes: [] } },   // telestrator layer (created by the pen tool)
-    emojicombo: { w: 460, h: 120, props: { comboTimeout: 5000, startAt: 3, max: 5,
+    emojicombo: { w: 460, h: 120, props: { comboTimeout: 5000, startAt: 3, max: 5, clipAt: 0,
              bg: "rgba(10,12,22,.72)", color: "#ffffff", accent: "#0fb5a8" } },
     discord: { w: 520, h: 150, props: { title: "⭐ STARRED IN DISCORD", accent: "#5865F2",
              bg: "rgba(15,16,24,.85)", color: "#ffffff", showAvatar: true, clearAfter: 0 } },
