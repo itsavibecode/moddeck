@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.16.3">
+<meta name="moddeck-version" content="0.16.4">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#5b5bf0">
@@ -72,7 +72,12 @@
 
   /* mock preview */
   .shot{max-width:980px;margin:26px auto 0;border-radius:18px;border:1px solid var(--line2);box-shadow:0 30px 70px rgba(20,25,45,.18);overflow:hidden;background:#11131c}
-  .muteBtn{position:absolute;top:12px;right:12px;z-index:3;background:rgba(10,12,22,.72);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px)}
+  .muteBtn{position:absolute;bottom:12px;right:12px;z-index:3;background:rgba(10,12,22,.72);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:7px 11px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px)}
+  .ov.viewers{top:40px;left:16px;display:flex;align-items:center;gap:6px;background:rgba(10,12,22,.7);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:5px 10px;color:#fff;font-size:12px;font-weight:800;backdrop-filter:blur(4px)}
+  .ov.combo{left:50%;bottom:14%;transform:translateX(-50%);display:flex;gap:16px;align-items:flex-end}
+  .ov.combo .c{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:10px;font-weight:800;color:#0fb5a8}
+  .ov.combo .c .e{font-size:24px;line-height:1}
+  .ov.combo .c.lead .e{font-size:30px;filter:drop-shadow(0 0 8px #0fb5a8)}
   .muteBtn:hover{background:rgba(91,91,240,.85)}
   .shot .bar{height:36px;background:#1b1e2a;display:flex;align-items:center;gap:7px;padding:0 14px}
   .shot .bar i{width:11px;height:11px;border-radius:50%;background:#3a3f52} .shot .bar i:nth-child(1){background:#ff5f57}.shot .bar i:nth-child(2){background:#febc2e}.shot .bar i:nth-child(3){background:#28c840}
@@ -162,6 +167,12 @@
       <div class="lbl">LIVE · 1920×1080</div>
       <div class="ov goal">⭐ Sub Goal — 340 / 500<div class="track"><div class="fill"></div></div></div>
       <div class="ov timer">12:04</div>
+      <div class="ov viewers">👁 <span style="color:#53fc18">1,240</span></div>
+      <div class="ov combo">
+        <div class="c lead"><span class="e">🔥</span>x18</div>
+        <div class="c"><span class="e">💀</span>x5</div>
+        <div class="c"><span class="e">😂</span>x3</div>
+      </div>
       <div class="ov chat"><div style="font-size:9px;letter-spacing:1px;color:#7c8bff;font-weight:800;margin-bottom:6px">COMBINED CHAT</div>
         <div id="heroChatLines"></div>
       </div>

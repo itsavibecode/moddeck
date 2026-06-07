@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.16.4 — Richer landing demo
+- The landing hero mock now showcases more widgets — added a **Viewer Count** and an **Emoji Combo** strip
+  alongside the goal bar, timer, and chat — so visitors see ModDeck's variety at a glance.
+
 ### v0.16.3 — Hero copy + audible demo clips
 - New, punchier hero line: "Approve your mods to control your overlay from a browser with one simple OBS
   source change."
