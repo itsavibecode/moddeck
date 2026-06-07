@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.11.0";
+  window.MD.VERSION = "0.12.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -37,16 +37,18 @@
     draw:  { w: 1920, h: 1080, props: { strokes: [] } },   // telestrator layer (created by the pen tool)
     emojicombo: { w: 460, h: 120, props: { comboTimeout: 5000, startAt: 3, max: 5,
              bg: "rgba(10,12,22,.72)", color: "#ffffff", accent: "#0fb5a8" } },
+    discord: { w: 520, h: 150, props: { title: "⭐ STARRED IN DISCORD", accent: "#5865F2",
+             bg: "rgba(15,16,24,.85)", color: "#ffffff", showAvatar: true, clearAfter: 0 } },
     wheel: { w: 440, h: 500, props: { segments: "Nitro\n100 bits\nShoutout\nNothing\nFollow\nSub gift",
              winner: 0, spinSeq: 0, accent: "#5b5bf0", color: "#ffffff" } },
   };
   const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat",
              progress:"Progress Goal", ticker:"Ticker", todo:"To-Do List", tally:"Tally", poll:"Live Poll", alertbox:"Alert Box",
              qr:"QR Code", eventlist:"Event List", browser:"Browser", customcode:"Custom Code", draw:"Drawing", wheel:"Prize Wheel",
-             emojicombo:"Emoji Combo" };
+             emojicombo:"Emoji Combo", discord:"Discord Highlights" };
   const ICONS  = { text:"📝", image:"🖼️", video:"🎬", timer:"⏱️", shape:"⬛", chat:"💬",
              progress:"🎯", ticker:"📰", todo:"✅", tally:"🔢", poll:"📊", alertbox:"🔔",
-             qr:"🔳", eventlist:"📋", browser:"🌐", customcode:"💻", wheel:"🎡", emojicombo:"🔥" };
+             qr:"🔳", eventlist:"📋", browser:"🌐", customcode:"💻", wheel:"🎡", emojicombo:"🔥", discord:"⭐" };
 
   // ---- state ----
   // a "board" = { order:[ids], els:{id:el} }. We keep staging (editable) + live (broadcast).

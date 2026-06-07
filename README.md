@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.12.0 — Discord Highlights widget
+- New **Discord Highlights** widget (⭐): shows messages your community "stars" in Discord on your stream,
+  Discord-blurple styled with avatar + name + message and an entrance animation. Configurable title, accent,
+  auto-clear, and avatar toggle. Demo-fed today via the `MD.pushHighlight` hook; goes live once the ModDeck
+  Discord bot is connected (a small always-on bot that watches ⭐ reactions and pushes them to your channel).
+  19 widgets in the palette.
+
 ### v0.11.0 — Real-time Firebase sync
 - On Kick login the dashboard switches from the local demo bus to **Firebase Realtime Database** sync on
   your own channel (`channelId == your uid`); **Push to Live** now writes to RTDB and any `overlay.html?c=<uid>`

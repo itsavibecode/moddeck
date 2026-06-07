@@ -481,6 +481,59 @@
     return { node: n, update, destroy() { tickers.delete(tick); window.MD.emoteSinks.delete(ingest); } };
   };
 
+  // Discord Highlights — shows messages your Discord community "stars" onto the stream.
+  // Demo-fed today; when the Discord bot is wired, call MD.pushHighlight({user, text, avatar, color})
+  // and set MD.discordConnected = true (the demo generator stands down).
+  window.MD.highlightSinks = window.MD.highlightSinks || new Set();
+  window.MD.pushHighlight = function (h) { window.MD.highlightSinks.forEach(fn => { try { fn(h); } catch {} }); };
+  R.discord = function (el) {
+    const POOL = [
+      { user: "Tylerm2s", text: "that clutch was actually insane 🔥", color: "#5865F2" },
+      { user: "nina.gg", text: "GG WP everyone, see you tomorrow", color: "#eb459e" },
+      { user: "void_", text: "pov: you just hit grandmaster", color: "#57f287" },
+      { user: "k3vin", text: "chat is so unhinged today lmaooo", color: "#faa61a" },
+    ];
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;align-items:center;border-radius:14px;padding:0;box-sizing:border-box;overflow:hidden;flex-direction:column";
+    const hd = document.createElement("div");
+    hd.style.cssText = "width:100%;font-size:12px;font-weight:800;letter-spacing:1.2px;padding:8px 16px 0;flex:none";
+    const card = document.createElement("div");
+    card.style.cssText = "flex:1;width:100%;display:flex;align-items:center;gap:14px;padding:8px 16px 14px;min-height:0";
+    const av = document.createElement("div");
+    av.style.cssText = "width:54px;height:54px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;color:#fff;background-size:cover;background-position:center";
+    const body = document.createElement("div"); body.style.cssText = "min-width:0;display:flex;flex-direction:column;gap:3px";
+    const who = document.createElement("div"); who.style.cssText = "font-size:18px;font-weight:800";
+    const msg = document.createElement("div"); msg.style.cssText = "font-size:16px;line-height:1.25;opacity:.95";
+    body.appendChild(who); body.appendChild(msg); card.appendChild(av); card.appendChild(body);
+    n.appendChild(hd); n.appendChild(card);
+    let cur = el, current = null, lastAt = 0, i = 0, lastDemo = 0;
+    function show(h) {
+      current = h; lastAt = Date.now();
+      const p = cur.props;
+      av.style.display = p.showAvatar ? "flex" : "none";
+      if (h.avatar) { av.style.backgroundImage = `url("${h.avatar}")`; av.textContent = ""; }
+      else { av.style.backgroundImage = "none"; av.style.background = h.color || p.accent; av.textContent = (h.user || "?")[0].toUpperCase(); }
+      who.textContent = h.user; who.style.color = h.color || p.accent;
+      msg.textContent = h.text; msg.style.color = p.color;
+      card.style.animation = "none"; void card.offsetWidth; card.style.animation = "md-alert-in .5s cubic-bezier(.2,.8,.2,1)";
+    }
+    function ingest(h) { show(h); }
+    window.MD.highlightSinks.add(ingest);
+    function tick() {
+      const p = cur.props;
+      if (!window.MD.discordConnected && Date.now() - lastDemo > 6000) { lastDemo = Date.now(); show(POOL[i++ % POOL.length]); }
+      if (current && p.clearAfter > 0 && Date.now() - lastAt > p.clearAfter * 1000) { current = null; n.style.visibility = "hidden"; }
+      else if (current) n.style.visibility = "visible";
+    }
+    function update(el) {
+      cur = el; const p = el.props; n.style.background = p.bg;
+      hd.textContent = p.title; hd.style.color = p.accent;
+      if (current) show(current);
+    }
+    tickers.add(tick); update(el);
+    return { node: n, update, destroy() { tickers.delete(tick); window.MD.highlightSinks.delete(ingest); } };
+  };
+
   // =========================================================================
   function create(el) {
     const f = R[el.type]; if (!f) { const d = document.createElement("div"); d.textContent = el.type; return { node: d, update() {}, destroy() {} }; }

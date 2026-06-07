@@ -19,8 +19,8 @@
     ["progress", "🎯", "Goal Bar"], ["poll", "📊", "Live Poll"], ["todo", "✅", "To-Do"],
     ["tally", "🔢", "Tally"], ["emojicombo", "🔥", "Emoji Combo"], ["ticker", "📰", "Ticker"], ["eventlist", "📋", "Event List"],
     ["text", "📝", "Text"], ["image", "🖼️", "Image"], ["video", "🎬", "Video"],
-    ["shape", "⬛", "Shape"], ["wheel", "🎡", "Prize Wheel"], ["qr", "🔳", "QR Code"],
-    ["browser", "🌐", "Browser"], ["customcode", "💻", "Custom Code"],
+    ["shape", "⬛", "Shape"], ["wheel", "🎡", "Prize Wheel"], ["discord", "⭐", "Discord Highlights"],
+    ["qr", "🔳", "QR Code"], ["browser", "🌐", "Browser"], ["customcode", "💻", "Custom Code"],
   ];
   function buildPalette() {
     const g = $("#palette"); g.innerHTML = "";
@@ -414,6 +414,16 @@
       add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
       note.innerHTML = "Counts emotes spammed in chat and shows live combos. Showing a <b>demo feed</b> — it switches to your real Kick chat when the chat phase lands.";
+      add(note);
+    } else if (elx.type === "discord") {
+      add(labeled("Title", txt(p.title, v => upp({ title: v }))));
+      add(labeled("Accent", swatchRow(["#5865F2", "#eb459e", "#57f287", "#faa61a", "#ffffff"], p.accent, c => upp({ accent: c }))));
+      add(labeled("Auto-clear after (sec, 0 = always show)", numInput(p.clearAfter, v => upp({ clearAfter: v }))));
+      const w = el("label"); w.style.cssText = "display:flex;gap:6px;align-items:center;font-size:11px;color:var(--ink-dim);cursor:pointer";
+      const cb = el("input"); cb.type = "checkbox"; cb.checked = p.showAvatar; cb.onchange = () => upp({ showAvatar: cb.checked });
+      w.appendChild(cb); w.appendChild(document.createTextNode("Show avatar")); add(labeled("", w));
+      const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
+      note.innerHTML = "Shows messages your community <b>stars</b> in Discord. Showing a <b>demo feed</b> — needs the ModDeck Discord bot to go live (see below).";
       add(note);
     }
   }
