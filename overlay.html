@@ -7,18 +7,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/overlay.css?v=0.15.0">
+<link rel="stylesheet" href="css/overlay.css?v=0.16.1">
 </head>
 <body>
-<div id="fit"><div id="stage"></div></div>
+<div id="fit"><div id="stage"></div><div id="wm"><img src="favicon.svg" alt="">ModDeck</div></div>
 <div id="hint">Waiting for <b>ModDeck</b>…<small>Open your dashboard and hit <b>Push to Live</b></small></div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-<script src="js/firebase-config.js?v=0.15.0"></script>
-<script src="js/widgets.js?v=0.15.0"></script>
-<script src="js/sync.js?v=0.15.0"></script>
+<script src="js/firebase-config.js?v=0.16.1"></script>
+<script src="js/widgets.js?v=0.16.1"></script>
+<script src="js/sync.js?v=0.16.1"></script>
 <script>
 (function () {
   const params = new URLSearchParams(location.search);
@@ -26,6 +26,7 @@
   const isPreview = params.get("preview") === "1";   // show the waiting hint only in-browser preview
   const stage = document.getElementById("stage"), fit = document.getElementById("fit"), hint = document.getElementById("hint");
   if (!isPreview) hint.style.display = "none";
+  if (params.get("nowm")) { const wm = document.getElementById("wm"); if (wm) wm.style.display = "none"; }
 
   // scale 1920x1080 to fit the window (OBS source is 1920x1080 => scale 1)
   function resize() {

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModDeck — Description Options</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f6f7fb;--ink:#12141d;--dim:#5b6173;--accent:#5b5bf0;--accent2:#0fb5a8;font-family:Inter,system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);padding:32px;max-width:900px;margin:0 auto}
+  h1{font-size:24px;font-weight:900;letter-spacing:-.5px}
+  .sub{color:var(--dim);font-size:14px;margin:4px 0 26px}
+  .opt{background:#fff;border:1px solid #e6e8f0;border-radius:14px;padding:20px 22px;margin-bottom:14px}
+  .opt .tag{display:inline-block;font-size:11px;font-weight:800;color:var(--accent);background:#ececfe;border-radius:6px;padding:2px 9px;margin-bottom:10px}
+  .opt .tag.cur{color:var(--dim);background:#eef0f5}
+  .head{font-size:clamp(22px,3.5vw,34px);font-weight:900;letter-spacing:-1px;line-height:1.05}
+  .head .g{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .desc{font-size:17px;color:var(--dim);margin-top:10px;line-height:1.5}
+  .words{font-size:11px;color:#aab0c0;margin-top:8px}
+</style>
+</head>
+<body>
+  <h1>ModDeck — pick a hero description</h1>
+  <div class="sub">Same headline, different sub-line. Shorter = better for low-attention scanning. Tell me a letter (or mix).</div>
+  <div id="list"></div>
+<script>
+var HEAD = 'Put your mods in the <span class="g">director\'s chair</span>';
+var OPTS = [
+  { t:"Current", cur:true, d:"ModDeck is a browser-based control deck for your stream overlay. Drop one source into OBS, then you and your trusted mods build and run the on-screen graphics live — without ever touching your OBS, audio, or stream keys." },
+  { t:"A · Shortest", d:"Your overlay. Your mods. One browser tab." },
+  { t:"B · One-liner", d:"One OBS source. You and your mods run the whole overlay, live — from any browser." },
+  { t:"C · Benefit-first", d:"Let your mods run your stream's graphics live, so you can focus on the content. No OBS access needed." },
+  { t:"D · What-it-does", d:"Control your overlay — chat, alerts, timers, wheels — from a browser, and hand your mods the controls." },
+  { t:"E · Punchy combo", d:"Run your stream overlay from one browser tab. Drop in one OBS source, invite your mods, go live. Zero plugins." },
+];
+document.getElementById("list").innerHTML = OPTS.map(function(o){
+  return '<div class="opt"><span class="tag '+(o.cur?'cur':'')+'">'+o.t+'</span>'+
+    '<div class="head">'+HEAD+'</div>'+
+    '<div class="desc">'+o.d+'</div>'+
+    '<div class="words">'+o.d.split(/\s+/).length+' words</div></div>';
+}).join("");
+</script>
+</body>
+</html>

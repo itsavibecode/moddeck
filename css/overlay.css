@@ -9,3 +9,8 @@ html,body{margin:0;height:100%;background:transparent;overflow:hidden}
   background:rgba(20,25,45,.5);padding:18px 26px;border-radius:14px;backdrop-filter:blur(4px)}
 #hint b{color:#7c8bff}
 #hint small{display:block;margin-top:6px;font-size:13px;opacity:.7;font-weight:500}
+/* subtle marketing watermark (bottom-right, low opacity, never covers content). Hide with ?nowm=1 */
+#wm{position:absolute;right:26px;bottom:20px;display:flex;align-items:center;gap:7px;z-index:9999;
+  opacity:.45;pointer-events:none;font-family:Inter,-apple-system,system-ui,sans-serif;font-weight:800;
+  font-size:21px;color:#fff;text-shadow:0 1px 5px rgba(0,0,0,.6)}
+#wm img{width:25px;height:25px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.55))}

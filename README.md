@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.16.1 — Subtle overlay watermark
+- A small, low-opacity **ModDeck watermark** in the overlay's bottom-right corner (marketing) — hide it with
+  `?nowm=1` on the overlay URL (for paid tiers later).
+
 ### v0.16.0 — Landing polish + BETA branding
 - Wordmark is one cohesive "ModDeck" again (dropped the two-tone split), with a candy-blue **BETA** badge
   and a **version pill** by the dashboard logo.
