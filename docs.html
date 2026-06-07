@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — Documentation</title>
 <meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
-<meta name="moddeck-version" content="0.24.0">
+<meta name="moddeck-version" content="0.25.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#5b5bf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -61,6 +61,7 @@
     <a href="#mods">Inviting mods</a>
     <a href="#alerts">Live alerts</a>
     <a href="#media">Media Share</a>
+    <a href="#chatbot">Chatbot</a>
     <a href="#staging">Staging &amp; Live</a>
     <a href="#controls">Canvas &amp; shortcuts</a>
     <a href="#widgets">Widget reference</a>
@@ -147,6 +148,25 @@
       <div class="note">Requires the same Kicks setup as alerts (the "Read KICKs" scope + webhook). A custom
       paid submit form (Stripe) is planned. Re-publish your Realtime Database rules so the queue can be
       managed.</div>
+    </section>
+
+    <section id="chatbot">
+      <h2>Chatbot</h2>
+      <p>Open <b>🤖 Chatbot</b> (right panel) to set up two things, posted by the ModDeck bot in your chat:</p>
+      <ul>
+        <li><b>Commands</b> — a <code>!trigger</code> and the reply the bot posts, with a per-command cooldown.</li>
+        <li><b>Timed messages</b> — text the bot posts every N minutes (great for socials/Discord reminders).</li>
+      </ul>
+      <p>The bot runs while <b>your dashboard is open</b>. Command edits apply instantly; timed-message changes
+      apply after a reload.</p>
+      <h3>One-time setup</h3>
+      <ol>
+        <li>On your <a href="https://kick.com/settings/developer" target="_blank" rel="noopener">Kick app</a>,
+          check <b>"Write to Chat feed"</b> (and, if you haven't, click <b>Create a BOT for this App</b>).</li>
+        <li><b>Sign out and back in</b> to ModDeck so your login grants the new posting permission.</li>
+      </ol>
+      <div class="note">Your mods can edit the bot, but it only posts from the streamer's open session (one
+      poster, so messages never double up).</div>
     </section>
 
     <section id="staging">

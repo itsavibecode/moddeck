@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.24.0";
+  window.MD.VERSION = "0.25.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----

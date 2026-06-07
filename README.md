@@ -66,6 +66,14 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.25.0 — Chatbot posting (live)
+- The chatbot now **actually posts to Kick chat** as the ModDeck bot: timed messages fire on their interval
+  and `!commands` are answered from live chat (with cooldowns), while the streamer's dashboard is open.
+- New worker `/kick/say` endpoint posts with the streamer's stored Kick token (`type:"bot"`), gated by
+  **Firebase ID-token verification** (caller must be the channel owner or a mod). Kick tokens are stored in a
+  locked `/bot_tokens` path and auto-refreshed.
+- Setup: tick **"Write to Chat feed"** on your Kick app and **sign in again** to grant `chat:write`.
+
 ### v0.24.0 — Media Share (native PowerChat)
 - New **📺 Media Share** widget + **Media Queue** panel. Viewers request a video by sending **Kicks with a
   YouTube link** in the message; the worker parses the link (title via YouTube oEmbed) into a per-channel

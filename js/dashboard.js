@@ -96,6 +96,7 @@
     }
 
     wireMods(target, user);
+    if (amOwner) startBotRunner(target);   // run the chatbot from the streamer's session
     toast(amOwner ? "Real-time sync on" : "Editing as mod", "ok");
   }
 
@@ -307,13 +308,49 @@
   function saveBotCommands(a) { localStorage.setItem(keyOf("botCommands"), JSON.stringify(a)); }
   function botTimers() { try { return JSON.parse(localStorage.getItem(keyOf("botTimers")) || "[]"); } catch { return []; } }
   function saveBotTimers(a) { localStorage.setItem(keyOf("botTimers"), JSON.stringify(a)); }
+  // runs the bot while the streamer's dashboard is open: fires timed messages + answers !commands.
+  // Posts via the worker (which holds the Kick token); only the owner runs it to avoid double-posting.
+  let _botRunner = false;
+  function botSay(cid, text) {
+    if (!window.firebase || !firebase.auth || !firebase.auth().currentUser) return;
+    firebase.auth().currentUser.getIdToken().then(function (idToken) {
+      fetch((window.MD.config && MD.config.workerUrl) + "/kick/say", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cid: cid, text: text, idToken: idToken }),
+      }).catch(function () {});
+    }).catch(function () {});
+  }
+  function startBotRunner(cid) {
+    if (_botRunner) return; _botRunner = true;
+    // timed messages — stagger initial fires so they don't all post at once
+    botTimers().forEach(function (t, i) {
+      if (t.on === false) return;
+      const ms = Math.max(1, t.everyMin || 10) * 60000;
+      setTimeout(function () { botSay(cid, t.text); setInterval(function () { botSay(cid, t.text); }, ms); }, (i + 1) * 15000);
+    });
+    // commands — answer triggers from live chat (re-reads config each message so edits apply)
+    const lastFired = {};
+    if (window.MD.chat && MD.chat.onMessage) MD.chat.onMessage(function (m) {
+      const text = ((m && m.text) || "").trim().toLowerCase();
+      if (text[0] !== "!") return;
+      const cmds = botCommands();
+      for (let i = 0; i < cmds.length; i++) {
+        const c = cmds[i]; if (c.on === false) continue;
+        if (text === c.trigger || text.indexOf(c.trigger + " ") === 0) {
+          const now = Date.now(), cd = (c.cooldown || 0) * 1000;
+          if (lastFired[c.trigger] && now - lastFired[c.trigger] < cd) return;
+          lastFired[c.trigger] = now; botSay(cid, c.reply); return;
+        }
+      }
+    });
+  }
   function wireBot() {
     $("#botBtn").onclick = () => {
       const back = el("div", "modal-back");
       back.innerHTML = `<div class="modal" style="max-width:600px">
         <h3>🤖 Chatbot</h3>
         <div style="font-size:11px;color:var(--ink-faint);background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin-bottom:14px">
-          Define your bot here now. <b>Posting to chat turns on</b> once the ModDeck bot is connected to your Kick app (one-time setup — coming next).</div>
+          The bot posts while your dashboard is open. <b>Enable "Write to Chat feed" on your Kick app + sign in again</b> to grant posting. Timed-message changes apply on reload; command changes apply live.</div>
 
         <div style="font-weight:800;font-size:13px;margin-bottom:7px">⌨️ Commands</div>
         <div id="cmdList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px;max-height:200px;overflow:auto"></div>

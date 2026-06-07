@@ -5,7 +5,7 @@
   window.MD.config = {
     kickClientId: "01KTFN1XEM335BE7QAKXD15G0H",
     kickRedirect: "https://moddeck.bookhockeys.com/auth/kick",
-    kickScope: "user:read channel:read events:subscribe kicks:read",
+    kickScope: "user:read channel:read events:subscribe kicks:read chat:write",
     workerUrl: "https://moddeck-worker.sevendwarfs.workers.dev",
   };
 })();

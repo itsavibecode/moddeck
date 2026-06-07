@@ -79,6 +79,15 @@ export default {
         let alerts = false;
         try { alerts = await subscribeKickEvents(tok.access_token); } catch (e) {}
 
+        // 5) store the user's Kick token (locked /bot_tokens path) so the worker can post chat on their
+        //    behalf later (chatbot). Needs the 'chat:write' scope; harmless to store even without it.
+        try {
+          await rtdbSet(env, "bot_tokens/" + uid, {
+            access_token: tok.access_token, refresh_token: tok.refresh_token || "",
+            expires_at: Math.floor(Date.now() / 1000) + (tok.expires_in || 3600), broadcaster_id: String(id),
+          });
+        } catch (e) {}
+
         return json({ firebaseToken, profile: { platform: "kick", id: String(id), uid, username, picture }, alerts }, 200, origin);
       } catch (e) {
         return json({ error: "exchange error", detail: String(e && e.message || e) }, 500, origin);
@@ -125,6 +134,29 @@ export default {
         }
       }
       return new Response("ok", { status: 200 });
+    }
+
+    // Chatbot: post a message to a channel's Kick chat as the bot. Caller must be the channel owner or a
+    // mod (verified via their Firebase ID token). We post with the OWNER's stored Kick token + type:"bot".
+    if (url.pathname === "/kick/say" && request.method === "POST") {
+      try {
+        const { cid, text, idToken } = await request.json();
+        if (!cid || !text || !idToken) return json({ error: "missing cid/text/idToken" }, 400, origin);
+        const uid = await verifyFirebaseIdToken(idToken, env.FIREBASE_PROJECT_ID);
+        if (!uid) return json({ error: "unauthorized" }, 401, origin);
+        let allowed = (uid === cid);
+        if (!allowed) { const mod = await rtdbGet(env, "channels/" + cid + "/mods/" + uid); allowed = !!mod; }
+        if (!allowed) return json({ error: "forbidden" }, 403, origin);
+        const token = await getValidKickToken(env, cid);
+        if (!token) return json({ error: "bot not connected" }, 503, origin);
+        const r = await fetch("https://api.kick.com/public/v1/chat", {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ content: String(text).slice(0, 500), type: "bot" }),
+        });
+        if (!r.ok) return json({ error: "kick send failed", detail: (await r.text()).slice(0, 200) }, 502, origin);
+        return json({ ok: true }, 200, origin);
+      } catch (e) { return json({ error: "say error", detail: String(e && e.message || e) }, 500, origin); }
     }
 
     return json({ error: "not found" }, 404, origin);
@@ -234,6 +266,56 @@ async function rtdbPush(env, path, value) {
     method: "POST", body: JSON.stringify(value),
   });
   return res.ok;
+}
+
+async function rtdbGet(env, path) {
+  const dbUrl = env.FIREBASE_DB_URL || ("https://" + env.FIREBASE_PROJECT_ID + "-default-rtdb.firebaseio.com");
+  const tok = await getAccessToken(env);
+  const res = await fetch(dbUrl + "/" + path + ".json?access_token=" + encodeURIComponent(tok));
+  if (!res.ok) return null;
+  return await res.json();
+}
+
+// ── Chatbot: Firebase ID-token verify (JWK) + Kick token refresh + send ───
+function b64urlToStr(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; return atob(s); }
+function b64urlToBytes(s) { const bin = b64urlToStr(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+let _fbJwks = null, _fbJwksExp = 0;
+async function getFirebaseJWKS() {
+  const now = Date.now();
+  if (_fbJwks && _fbJwksExp > now) return _fbJwks;
+  const r = await fetch("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com");
+  const j = await r.json(); _fbJwks = {};
+  (j.keys || []).forEach((k) => { _fbJwks[k.kid] = k; });
+  _fbJwksExp = now + 3600 * 1000;
+  return _fbJwks;
+}
+async function verifyFirebaseIdToken(idToken, projectId) {
+  try {
+    const parts = String(idToken).split("."); if (parts.length !== 3) return null;
+    const header = JSON.parse(b64urlToStr(parts[0]));
+    const payload = JSON.parse(b64urlToStr(parts[1]));
+    const now = Math.floor(Date.now() / 1000);
+    if (payload.aud !== projectId) return null;
+    if (payload.iss !== "https://securetoken.google.com/" + projectId) return null;
+    if (!payload.exp || payload.exp < now || !payload.sub) return null;
+    const jwk = (await getFirebaseJWKS())[header.kid]; if (!jwk) return null;
+    const key = await crypto.subtle.importKey("jwk", { kty: jwk.kty, n: jwk.n, e: jwk.e, alg: "RS256", ext: true }, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+    const ok = await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, b64urlToBytes(parts[2]), new TextEncoder().encode(parts[0] + "." + parts[1]));
+    return ok ? payload.sub : null;
+  } catch (e) { return null; }
+}
+async function getValidKickToken(env, cid) {
+  const rec = await rtdbGet(env, "bot_tokens/" + cid);
+  if (!rec || !rec.refresh_token) return null;
+  const now = Math.floor(Date.now() / 1000);
+  if (rec.access_token && rec.expires_at && rec.expires_at - 60 > now) return rec.access_token;
+  const form = new URLSearchParams({ grant_type: "refresh_token", client_id: env.KICK_CLIENT_ID, client_secret: env.KICK_CLIENT_SECRET, refresh_token: rec.refresh_token });
+  const r = await fetch("https://id.kick.com/oauth/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: form.toString() });
+  if (!r.ok) return null;
+  const t = await r.json();
+  const updated = { access_token: t.access_token, refresh_token: t.refresh_token || rec.refresh_token, expires_at: now + (t.expires_in || 3600), broadcaster_id: rec.broadcaster_id };
+  try { await rtdbSet(env, "bot_tokens/" + cid, updated); } catch (e) {}
+  return t.access_token;
 }
 
 // ── Media Share helpers ───────────────────────────────────────────────────
