@@ -26,7 +26,8 @@
   function buildPalette() {
     const g = $("#palette"); g.innerHTML = "";
     PALETTE.forEach(([type, icon, label]) => {
-      const b = el("button", "wbtn", `<span class="i">${icon}</span>${label}`);
+      const glyph = (window.MD.ICONS_SVG && window.MD.ICONS_SVG[type]) || icon;
+      const b = el("button", "wbtn", `<span class="i">${glyph}</span>${label}`);
       b.onclick = () => {
         const c = C.s2w(viewport.clientWidth / 2, viewport.clientHeight / 2);
         S.addElement(type, c); toast(`Added ${label}`);

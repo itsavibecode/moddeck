@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.15.0 — Line-SVG palette icons
+- Replaced the emoji widget icons with clean **line SVG icons** (tinted with the accent color, identical
+  on every device) across all 21 widgets — `js/icons.js`.
+
 ### v0.14.0 — Staging persistence
 - Your **staging canvas now saves automatically** (debounced) and restores on load, so refreshing the
   dashboard never loses your layout. Logged in → saved to your channel in Firebase RTDB (and used to seed
