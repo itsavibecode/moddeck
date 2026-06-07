@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.16.2 — Wordmark/BETA alignment
+- Vertically centered the **BETA** badge against the "ModDeck" wordmark (tightened wordmark line-height so
+  box-center matches optical-center) in both the landing nav and the dashboard.
+
 ### v0.16.1 — Subtle overlay watermark
 - A small, low-opacity **ModDeck watermark** in the overlay's bottom-right corner (marketing) — hide it with
   `?nowm=1` on the overlay URL (for paid tiers later).
