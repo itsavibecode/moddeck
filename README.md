@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.17.3 — New hero headline
+- Hero headline is now **"From Mod to Director"** (was "Put your mods in the director's chair"); regenerated
+  the OG/social card to match.
+
 ### v0.17.2 — Real viewer usernames on both clips
 - Each hero clip now has its own real-viewer demo chat: clip 1 (StrongDabs420, Hydroponicz, BotRix…),
   clip 2 (PogTX, piglover4919, FATCHOP, TheGOATSchizo, Neejoh, MJAYY5).
