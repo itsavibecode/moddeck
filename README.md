@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.19.0 — Real Kick chat 🎉
+- **Live Kick chat is now real.** A Worker endpoint resolves a channel's chatroom id, and `js/chat-kick.js`
+  reads the channel's public chat socket (Pusher) in the browser. The **Combined Chat** widget shows real
+  messages with **real Kick emote images**, name colors, and mod badges; the **Emoji Combo** counts real
+  emotes; and **auto-clip** fires on real spam. Demo feeds automatically stand down once chat connects.
+- Dashboard connects on login (and records the chatroom id); the overlay reads it and connects too.
+
 ### v0.18.2 — Auto-clip recording indicator
 - When an auto-clip fires, the overlay flashes a recording-style **pulsing red ● CLIP** dot in the corner
   for ~4s. Driven by a new synced `publishClip`/`onClip` cue (so it shows on the live overlay wherever the

@@ -227,28 +227,35 @@
     const list = document.createElement("div");
     list.style.cssText = "flex:1;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;padding:4px 11px 10px";
     n.appendChild(hd); n.appendChild(list);
-    let cur = el, feed = [], i = 0;
+    let cur = el, feed = [], i = 0, gotReal = false;
     function row(msg, p) {
       const r = document.createElement("div");
       r.style.cssText = "font-size:14px;line-height:1.3;color:" + p.text;
-      const dot = p.showPlatform ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${PCOLOR[msg.p]};margin-right:6px;vertical-align:middle"></span>` : "";
+      const dot = p.showPlatform ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${PCOLOR[msg.p] || p.accent};margin-right:6px;vertical-align:middle"></span>` : "";
       const modb = msg.mod ? `<span style="color:${p.accent};font-weight:800;margin-right:4px">⚔</span>` : "";
-      r.innerHTML = `${dot}${modb}<b style="color:${p.accent};font-weight:700">${esc(msg.u)}</b><span style="opacity:.6">:</span> ${esc(msg.m)}`;
+      let body = esc(msg.m);
+      (msg.emotes || []).forEach(e => { body = body.split(":" + e.name + ":").join(`<img src="https://files.kick.com/emotes/${e.id}/fullsize" alt="" style="height:1.25em;vertical-align:middle">`); });
+      r.innerHTML = `${dot}${modb}<b style="color:${msg.color || p.accent};font-weight:700">${esc(msg.u)}</b><span style="opacity:.6">:</span> ${body}`;
       return r;
     }
     function paint() {
       const p = cur.props; n.style.background = p.bg;
       hd.textContent = p.title; hd.style.color = p.accent;
-      while (list.children.length > (p.max || 8)) list.removeChild(list.firstChild);
-      feed.forEach(() => {});
       list.innerHTML = "";
       feed.slice(-(p.max || 8)).forEach(m => list.appendChild(row(m, p)));
     }
-    // sample feed grows over time so the overlay looks alive in Phase 1
+    // demo sample feed — stands down the moment real Kick chat connects
     let last = 0;
     function tick() {
+      if (window.MD.chatConnected) return;
       if (Date.now() - last > 2600) { last = Date.now(); feed.push(SAMPLE[i % SAMPLE.length]); i++; if (feed.length > 12) feed.shift(); paint(); }
     }
+    // real Kick chat (when the adapter is connected)
+    if (window.MD.chat && window.MD.chat.onMessage) window.MD.chat.onMessage(function (m) {
+      if (!gotReal) { gotReal = true; feed = []; }
+      feed.push({ p: m.platform, u: m.user, m: m.text, emotes: m.emotes, mod: m.mod, color: m.color });
+      if (feed.length > 14) feed.shift(); paint();
+    });
     function update(el) { cur = el; paint(); }
     feed = SAMPLE.slice(0, 4); tickers.add(tick); update(el);
     return { node: n, update, destroy() { tickers.delete(tick); } };

@@ -62,6 +62,11 @@
       if (board && board.order && board.order.length) S.loadIntoStaging(board);
       else scheduleStagingWrite();
     });
+    // connect this channel's real Kick chat + record the chatroom id so the overlay can connect too
+    const prof = MD.auth.profile() || {};
+    if (window.MD.chat && prof.username) MD.chat.connectBySlug(prof.username).then(function (roomId) {
+      if (roomId) { try { SY.publishMeta({ slug: prof.username, chatroomId: roomId }); } catch (e) {} toast("Kick chat connected 💬", "ok"); }
+    });
     toast("Real-time sync on", "ok");
   }
   // persist the staging canvas (debounced) to whatever backend is active (localStorage in demo, RTDB live)

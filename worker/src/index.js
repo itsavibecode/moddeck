@@ -80,6 +80,23 @@ export default {
       }
     }
 
+    // resolve a Kick channel's chatroom id (browser can't fetch kick.com/api — CORS — but can read the
+    // public Pusher chat socket once it has the chatroom id). Unofficial endpoint; may be rate-limited.
+    if (url.pathname === "/kick/chatroom" && request.method === "GET") {
+      const slug = (url.searchParams.get("slug") || "").toLowerCase().replace(/[^a-z0-9_]/g, "");
+      if (!slug) return json({ error: "missing slug" }, 400, origin);
+      try {
+        const r = await fetch("https://kick.com/api/v2/channels/" + slug, {
+          headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0 (compatible; ModDeck/1.0)" },
+        });
+        if (!r.ok) return json({ error: "kick channel lookup failed", status: r.status }, 502, origin);
+        const d = await r.json();
+        const chatroomId = d && d.chatroom && d.chatroom.id;
+        if (!chatroomId) return json({ error: "no chatroom id in response" }, 502, origin);
+        return json({ chatroomId, slug, userId: d.user_id || (d.user && d.user.id) || null }, 200, origin);
+      } catch (e) { return json({ error: "lookup error", detail: String(e && e.message || e) }, 500, origin); }
+    }
+
     return json({ error: "not found" }, 404, origin);
   },
 };
