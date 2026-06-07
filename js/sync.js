@@ -11,7 +11,7 @@
     const KEY = "moddeck:" + channelId + ":live";
     const SKEY = "moddeck:" + channelId + ":staging";
     const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("moddeck:" + channelId) : null;
-    const liveCbs = [], soundCbs = [], clipCbs = [];
+    const liveCbs = [], soundCbs = [], clipCbs = [], alertCbs = [];
     function readStored() {
       try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
     }
@@ -20,6 +20,7 @@
       if (e.data.type === "live") liveCbs.forEach(cb => cb(e.data.payload));
       else if (e.data.type === "sound") soundCbs.forEach(cb => cb(e.data.payload));
       else if (e.data.type === "clip") clipCbs.forEach(cb => cb(e.data.payload));
+      else if (e.data.type === "alert") alertCbs.forEach(cb => cb(e.data.payload));
     };
     window.addEventListener("storage", (e) => {
       if (e.key === KEY && e.newValue) { try { liveCbs.forEach(cb => cb(JSON.parse(e.newValue).payload)); } catch {} }
@@ -40,6 +41,8 @@
       onSound(cb) { soundCbs.push(cb); },
       publishClip(payload) { if (bc) bc.postMessage({ type: "clip", payload }); },
       onClip(cb) { clipCbs.push(cb); },
+      publishAlert(payload) { const p = Object.assign({}, payload, { t: Date.now() }); if (bc) bc.postMessage({ type: "alert", payload: p }); alertCbs.forEach(cb => cb(p)); },
+      onAlert(cb) { alertCbs.push(cb); },
       publishMeta() {/* no-op locally */},
       loadMeta(cb) { cb(null); },
       publishStaging(payload) { try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch {} },
@@ -63,6 +66,8 @@
       onSound(cb) { ref.child("soundCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
       publishClip(payload) { ref.child("clipCue").set(Object.assign({}, payload, { t: Date.now() })); },
       onClip(cb) { ref.child("clipCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
+      publishAlert(payload) { ref.child("alertCue").set(Object.assign({}, payload, { t: Date.now() })); },
+      onAlert(cb) { ref.child("alertCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
       publishMeta(p) { ref.child("meta").update(p); },
       loadMeta(cb) { ref.child("meta").once("value", s => cb(s.val())); },
       publishStaging(payload) { ref.child("staging").set(payload); },
@@ -92,6 +97,8 @@
     onSound(cb) { backend && backend.onSound(cb); },
     publishClip(payload) { backend && backend.publishClip(payload); },
     onClip(cb) { if (backend && backend.onClip) backend.onClip(cb); },
+    publishAlert(payload) { backend && backend.publishAlert && backend.publishAlert(payload); },
+    onAlert(cb) { if (backend && backend.onAlert) backend.onAlert(cb); },
     publishMeta(p) { backend && backend.publishMeta && backend.publishMeta(p); },
     loadMeta(cb) { if (backend && backend.loadMeta) backend.loadMeta(cb); else cb(null); },
     publishStaging(payload) { backend && backend.publishStaging(payload); },

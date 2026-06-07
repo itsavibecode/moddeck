@@ -74,7 +74,12 @@ export default {
         const claims = { platform: "kick", username, uname: String(username).toLowerCase(), picture };
         const firebaseToken = await mintFirebaseToken(env, uid, claims);
 
-        return json({ firebaseToken, profile: { platform: "kick", id: String(id), uid, username, picture } }, 200, origin);
+        // 4) best-effort: subscribe this broadcaster to the alert events (delivered to /kick/webhook).
+        //    Requires the 'events:subscribe' scope + a webhook URL configured in the Kick app dashboard.
+        let alerts = false;
+        try { alerts = await subscribeKickEvents(tok.access_token); } catch (e) {}
+
+        return json({ firebaseToken, profile: { platform: "kick", id: String(id), uid, username, picture }, alerts }, 200, origin);
       } catch (e) {
         return json({ error: "exchange error", detail: String(e && e.message || e) }, 500, origin);
       }
@@ -97,9 +102,122 @@ export default {
       } catch (e) { return json({ error: "lookup error", detail: String(e && e.message || e) }, 500, origin); }
     }
 
+    // Kick event webhook — Kick POSTs follow/sub/gift/kicks events here (URL set in the app dashboard).
+    // We verify the signature, map the event to an alert cue, and write it to the channel as admin.
+    if (url.pathname === "/kick/webhook" && request.method === "POST") {
+      const raw = await request.text();
+      const msgId = request.headers.get("Kick-Event-Message-Id") || "";
+      const ts = request.headers.get("Kick-Event-Message-Timestamp") || "";
+      const sig = request.headers.get("Kick-Event-Signature") || "";
+      const type = request.headers.get("Kick-Event-Type") || "";
+      const ok = await verifyKickSignature(msgId, ts, raw, sig);
+      if (!ok) return new Response("bad signature", { status: 401 });
+      let body = {}; try { body = JSON.parse(raw); } catch (e) {}
+      const cue = mapKickEvent(type, body);
+      if (cue && cue.cid) { try { await rtdbSet(env, "channels/" + cue.cid + "/alertCue", cue.payload); } catch (e) {} }
+      return new Response("ok", { status: 200 });
+    }
+
     return json({ error: "not found" }, 404, origin);
   },
 };
+
+// ── Kick events: subscribe + webhook mapping ──────────────────────────────
+async function subscribeKickEvents(accessToken) {
+  const events = [
+    { name: "channel.followed", version: 1 },
+    { name: "channel.subscription.new", version: 1 },
+    { name: "channel.subscription.renewal", version: 1 },
+    { name: "channel.subscription.gifts", version: 1 },
+    { name: "kicks.gifted", version: 1 },
+  ];
+  const r = await fetch("https://api.kick.com/public/v1/events/subscriptions", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + accessToken, "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ events, method: "webhook" }),
+  });
+  return r.ok;
+}
+
+function mapKickEvent(type, b) {
+  b = b || {};
+  const bc = b.broadcaster || {};
+  const cid = bc.user_id ? ("kick:" + bc.user_id) : null;
+  if (!cid) return null;
+  const base = { t: Date.now(), seq: String(b.event_id || (Date.now() + "-" + Math.floor(Math.random() * 1e6))) };
+  const P = (o) => ({ cid, payload: Object.assign({}, base, o) });
+  switch (type) {
+    case "channel.followed":
+      return P({ type: "follow", user: (b.follower && b.follower.username) || "Someone" });
+    case "channel.subscription.new":
+      return P({ type: "sub", user: (b.subscriber && b.subscriber.username) || "Someone", months: b.duration || 1 });
+    case "channel.subscription.renewal":
+      return P({ type: "resub", user: (b.subscriber && b.subscriber.username) || "Someone", months: b.duration || 1 });
+    case "channel.subscription.gifts":
+      return P({ type: "giftsub", user: (b.gifter && b.gifter.username) || null, anon: !!b.is_anonymous, amount: (b.giftees && b.giftees.length) || 1 });
+    case "kicks.gifted":
+      return P({ type: "kicks", user: (b.sender && b.sender.username) || "Someone", amount: (b.gift && b.gift.amount) || 0 });
+    default:
+      return null;
+  }
+}
+
+// Kick's webhook public key (verifies Kick-Event-Signature over `id.timestamp.body`).
+const KICK_PUBLIC_KEY =
+  "-----BEGIN PUBLIC KEY-----\n" +
+  "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq/+l1WnlRrGSolDMA+A8\n" +
+  "6rAhMbQGmQ2SapVcGM3zq8ANXjnhDWocMqfWcTd95btDydITa10kDvHzw9WQOqp2\n" +
+  "MZI7ZyrfzJuz5nhTPCiJwTwnEtWft7nV14BYRDHvlfqPUaZ+1KR4OCaO/wWIk/rQ\n" +
+  "L/TjY0M70gse8rlBkbo2a8rKhu69RQTRsoaf4DVhDPEeSeI5jVrRDGAMGL3cGuyY\n" +
+  "6CLKGdjVEM78g3JfYOvDU/RvfqD7L89TZ3iN94jrmWdGz34JNlEI5hqK8dd7C5EF\n" +
+  "BEbZ5jgB8s8ReQV8H+MkuffjdAj3ajDDX3DOJMIut1lBrUVD1AaSrGCKHooWoL2e\n" +
+  "twIDAQAB\n" +
+  "-----END PUBLIC KEY-----";
+
+async function verifyKickSignature(msgId, ts, rawBody, sigB64) {
+  if (!msgId || !ts || !sigB64) return false;
+  try {
+    const pem = KICK_PUBLIC_KEY.replace(/-----[^-]+-----/g, "").replace(/\s/g, "");
+    const der = Uint8Array.from(atob(pem), (c) => c.charCodeAt(0));
+    const key = await crypto.subtle.importKey("spki", der.buffer, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+    const data = new TextEncoder().encode(msgId + "." + ts + "." + rawBody);
+    const sig = Uint8Array.from(atob(sigB64), (c) => c.charCodeAt(0));
+    return await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, sig, data);
+  } catch (e) { return false; }
+}
+
+// ── Firebase RTDB admin write (service-account OAuth2 access token + REST PUT) ──
+let _tokCache = { token: null, exp: 0 };
+async function getAccessToken(env) {
+  const now = Math.floor(Date.now() / 1000);
+  if (_tokCache.token && _tokCache.exp - 60 > now) return _tokCache.token;
+  const sa = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON);
+  const header = { alg: "RS256", typ: "JWT" };
+  const claim = {
+    iss: sa.client_email,
+    scope: "https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email",
+    aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3600,
+  };
+  const unsigned = b64urlJson(header) + "." + b64urlJson(claim);
+  const key = await pemToCryptoKey(sa.private_key);
+  const sig = await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, new TextEncoder().encode(unsigned));
+  const assertion = unsigned + "." + b64url(arrayBufferToBase64(sig));
+  const res = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=" + encodeURIComponent(assertion),
+  });
+  const j = await res.json();
+  _tokCache = { token: j.access_token, exp: now + (j.expires_in || 3600) };
+  return j.access_token;
+}
+async function rtdbSet(env, path, value) {
+  const dbUrl = env.FIREBASE_DB_URL || ("https://" + env.FIREBASE_PROJECT_ID + "-default-rtdb.firebaseio.com");
+  const tok = await getAccessToken(env);
+  const res = await fetch(dbUrl + "/" + path + ".json?access_token=" + encodeURIComponent(tok), {
+    method: "PUT", body: JSON.stringify(value),
+  });
+  return res.ok;
+}
 
 // ── Firebase custom token (signed JWT, RS256 via WebCrypto) ───────────────
 async function mintFirebaseToken(env, uid, claims) {

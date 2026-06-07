@@ -66,6 +66,16 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.21.0 — Real Kick alerts 🔔
+- **On-stream alerts fire from real Kick events** — follows, new subs, resubs, gift subs, and Kicks
+  donations. Drop an **Alert Box** widget to set where/how they look; events animate in there
+  automatically and queue one-at-a-time so a gift-bomb doesn't overlap.
+- The worker now hosts `/kick/webhook` (Kick-signed, RSA-verified) and, on sign-in, subscribes your
+  channel to the alert events. Verified webhooks write an alert cue to your channel as a Firebase admin;
+  the overlay plays it (with a stale-cue guard so refreshing OBS never replays an old alert).
+- **Test on live overlay** buttons in the Alert Box panel fire sample Follow / Sub / Gift / Kicks alerts.
+- One-time setup: add the `events:subscribe` scope + set the webhook URL in your Kick app (see docs).
+
 ### v0.20.0 — Mods + invite links 🎛️
 - **Mods can now run your overlay.** Sign in, add a mod by Kick username under **Mods with Access**, and
   click **Copy mod invite link**. Your mod opens the link, signs in with Kick, and edits *your* overlay

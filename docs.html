@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — Documentation</title>
 <meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
-<meta name="moddeck-version" content="0.20.0">
+<meta name="moddeck-version" content="0.21.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#5b5bf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -59,6 +59,7 @@
     <a href="#start">Quick start</a>
     <a href="#obs">OBS setup</a>
     <a href="#mods">Inviting mods</a>
+    <a href="#alerts">Live alerts</a>
     <a href="#staging">Staging &amp; Live</a>
     <a href="#controls">Canvas &amp; shortcuts</a>
     <a href="#widgets">Widget reference</a>
@@ -105,6 +106,26 @@
       </ol>
       <p>A green dot next to a name means that mod is online and editing right now. Remove a mod any time with the <b>✕</b> — that instantly revokes their access.</p>
       <div class="note">Only the exact Kick usernames you add can edit your overlay. Anyone else who opens the link is asked to have you add them first — they can't touch your channel.</div>
+    </section>
+
+    <section id="alerts">
+      <h2>Live alerts</h2>
+      <p>ModDeck can pop an on-stream alert when someone <b>follows, subscribes, gifts subs, or sends Kicks</b>
+      on Kick. Drop an <b>Alert Box</b> widget on the canvas to set where it appears and how it looks — real
+      events animate in there automatically (one at a time, so a gift-bomb queues neatly).</p>
+      <p>Use the <b>Test on live overlay</b> buttons in the Alert Box properties to fire a sample Follow / Sub /
+      Gift / Kicks alert onto your overlay any time.</p>
+      <h3>One-time setup</h3>
+      <p>Real events need two things wired in your <a href="https://kick.com/settings/developer" target="_blank" rel="noopener">Kick developer app</a>:</p>
+      <ol>
+        <li>Add the <b>events:subscribe</b> scope to the app (ModDeck requests it at sign-in).</li>
+        <li>Set the app's <b>Webhook URL</b> to
+          <code>https://moddeck-worker.sevendwarfs.workers.dev/kick/webhook</code>.</li>
+      </ol>
+      <p>Then sign in to ModDeck once — that subscribes your channel to the alert events. From then on, alerts
+      fire on their own while you're live.</p>
+      <div class="note">Kick has no "raid/host" webhook yet, so those aren't included. Verified-app limits apply
+      to chat-message events, not to follows/subs/gifts.</div>
     </section>
 
     <section id="staging">

@@ -13,6 +13,7 @@ account_id = "fe16eca597b8d5afa20dfe7b2550640b"
 KICK_CLIENT_ID = "01KTFN1XEM335BE7QAKXD15G0H"          # public
 KICK_REDIRECT_URI = "https://moddeck.bookhockeys.com/auth/kick"
 FIREBASE_PROJECT_ID = "moddeck"
+FIREBASE_DB_URL = "https://moddeck-default-rtdb.firebaseio.com"
 
 # Secrets — set via `wrangler secret put`, never committed:
 #   wrangler secret put KICK_CLIENT_SECRET

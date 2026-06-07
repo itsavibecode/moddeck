@@ -671,5 +671,53 @@
     return { render, instances: insts };
   }
 
-  window.MD.widgets = { create, Layer, applyBox, enableScheduler };
+  // ---- real-event Alert Box driver (overlay) ----
+  // Maps a Kick event cue to display content. Used by playAlert().
+  function alertContent(cue) {
+    cue = cue || {}; const u = cue.user || "Someone", a = +cue.amount || 0, m = +cue.months || 0;
+    switch (cue.type) {
+      case "follow":  return { icon: "👋", headline: u, sub: "just followed" };
+      case "sub":     return { icon: "⭐", headline: u, sub: m > 1 ? ("subscribed · " + m + " months") : "just subscribed" };
+      case "resub":   return { icon: "🌟", headline: u, sub: "resubscribed" + (m > 1 ? (" · " + m + " months") : "") };
+      case "giftsub": return { icon: "🎁", headline: cue.anon ? "Anonymous" : u, sub: a > 1 ? ("gifted " + a + " subs") : "gifted a sub" };
+      case "kicks":   return { icon: "💚", headline: u, sub: "sent " + a + " Kicks" };
+      default:        return { icon: "🔔", headline: u, sub: cue.message || "new event" };
+    }
+  }
+  // Plays an alert on the overlay. Uses a placed Alert Box widget's geometry/colors if one exists,
+  // otherwise a default top-center banner. Queues so a gift-bomb shows one at a time.
+  let _alertQ = [], _alertBusy = false;
+  function playAlert(stage, board, cue) {
+    _alertQ.push({ stage, board, cue });
+    if (!_alertBusy) _drainAlerts();
+  }
+  function _drainAlerts() {
+    if (!_alertQ.length) { _alertBusy = false; return; }
+    _alertBusy = true;
+    const job = _alertQ.shift();
+    try { _renderAlert(job.stage, job.board, job.cue); } catch (e) {}
+    setTimeout(_drainAlerts, 4200);
+  }
+  function _renderAlert(stage, board, cue) {
+    const c = alertContent(cue);
+    let box = null;
+    if (board && board.order) for (let i = 0; i < board.order.length; i++) { const e = board.els[board.order[i]]; if (e && e.type === "alertbox") { box = e; break; } }
+    const geo = box ? { x: box.x, y: box.y, w: box.w, h: box.h } : { x: 600, y: 80, w: 720, h: 124 };
+    const bp = (box && box.props) || {};
+    const bg = bp.bg || "rgba(16,18,28,.94)", accent = bp.accent || "#53fc18", color = bp.color || "#ffffff";
+    const n = document.createElement("div");
+    n.style.cssText = "position:absolute;left:" + geo.x + "px;top:" + geo.y + "px;width:" + geo.w + "px;height:" + geo.h +
+      "px;display:flex;align-items:center;gap:16px;border-radius:14px;padding:0 22px;box-sizing:border-box;overflow:hidden;background:" +
+      bg + ";border-left:5px solid " + accent + ";box-shadow:0 12px 44px rgba(0,0,0,.4);z-index:9999";
+    const ic = document.createElement("div"); ic.style.cssText = "font-size:48px;line-height:1;flex:none"; ic.textContent = c.icon;
+    const txt = document.createElement("div"); txt.style.cssText = "min-width:0";
+    const hl = document.createElement("div"); hl.style.cssText = "font:800 30px/1.1 Inter,system-ui,sans-serif;color:" + color + ";white-space:nowrap;overflow:hidden;text-overflow:ellipsis"; hl.textContent = c.headline;
+    const sub = document.createElement("div"); sub.style.cssText = "font:600 17px/1.2 Inter,system-ui,sans-serif;color:" + accent + ";margin-top:3px"; sub.textContent = c.sub;
+    txt.appendChild(hl); txt.appendChild(sub); n.appendChild(ic); n.appendChild(txt);
+    n.style.animation = "md-alert-in .6s cubic-bezier(.2,.8,.2,1)";
+    stage.appendChild(n);
+    setTimeout(() => { n.style.transition = "opacity .4s, transform .4s"; n.style.opacity = "0"; n.style.transform = "translateY(-10px)"; setTimeout(() => n.remove(), 420); }, 3600);
+  }
+
+  window.MD.widgets = { create, Layer, applyBox, enableScheduler, playAlert, alertContent };
 })();

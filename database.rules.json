@@ -11,6 +11,8 @@
         "live":     { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
         "staging":  { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
         "soundCue": { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
+        "clipCue":  { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
+        "alertCue": { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
 
         "presence": {
           "$uid": { ".write": "auth != null && auth.uid === $uid" }

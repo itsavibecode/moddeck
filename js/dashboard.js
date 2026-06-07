@@ -497,12 +497,27 @@
       add(labeled("Subtext", txt(p.sub, v => upp({ sub: v }))));
       add(labeled("Icon (emoji)", txt(p.icon, v => upp({ icon: v }))));
       add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
-      const trig = el("button", null, "▶ Trigger Test Alert");
-      trig.style.cssText = "width:100%;margin-top:4px;padding:9px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:700";
-      trig.onclick = () => { upp({ triggerSeq: (S.getEl(elx.id).props.triggerSeq || 0) + 1 }); toast("Alert triggered"); };
+      const trig = el("button", null, "▶ Preview style here");
+      trig.style.cssText = "width:100%;margin-top:4px;padding:9px;border:1px solid var(--line2);border-radius:8px;background:#fff;color:var(--ink-dim);font-weight:700";
+      trig.onclick = () => { upp({ triggerSeq: (S.getEl(elx.id).props.triggerSeq || 0) + 1 }); toast("Preview animation"); };
       add(labeled("", trig));
+      // fire a real test alert onto the LIVE overlay (same path Kick events use)
+      const testGrid = el("div"); testGrid.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:6px";
+      const TESTS = [
+        ["👋 Follow", { type: "follow", user: "NewFollower" }],
+        ["⭐ Sub", { type: "sub", user: "BigFan", months: 1 }],
+        ["🎁 Gift x5", { type: "giftsub", user: "Generous1", amount: 5 }],
+        ["💚 Kicks", { type: "kicks", user: "Hype", amount: 200 }],
+      ];
+      TESTS.forEach(([lbl, cue]) => {
+        const b = el("button", null, lbl);
+        b.style.cssText = "padding:8px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:700;color:var(--ink-dim);font-size:11px";
+        b.onclick = () => { try { SY.publishAlert(Object.assign({ seq: Date.now() + "-" + Math.floor(Math.random() * 1e6) }, cue)); toast("Fired " + cue.type + " to live overlay"); } catch (e) {} };
+        testGrid.appendChild(b);
+      });
+      add(labeled("Test on live overlay", testGrid));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
-      note.innerHTML = "Real Sub/Follow/Raid/Bits events auto-fire this in a later phase.";
+      note.innerHTML = "Real Kick <b>follows, subs, gift subs &amp; Kicks</b> fire this automatically once you've signed in and set the webhook URL in your Kick app (see Docs). Place one Alert Box to control where/how they look.";
       add(note);
     } else if (elx.type === "qr") {
       add(labeled("Data / URL", txt(p.data, v => upp({ data: v }))));
