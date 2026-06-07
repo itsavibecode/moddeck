@@ -56,7 +56,18 @@
     const sk = $("#syncKind"), ci = $("#chanId");
     if (sk) sk.textContent = "firebase"; if (ci) ci.textContent = channelId;
     renderLists();
+    // restore this channel's saved staging from the cloud (or push current up if cloud is empty)
+    SY.loadStaging(function (board) {
+      if (board && board.order && board.order.length) S.loadIntoStaging(board);
+      else scheduleStagingWrite();
+    });
     toast("Real-time sync on", "ok");
+  }
+  // persist the staging canvas (debounced) to whatever backend is active (localStorage in demo, RTDB live)
+  let _stagingTimer = null;
+  function scheduleStagingWrite() {
+    clearTimeout(_stagingTimer);
+    _stagingTimer = setTimeout(function () { try { SY.publishStaging(S.exportBoard(S.state.staging)); } catch (e) {} }, 500);
   }
 
   // ---------- presets & scenes (localStorage, per channel) ----------
@@ -495,8 +506,12 @@
     buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireMisc();
     renderAccount(); renderLists(); updateLivePill(false);
     S.on("select", renderProps); renderProps();
-    // seed a friendly starter so the canvas isn't empty on first load
-    if (!S.state.staging.order.length) seed();
+    // persist staging on edits, and restore it on load (so a refresh never loses your layout)
+    S.on("change", scheduleStagingWrite);
+    SY.loadStaging(function (board) {
+      if (board && board.order && board.order.length) S.loadIntoStaging(board);
+      else if (!S.state.staging.order.length) seed();
+    });
   }
   function seed() {
     S.addElement("chat", { x: 300, y: 620 });

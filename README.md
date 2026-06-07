@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.14.0 — Staging persistence
+- Your **staging canvas now saves automatically** (debounced) and restores on load, so refreshing the
+  dashboard never loses your layout. Logged in → saved to your channel in Firebase RTDB (and used to seed
+  the cloud on first login); demo mode → saved to localStorage. Foundation for mod collaboration.
+
 ### v0.13.0 — PowerChat + Viewer Count widgets
 - **PowerChat** widget: embeds your [powerchat.live](https://powerchat.live) TTS &amp; media-donation overlay
   (paste your PowerChat overlay URL).

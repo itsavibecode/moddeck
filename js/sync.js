@@ -9,6 +9,7 @@
   // ---------- LOCAL backend (dev / demo / single-machine) ----------
   function localBackend(channelId) {
     const KEY = "moddeck:" + channelId + ":live";
+    const SKEY = "moddeck:" + channelId + ":staging";
     const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("moddeck:" + channelId) : null;
     const liveCbs = [], soundCbs = [];
     function readStored() {
@@ -36,6 +37,8 @@
       },
       publishSound(payload) { if (bc) bc.postMessage({ type: "sound", payload }); soundCbs.forEach(cb => cb(payload)); },
       onSound(cb) { soundCbs.push(cb); },
+      publishStaging(payload) { try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch {} },
+      loadStaging(cb) { try { const raw = localStorage.getItem(SKEY); cb(raw ? JSON.parse(raw) : null); } catch { cb(null); } },
       publishPresence() {/* no-op locally */},
       onPresence() {/* no-op locally */},
     };
@@ -53,6 +56,9 @@
       onLive(cb) { ref.child("live").on("value", s => { const v = s.val(); if (v) cb(v); }); },
       publishSound(payload) { ref.child("soundCue").set(Object.assign({}, payload, { t: Date.now() })); },
       onSound(cb) { ref.child("soundCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
+      publishStaging(payload) { ref.child("staging").set(payload); },
+      loadStaging(cb) { ref.child("staging").once("value", s => cb(s.val())); },
+      onStaging(cb) { ref.child("staging").on("value", s => { const v = s.val(); if (v) cb(v); }); },
       publishPresence(uid, p) { ref.child("presence/" + uid).set(p); },
       onPresence(cb) { ref.child("presence").on("value", s => cb(s.val() || {})); },
     };
@@ -75,6 +81,8 @@
     onLive(cb) { backend && backend.onLive(cb); },
     publishSound(payload) { backend && backend.publishSound(payload); },
     onSound(cb) { backend && backend.onSound(cb); },
+    publishStaging(payload) { backend && backend.publishStaging(payload); },
+    loadStaging(cb) { if (backend && backend.loadStaging) backend.loadStaging(cb); else cb(null); },
     publishPresence(uid, p) { backend && backend.publishPresence(uid, p); },
     onPresence(cb) { backend && backend.onPresence(cb); },
   };
