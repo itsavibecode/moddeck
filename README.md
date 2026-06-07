@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.13.0 — PowerChat + Viewer Count widgets
+- **PowerChat** widget: embeds your [powerchat.live](https://powerchat.live) TTS &amp; media-donation overlay
+  (paste your PowerChat overlay URL).
+- **Viewer Count** widget: animated live viewer counter with icon (demo number now; real Kick count via the
+  worker later, through the `MD.pushViewers` hook). 21 widgets in the palette.
+
 ### v0.12.3 — Landing hero demo video
 - The landing hero mock now plays a real **stream behind the overlay**, rotating through demo clips
   (`video/`) as a playlist — so the overlay widgets are shown sitting on top of an actual stream.

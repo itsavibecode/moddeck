@@ -20,7 +20,8 @@
     ["tally", "🔢", "Tally"], ["emojicombo", "🔥", "Emoji Combo"], ["ticker", "📰", "Ticker"], ["eventlist", "📋", "Event List"],
     ["text", "📝", "Text"], ["image", "🖼️", "Image"], ["video", "🎬", "Video"],
     ["shape", "⬛", "Shape"], ["wheel", "🎡", "Prize Wheel"], ["discord", "⭐", "Discord Highlights"],
-    ["qr", "🔳", "QR Code"], ["browser", "🌐", "Browser"], ["customcode", "💻", "Custom Code"],
+    ["powerchat", "💸", "PowerChat"], ["viewers", "👁", "Viewer Count"], ["qr", "🔳", "QR Code"],
+    ["browser", "🌐", "Browser"], ["customcode", "💻", "Custom Code"],
   ];
   function buildPalette() {
     const g = $("#palette"); g.innerHTML = "";
@@ -424,6 +425,18 @@
       w.appendChild(cb); w.appendChild(document.createTextNode("Show avatar")); add(labeled("", w));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
       note.innerHTML = "Shows messages your community <b>stars</b> in Discord. Showing a <b>demo feed</b> — needs the ModDeck Discord bot to go live (see below).";
+      add(note);
+    } else if (elx.type === "powerchat") {
+      add(labeled("PowerChat overlay URL", url(p.url, v => upp({ url: v }))));
+      const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
+      note.innerHTML = "Embeds your <b>powerchat.live</b> TTS &amp; media-donation overlay. Get the URL from powerchat.live → your alert/overlay widget, and paste it here.";
+      add(note);
+    } else if (elx.type === "viewers") {
+      add(labeled("Label", txt(p.label, v => upp({ label: v }))));
+      add(labeled("Icon (emoji)", txt(p.icon, v => upp({ icon: v }))));
+      add(labeled("Accent", swatchRow(["#53fc18", "#5b5bf0", "#0fb5a8", "#ffffff"], p.accent, c => upp({ accent: c }))));
+      const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
+      note.innerHTML = "Shows a live, animated viewer count. <b>Demo number</b> for now — real Kick viewer count connects via the worker later.";
       add(note);
     }
   }

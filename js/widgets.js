@@ -534,6 +534,57 @@
     return { node: n, update, destroy() { tickers.delete(tick); window.MD.highlightSinks.delete(ingest); } };
   };
 
+  R.powerchat = function (el) {
+    const n = document.createElement("div"); n.style.cssText = "width:100%;height:100%;overflow:hidden;border-radius:10px";
+    let cur = null;
+    function update(el) {
+      const p = el.props;
+      if (p.url !== cur) {
+        cur = p.url; n.innerHTML = "";
+        if (p.url) {
+          const f = document.createElement("iframe"); f.src = p.url;
+          f.setAttribute("allow", "autoplay; encrypted-media");
+          f.style.cssText = "width:100%;height:100%;border:0;border-radius:10px;background:transparent;pointer-events:none";
+          n.appendChild(f);
+        } else {
+          const ph = document.createElement("div");
+          ph.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;text-align:center;color:#9aa0c0;font-size:13px;background:rgba(20,18,40,.7);border:1.5px dashed #4d3f78;border-radius:inherit;padding:12px";
+          ph.innerHTML = "💸 <b style='color:#cdb4ff'>PowerChat</b><span style='font-size:11px;opacity:.8'>paste your powerchat.live overlay URL</span>";
+          n.appendChild(ph);
+        }
+      }
+    }
+    update(el); return { node: n, update };
+  };
+
+  // Live viewer count — animated. Demo-fed; real Kick count via MD.pushViewers(n) + MD.viewersConnected.
+  window.MD.viewerSinks = window.MD.viewerSinks || new Set();
+  window.MD.pushViewers = function (n) { window.MD.viewerSinks.forEach(fn => { try { fn(n); } catch {} }); };
+  R.viewers = function (el) {
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:12px;border-radius:12px;box-sizing:border-box;padding:0 16px";
+    const ic = document.createElement("div"); ic.style.cssText = "font-size:30px;line-height:1";
+    const col = document.createElement("div"); col.style.cssText = "display:flex;flex-direction:column;line-height:1.05";
+    const num = document.createElement("div"); num.style.cssText = "font-weight:800;font-variant-numeric:tabular-nums";
+    const lab = document.createElement("div"); lab.style.cssText = "font-weight:700;letter-spacing:1.5px";
+    col.appendChild(num); col.appendChild(lab); n.appendChild(ic); n.appendChild(col);
+    let cur = el, target = el.props.count || 1240, shown = target, lastDemo = 0;
+    function setTarget(v) { target = Math.max(0, Math.round(v)); }
+    window.MD.viewerSinks.add(setTarget);
+    function paint() {
+      const p = cur.props; n.style.background = p.bg; ic.textContent = p.icon || "👁";
+      num.textContent = shown.toLocaleString(); num.style.color = p.color; num.style.fontSize = Math.min(el.h * .42, 40) + "px";
+      lab.textContent = p.label; lab.style.color = p.accent; lab.style.fontSize = "12px";
+    }
+    function tick() {
+      if (!window.MD.viewersConnected && Date.now() - lastDemo > 3000) { lastDemo = Date.now(); setTarget(target + Math.round((Math.random() - 0.42) * 50)); }
+      if (shown !== target) { shown += Math.sign(target - shown) * Math.max(1, Math.ceil(Math.abs(target - shown) / 8)); paint(); }
+    }
+    function update(el) { cur = el; if (el.props.count) target = el.props.count; paint(); }
+    tickers.add(tick); update(el);
+    return { node: n, update, destroy() { tickers.delete(tick); window.MD.viewerSinks.delete(setTarget); } };
+  };
+
   // =========================================================================
   function create(el) {
     const f = R[el.type]; if (!f) { const d = document.createElement("div"); d.textContent = el.type; return { node: d, update() {}, destroy() {} }; }
