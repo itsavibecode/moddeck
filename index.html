@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.17.1">
+<meta name="moddeck-version" content="0.17.2">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#5b5bf0">
@@ -250,17 +250,20 @@
     // TODO: replace the chat arrays with the real usernames/context per clip.
     var CLIPS = [
       { src: "video/sjchampton1.mp4?a=1", chat: [
-        { u: "ninjafan_", m: "let's gooo 🔥" },
-        { u: "kayJ", m: "<b>poggers</b>" },
-        { u: "m0d_alex", m: "cleaned chat 🧹" },
-      ] },
-      { src: "video/ebzsjcice.mp4?a=1", chat: [
         { u: "StrongDabs420", m: "that was actually nuts 😤" },
         { u: "Hydroponicz", m: "CLIP IT NOW" },
         { u: "BotRix", m: "W W W" },
         { u: "kppfarmer", m: "no way that just happened" },
         { u: "jameskibs", m: "chat we are so back 🔥" },
         { u: "Coyote7", m: "gg insane" },
+      ] },
+      { src: "video/ebzsjcice.mp4?a=1", chat: [
+        { u: "PogTX", m: "yooo that was clean" },
+        { u: "piglover4919", m: "actual movie 🎬" },
+        { u: "FATCHOP", m: "how is that real" },
+        { u: "TheGOATSchizo", m: "certified W" },
+        { u: "Neejoh", m: "replay that 100x" },
+        { u: "MJAYY5", m: "chat went insane" },
       ] },
     ];
     var i = 0, v = document.getElementById("demoVid"), lines = document.getElementById("heroChatLines");

@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.17.2 — Real viewer usernames on both clips
+- Each hero clip now has its own real-viewer demo chat: clip 1 (StrongDabs420, Hydroponicz, BotRix…),
+  clip 2 (PogTX, piglover4919, FATCHOP, TheGOATSchizo, Neejoh, MJAYY5).
+
 ### v0.17.1 — Real viewer usernames in demo chat
 - Clip 2's hero demo chat now uses real viewer usernames (StrongDabs420, Hydroponicz, BotRix, kppfarmer,
   jameskibs, Coyote7) for a more authentic preview.
