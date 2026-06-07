@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ModDeck — Logo (C/F refined)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#f6f7fb;--ink:#12141d;--dim:#5b6173;--accent:#5b5bf0;font-family:Inter,system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);padding:30px}
+  h1{font-size:24px;font-weight:900;letter-spacing:-.5px}
+  .sub{color:var(--dim);font-size:14px;margin:4px 0 26px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;max-width:760px}
+  .card{background:#fff;border:1px solid #e6e8f0;border-radius:16px;padding:22px;text-align:center}
+  .tiles{display:flex;gap:16px;align-items:center;justify-content:center;margin-bottom:14px}
+  .tile{width:84px;height:84px}.tile.sm{width:40px;height:40px}.tile.xs{width:22px;height:22px}
+  .nm{font-weight:800;font-size:15px}.nm .opt{color:var(--accent)}
+  .desc{font-size:12.5px;color:var(--dim);margin-top:5px}
+  .wordmark{display:flex;align-items:center;gap:9px;justify-content:center;margin-top:14px;font-weight:800;font-size:17px;line-height:1}
+  .wordmark .beta{font-size:8.5px;font-weight:800;letter-spacing:1px;background:#5cc8ff;color:#053048;padding:2px 6px;border-radius:6px}
+  .darkrow{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:12px;background:#11131c;border-radius:10px;padding:10px}
+  .darkrow .wm2{color:#fff;font-weight:800;font-size:15px;line-height:1;display:flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+  <h1>ModDeck logo — refined from C &amp; F</h1>
+  <div class="sub">Each shown big, favicon-size, in the light wordmark, and on a dark stream backdrop. Pick one letter.</div>
+  <div class="grid" id="grid"></div>
+<script>
+var GRAD='<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d6dff"/><stop offset="1" stop-color="#5b5bf0"/></linearGradient></defs>';
+var MARKS={
+  C:{name:"Stacked deck (refined C)",desc:"Three offset cards — a deck of overlay layers, live dot on top.",
+     art:'<rect x="12" y="15" width="30" height="20" rx="4.5" fill="#fff" opacity=".4"/><rect x="16" y="21" width="30" height="20" rx="4.5" fill="#fff" opacity=".68"/><rect x="20" y="27" width="30" height="20" rx="4.5" fill="#fff"/><circle cx="26" cy="37" r="2.8" fill="#0fb5a8"/>'},
+  F:{name:"Layers + cursor (refined F)",desc:"A flat overlay layer with a control cursor — “you steer the overlay.”",
+     art:'<path d="M32 13 51 23 32 33 13 23z" fill="#fff"/><path d="M13 29.5 32 39.5 51 29.5" fill="none" stroke="#fff" stroke-width="3" opacity=".5" stroke-linejoin="round"/><path d="M39 35l2.3 11 2.6-4.4 4.6.7z" fill="#0fb5a8" stroke="#11131c" stroke-width="1.2" stroke-linejoin="round"/>'},
+  G:{name:"Deck + cursor (C×F hybrid)",desc:"Two stacked cards with a cursor on the front — the deck you control.",
+     art:'<rect x="13" y="16" width="30" height="20" rx="4.5" fill="#fff" opacity=".5"/><rect x="18" y="23" width="30" height="20" rx="4.5" fill="#fff"/><path d="M35 33l2.2 10 2.5-4.2 4.4.65z" fill="#0fb5a8" stroke="#11131c" stroke-width="1.2" stroke-linejoin="round"/>'},
+  H:{name:"Iso layers (C×F hybrid)",desc:"Two perspective layers stacked — overlay over stream, live dot.",
+     art:'<path d="M32 14 50 22 32 30 14 22z" fill="#fff"/><path d="M14 31 32 39 50 31" fill="none" stroke="#fff" stroke-width="3" opacity=".55" stroke-linejoin="round"/><path d="M32 24 50 32 32 40 14 32z" fill="#fff" opacity=".82"/><circle cx="45" cy="20" r="3.4" fill="#0fb5a8"/>'},
+};
+function tile(art,sz){return '<svg class="tile '+(sz||'')+'" viewBox="0 0 64 64">'+GRAD+'<rect x="4" y="4" width="56" height="56" rx="15" fill="url(#g)"/>'+art+'</svg>';}
+document.getElementById("grid").innerHTML=Object.keys(MARKS).map(function(k){var m=MARKS[k];
+  return '<div class="card"><div class="tiles">'+tile(m.art)+tile(m.art,'sm')+tile(m.art,'xs')+'</div>'+
+    '<div class="nm"><span class="opt">'+k+'</span> · '+m.name+'</div><div class="desc">'+m.desc+'</div>'+
+    '<div class="wordmark">'+tile(m.art,'sm')+'ModDeck<span class="beta">BETA</span></div>'+
+    '<div class="darkrow"><div class="wm2">'+tile(m.art,'sm')+'ModDeck</div></div></div>';
+}).join("");
+</script>
+</body>
+</html>
