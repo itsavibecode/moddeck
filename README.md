@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.19.2 — Hero text layout
+- Headline "From Mod to Director" forced to one line (wraps only on small screens); sub-line split so
+  "Approve your mods to control your overlay from a browser" sits above "with one simple OBS source change."
+
 ### v0.19.1 — Living landing demo
 - The hero demo chat now **scrolls** (left-justified, styled like the real widget) with **Kick + Twitch +
   YouTube** messages (platform-colored dots), and the **Emoji Combo is fed by the emotes scrolling past in

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.19.1">
+<meta name="moddeck-version" content="0.19.2">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -61,7 +61,7 @@
     background:radial-gradient(680px 360px at 50% -10%,rgba(91,91,240,.16),transparent 65%),radial-gradient(520px 320px at 85% 30%,rgba(15,181,168,.12),transparent 60%)}
   .pill{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:600;color:var(--ink-dim);margin-bottom:22px;box-shadow:var(--shadow)}
   .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--accent2)}
-  h1{font-size:clamp(34px,6vw,62px);line-height:1.04;font-weight:900;letter-spacing:-1.5px;max-width:14ch;margin:0 auto}
+  h1{font-size:clamp(30px,6vw,62px);line-height:1.04;font-weight:900;letter-spacing:-1.5px;margin:0 auto;white-space:nowrap}
   h1 .grad{background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .sub{font-size:clamp(16px,2.4vw,20px);color:var(--ink-dim);max-width:60ch;margin:16px auto 22px}
   .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
@@ -137,12 +137,12 @@
   footer .sp{margin-left:auto}
   footer a:hover{color:var(--accent)}
 
-  @media(max-width:760px){.steps,.grid,.why .grid{grid-template-columns:1fr}.hero{padding:54px 0 40px}.ov.chat{display:none}}
+  @media(max-width:760px){.steps,.grid,.why .grid{grid-template-columns:1fr}.hero{padding:40px 0 44px}.ov.chat{display:none}h1{white-space:normal}}
 </style>
 </head>
 <body>
 <nav><div class="wrap">
-  <a class="brand" href="/"><img src="favicon.svg" alt="">ModDeck<span class="beta">BETA</span><span class="ver-pill">v0.19.1</span></a>
+  <a class="brand" href="/"><img src="favicon.svg" alt="">ModDeck<span class="beta">BETA</span><span class="ver-pill">v0.19.2</span></a>
   <div class="links">
     <a class="t" href="#features">Features</a>
     <a class="t" href="#how">How it works</a>
@@ -155,7 +155,7 @@
 <header class="hero"><div class="wrap">
   <div class="pill"><span class="dot"></span>Free · works with Kick, Twitch &amp; YouTube</div>
   <h1>From Mod to <span class="grad">Director</span></h1>
-  <p class="sub">Approve your mods to control your overlay from a browser with <b>one simple OBS source change</b>.</p>
+  <p class="sub">Approve your mods to control your overlay from a browser<br>with <b>one simple OBS source change</b>.</p>
   <div class="cta">
     <a class="btn primary" href="dashboard.html">▶ Try the live demo</a>
     <a class="btn ghost" href="#how">See how it works</a>
