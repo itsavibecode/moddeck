@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.18.2 — Auto-clip recording indicator
+- When an auto-clip fires, the overlay flashes a recording-style **pulsing red ● CLIP** dot in the corner
+  for ~4s. Driven by a new synced `publishClip`/`onClip` cue (so it shows on the live overlay wherever the
+  clip was triggered).
+
 ### v0.18.1 — Version pill on landing + PWA manifest
 - Added the **version pill** to the landing nav (it was only on the dashboard) and made the dashboard pills
   read the version constant automatically. Added `site.webmanifest` (PWA) + a PNG favicon fallback — finishing

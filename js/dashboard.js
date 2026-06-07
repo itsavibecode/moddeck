@@ -513,7 +513,7 @@
     });
     buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireMisc();
     // auto-clip feedback (real clip-cut via the platform API lands in the bot phase)
-    window.MD.fireClip = function (info) { toast("📎 Auto-clip: " + (info && info.emote) + " ×" + (info && info.count) + " (demo)", "ok"); };
+    window.MD.fireClip = function (info) { toast("📎 Auto-clip: " + (info && info.emote) + " ×" + (info && info.count) + " (demo)", "ok"); try { SY.publishClip(info || {}); } catch (e) {} };
     renderAccount(); renderLists(); updateLivePill(false);
     S.on("select", renderProps); renderProps();
     // persist staging on edits, and restore it on load (so a refresh never loses your layout)
