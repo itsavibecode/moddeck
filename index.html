@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.19.0">
+<meta name="moddeck-version" content="0.19.1">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -89,8 +89,13 @@
   .shot .body .lbl,.shot .body .ov{z-index:2}
   .shot .body .lbl{position:absolute;top:14px;left:16px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px}
   .ov{position:absolute;border-radius:10px;backdrop-filter:blur(4px)}
-  .ov.chat{left:4%;bottom:7%;width:26%;background:rgba(10,12,22,.7);border:1px solid rgba(255,255,255,.12);padding:11px;font-size:11px;color:#cdd2e6}
-  .ov.chat b{color:var(--accent2)} .ov.chat .u{color:#9a9aff;font-weight:700}
+  .ov.chat{left:4%;bottom:7%;width:28%;height:46%;background:rgba(10,12,22,.72);border:1px solid rgba(255,255,255,.12);padding:10px 11px;font-size:11px;color:#cdd2e6;display:flex;flex-direction:column;text-align:left}
+  .ov.chat .chd{font-size:9px;letter-spacing:1px;color:#7c8bff;font-weight:800;margin-bottom:6px;flex:none}
+  #heroChatLines{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:4px}
+  #heroChatLines .ln{line-height:1.25}
+  #heroChatLines .ln .u{font-weight:700}
+  #heroChatLines .ln .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  #heroChatLines img{height:1.3em;vertical-align:middle}
   .ov.timer{top:11%;right:6%;font-size:38px;font-weight:900;color:#fff;text-shadow:0 0 22px rgba(91,91,240,.6)}
   .ov.goal{left:50%;top:9%;transform:translateX(-50%);width:34%;text-align:center;color:#fff;font-size:12px;font-weight:700}
   .ov.goal .track{height:9px;border-radius:6px;background:rgba(255,255,255,.14);margin-top:6px;overflow:hidden}
@@ -137,7 +142,7 @@
 </head>
 <body>
 <nav><div class="wrap">
-  <a class="brand" href="/"><img src="favicon.svg" alt="">ModDeck<span class="beta">BETA</span><span class="ver-pill">v0.19.0</span></a>
+  <a class="brand" href="/"><img src="favicon.svg" alt="">ModDeck<span class="beta">BETA</span><span class="ver-pill">v0.19.1</span></a>
   <div class="links">
     <a class="t" href="#features">Features</a>
     <a class="t" href="#how">How it works</a>
@@ -171,12 +176,8 @@
       <div class="ov goal">⭐ Sub Goal — 340 / 500<div class="track"><div class="fill"></div></div></div>
       <div class="ov timer">12:04</div>
       <div class="ov viewers">👁 <span style="color:#53fc18">1,240</span></div>
-      <div class="ov combo">
-        <div class="c lead"><span class="e">🔥</span>x18</div>
-        <div class="c"><span class="e">💀</span>x5</div>
-        <div class="c"><span class="e">😂</span>x3</div>
-      </div>
-      <div class="ov chat"><div style="font-size:9px;letter-spacing:1px;color:#7c8bff;font-weight:800;margin-bottom:6px">COMBINED CHAT</div>
+      <div class="ov combo" id="heroCombo"></div>
+      <div class="ov chat"><div class="chd">COMBINED CHAT</div>
         <div id="heroChatLines"></div>
       </div>
     </div>
@@ -247,50 +248,92 @@
 </div></footer>
 
 <script>
-  // Hero stream background — rotate clips as a playlist behind the overlay, with per-clip demo chat.
+  // Hero demo — rotating clips behind a LIVE-feeling overlay: chat scrolls (Kick+Twitch+YouTube),
+  // and the emoji combo is fed by the emotes scrolling past in chat (builds + decays for real).
   (function () {
-    // each clip pairs a video with chat lines that match what's happening in it.
-    // TODO: replace the chat arrays with the real usernames/context per clip.
+    var KEKW = "https://files.kick.com/emotes/37226/fullsize";
+    var PC = { k: "#53fc18", t: "#a970ff", y: "#ff4d4d" };       // platform dot/name colors
+    var UNI = ["🔥", "😂", "💀", "👀", "🎬"];                      // unicode emotes we count
     var CLIPS = [
-      { src: "video/sjchampton1.mp4?a=1", chat: [
-        { u: "StrongDabs420", m: "that was actually nuts 😤" },
-        { u: "Hydroponicz", m: "CLIP IT NOW" },
-        { u: "BotRix", m: "W W W" },
-        { u: "kppfarmer", m: "no way that just happened" },
-        { u: "jameskibs", m: "chat we are so back 🔥" },
-        { u: "Coyote7", m: "gg insane" },
+      { src: "video/sjchampton1.mp4?a=1", msgs: [
+        { p: "k", u: "StrongDabs420", m: "that was actually nuts 😤" },
+        { p: "t", u: "Hydroponicz", m: "[emote:37226:KEKW]" },
+        { p: "k", u: "BotRix", m: "🔥🔥🔥" },
+        { p: "y", u: "kppfarmer", m: "no way 💀" },
+        { p: "k", u: "jameskibs", m: "[emote:37226:KEKW] [emote:37226:KEKW]" },
+        { p: "t", u: "Coyote7", m: "W 🔥" },
+        { p: "k", u: "StrongDabs420", m: "😂😂" },
+        { p: "y", u: "Hydroponicz", m: "CLIP IT 🎬" },
+        { p: "k", u: "BotRix", m: "🔥🔥" },
+        { p: "t", u: "jameskibs", m: "[emote:37226:KEKW]" },
       ] },
-      { src: "video/ebzsjcice.mp4?a=1", chat: [
-        { u: "PogTX", m: "yooo that was clean" },
-        { u: "piglover4919", m: "actual movie 🎬" },
-        { u: "FATCHOP", m: "how is that real" },
-        { u: "TheGOATSchizo", m: "certified W" },
-        { u: "Neejoh", m: "replay that 100x" },
-        { u: "MJAYY5", m: "chat went insane" },
+      { src: "video/ebzsjcice.mp4?a=1", msgs: [
+        { p: "k", u: "PogTX", m: "yooo that was clean" },
+        { p: "t", u: "piglover4919", m: "actual movie 🎬" },
+        { p: "k", u: "FATCHOP", m: "😂😂😂" },
+        { p: "y", u: "TheGOATSchizo", m: "certified W 🔥" },
+        { p: "k", u: "Neejoh", m: "[emote:37226:KEKW]" },
+        { p: "t", u: "MJAYY5", m: "💀💀" },
+        { p: "k", u: "PogTX", m: "🔥🔥🔥" },
+        { p: "y", u: "FATCHOP", m: "[emote:37226:KEKW] [emote:37226:KEKW]" },
+        { p: "k", u: "Neejoh", m: "replay that 👀" },
+        { p: "t", u: "TheGOATSchizo", m: "😂" },
       ] },
     ];
-    var i = 0, v = document.getElementById("demoVid"), lines = document.getElementById("heroChatLines");
+    var v = document.getElementById("demoVid"), lines = document.getElementById("heroChatLines"), combo = document.getElementById("heroCombo");
     if (!v) return;
     v.muted = true;
-    function renderChat(c) {
-      if (!lines) return;
-      lines.innerHTML = c.map(function (x) { return '<div><span class="u">' + x.u + '</span>: ' + x.m + '</div>'; }).join("");
+    var clipIdx = 0, feed = [], combos = {};
+
+    function bodyOf(m) {
+      var emotes = [];
+      var body = m.replace(/\[emote:(\d+):([^\]]+)\]/g, function (_, id, name) {
+        emotes.push({ k: name, img: "https://files.kick.com/emotes/" + id + "/fullsize" });
+        return '<img src="https://files.kick.com/emotes/' + id + '/fullsize" alt="">';
+      });
+      UNI.forEach(function (u) { var n = body.split(u).length - 1; for (var j = 0; j < n; j++) emotes.push({ k: u }); });
+      return { body: body, emotes: emotes };
     }
-    function next() {
-      var clip = CLIPS[i++ % CLIPS.length];
-      v.src = clip.src; renderChat(clip.chat);
-      var p = v.play(); if (p && p.catch) p.catch(function () {});
+    function paintChat() {
+      lines.innerHTML = feed.map(function (x) {
+        var c = PC[x.p] || "#9a9aff";
+        return '<div class="ln"><span class="dot" style="background:' + c + '"></span><span class="u" style="color:' + c + '">' + x.u + '</span>: ' + x.body + '</div>';
+      }).join("");
     }
+    function paintCombo() {
+      var now = Date.now();
+      Object.keys(combos).forEach(function (k) { if (now - combos[k].last > 5000) delete combos[k]; });
+      var arr = Object.keys(combos).map(function (k) { return { k: k, c: combos[k] }; })
+        .filter(function (o) { return o.c.count >= 2; }).sort(function (a, b) { return b.c.count - a.c.count; }).slice(0, 5);
+      if (!arr.length) { combo.innerHTML = ""; return; }
+      var max = arr[0].c.count;
+      combo.innerHTML = arr.map(function (o) {
+        var lead = o.c.count === max;
+        var glyph = o.c.img ? '<img src="' + o.c.img + '" style="height:' + (lead ? 30 : 24) + 'px;vertical-align:middle">' : o.k;
+        return '<div class="c' + (lead ? " lead" : "") + '"><span class="e">' + glyph + "</span>x" + o.c.count + "</div>";
+      }).join("");
+    }
+    function appendMsg() {
+      var clip = CLIPS[clipIdx]; var msg = clip.msgs[(clip._i = (clip._i || 0)) % clip.msgs.length]; clip._i++;
+      var b = bodyOf(msg.m); feed.push({ p: msg.p, u: msg.u, body: b.body }); if (feed.length > 7) feed.shift(); paintChat();
+      var now = Date.now();
+      b.emotes.forEach(function (e) { var c = combos[e.k] || { count: 0 }; c.count++; c.last = now; if (e.img) c.img = e.img; combos[e.k] = c; });
+    }
+    function loadClip(idx) {
+      var clip = CLIPS[idx]; clip._i = 0; feed = []; combos = {}; paintChat(); paintCombo();
+      v.src = clip.src; var p = v.play(); if (p && p.catch) p.catch(function () {});
+    }
+    function next() { clipIdx = (clipIdx + 1) % CLIPS.length; loadClip(clipIdx); }
     v.addEventListener("ended", next);
-    next();
+    loadClip(0);
+    setInterval(appendMsg, 1300);
+    setInterval(paintCombo, 350);
     ["pointerdown", "scroll", "keydown"].forEach(function (ev) {
       window.addEventListener(ev, function once() { if (v.paused) v.play().catch(function () {}); window.removeEventListener(ev, once); }, { once: true, passive: true });
     });
-    // mute / unmute button
     var mb = document.getElementById("muteBtn");
     if (mb) mb.addEventListener("click", function () {
-      v.muted = !v.muted;
-      if (!v.muted) { v.volume = 1; v.play().catch(function () {}); }
+      v.muted = !v.muted; if (!v.muted) { v.volume = 1; v.play().catch(function () {}); }
       mb.innerHTML = v.muted ? "🔇 Tap for sound" : "🔊 Sound on";
     });
   })();

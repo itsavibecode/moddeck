@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.19.1 — Living landing demo
+- The hero demo chat now **scrolls** (left-justified, styled like the real widget) with **Kick + Twitch +
+  YouTube** messages (platform-colored dots), and the **Emoji Combo is fed by the emotes scrolling past in
+  chat** — it builds and decays live instead of being a static strip. Includes real Kick emote images.
+
 ### v0.19.0 — Real Kick chat 🎉
 - **Live Kick chat is now real.** A Worker endpoint resolves a channel's chatroom id, and `js/chat-kick.js`
   reads the channel's public chat socket (Pusher) in the browser. The **Combined Chat** widget shows real
