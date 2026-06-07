@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.12.3 — Landing hero demo video
+- The landing hero mock now plays a real **stream behind the overlay**, rotating through demo clips
+  (`video/`) as a playlist — so the overlay widgets are shown sitting on top of an actual stream.
+
 ### v0.12.2 — Fix: overlay font
 - The overlay now loads the **Inter** font (it only loaded on the dashboard before), so live overlay text
   matches the editor exactly instead of falling back to a system font.

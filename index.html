@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.9.0">
+<meta name="moddeck-version" content="0.12.3">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#5b5bf0">
@@ -74,6 +74,8 @@
   .shot .bar{height:36px;background:#1b1e2a;display:flex;align-items:center;gap:7px;padding:0 14px}
   .shot .bar i{width:11px;height:11px;border-radius:50%;background:#3a3f52} .shot .bar i:nth-child(1){background:#ff5f57}.shot .bar i:nth-child(2){background:#febc2e}.shot .bar i:nth-child(3){background:#28c840}
   .shot .body{aspect-ratio:16/9;position:relative;background:radial-gradient(circle at 30% 30%,#1c2233,#0f1118);overflow:hidden}
+  .shot .body video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .shot .body .lbl,.shot .body .ov{z-index:2}
   .shot .body .lbl{position:absolute;top:14px;left:16px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:6px}
   .ov{position:absolute;border-radius:10px;backdrop-filter:blur(4px)}
   .ov.chat{left:4%;bottom:7%;width:26%;background:rgba(10,12,22,.7);border:1px solid rgba(255,255,255,.12);padding:11px;font-size:11px;color:#cdd2e6}
@@ -152,6 +154,7 @@
   <div class="shot" aria-hidden="true">
     <div class="bar"><i></i><i></i><i></i></div>
     <div class="body">
+      <video id="demoVid" muted playsinline autoplay preload="auto"></video>
       <div class="lbl">LIVE · 1920×1080</div>
       <div class="ov goal">⭐ Sub Goal — 340 / 500<div class="track"><div class="fill"></div></div></div>
       <div class="ov timer">12:04</div>
@@ -227,6 +230,22 @@
   <span>· an independent project, not affiliated with Kick, Twitch, or YouTube</span>
 </div></footer>
 
+<script>
+  // Hero stream background — rotate through the demo clips as a playlist behind the overlay.
+  (function () {
+    var clips = ["video/sjchampton1.mp4", "video/ebzsjcice.mp4"], i = 0;
+    var v = document.getElementById("demoVid");
+    if (!v) return;
+    v.muted = true;
+    function next() { v.src = clips[i++ % clips.length]; var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    v.addEventListener("ended", next);
+    next();
+    // fallback: if a browser blocks muted autoplay, kick it off on the first interaction
+    ["pointerdown", "scroll", "keydown"].forEach(function (ev) {
+      window.addEventListener(ev, function once() { if (v.paused) v.play().catch(function () {}); window.removeEventListener(ev, once); }, { once: true, passive: true });
+    });
+  })();
+</script>
 <script src="js/config.js?v=0.9.0"></script>
 <script src="js/auth.js?v=0.9.0"></script>
 <script>
