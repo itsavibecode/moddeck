@@ -10,8 +10,12 @@
   function localBackend(channelId) {
     const KEY = "moddeck:" + channelId + ":live";
     const SKEY = "moddeck:" + channelId + ":staging";
+    const MQKEY = "moddeck:" + channelId + ":mq";
+    const MNKEY = "moddeck:" + channelId + ":mn";
     const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("moddeck:" + channelId) : null;
-    const liveCbs = [], soundCbs = [], clipCbs = [], alertCbs = [];
+    const liveCbs = [], soundCbs = [], clipCbs = [], alertCbs = [], mqCbs = [], mnCbs = [];
+    function readMQ() { try { return JSON.parse(localStorage.getItem(MQKEY) || "{}"); } catch { return {}; } }
+    function writeMQ(o) { try { localStorage.setItem(MQKEY, JSON.stringify(o)); } catch {} mqCbs.forEach(cb => cb(o)); if (bc) bc.postMessage({ type: "mq", payload: o }); }
     function readStored() {
       try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
     }
@@ -21,6 +25,8 @@
       else if (e.data.type === "sound") soundCbs.forEach(cb => cb(e.data.payload));
       else if (e.data.type === "clip") clipCbs.forEach(cb => cb(e.data.payload));
       else if (e.data.type === "alert") alertCbs.forEach(cb => cb(e.data.payload));
+      else if (e.data.type === "mq") mqCbs.forEach(cb => cb(e.data.payload));
+      else if (e.data.type === "mn") mnCbs.forEach(cb => cb(e.data.payload));
     };
     window.addEventListener("storage", (e) => {
       if (e.key === KEY && e.newValue) { try { liveCbs.forEach(cb => cb(JSON.parse(e.newValue).payload)); } catch {} }
@@ -43,6 +49,13 @@
       onClip(cb) { clipCbs.push(cb); },
       publishAlert(payload) { const p = Object.assign({}, payload, { t: Date.now() }); if (bc) bc.postMessage({ type: "alert", payload: p }); alertCbs.forEach(cb => cb(p)); },
       onAlert(cb) { alertCbs.push(cb); },
+      onMediaQueue(cb) { mqCbs.push(cb); setTimeout(() => cb(readMQ()), 0); },
+      pushMedia(entry) { const o = readMQ(); const id = "m" + Date.now() + Math.floor(Math.random() * 1000); o[id] = Object.assign({}, entry, { t: Date.now() }); writeMQ(o); },
+      updateMedia(id, patch) { const o = readMQ(); if (o[id]) { o[id] = Object.assign({}, o[id], patch); writeMQ(o); } },
+      removeMedia(id) { const o = readMQ(); delete o[id]; writeMQ(o); },
+      playMedia(entry) { const v = Object.assign({}, entry, { startedAt: Date.now() }); try { localStorage.setItem(MNKEY, JSON.stringify(v)); } catch {} mnCbs.forEach(cb => cb(v)); if (bc) bc.postMessage({ type: "mn", payload: v }); },
+      stopMedia() { try { localStorage.removeItem(MNKEY); } catch {} mnCbs.forEach(cb => cb(null)); if (bc) bc.postMessage({ type: "mn", payload: null }); },
+      onMediaNow(cb) { mnCbs.push(cb); try { const r = localStorage.getItem(MNKEY); setTimeout(() => cb(r ? JSON.parse(r) : null), 0); } catch { } },
       publishMeta() {/* no-op locally */},
       loadMeta(cb) { cb(null); },
       publishStaging(payload) { try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch {} },
@@ -68,6 +81,13 @@
       onClip(cb) { ref.child("clipCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
       publishAlert(payload) { ref.child("alertCue").set(Object.assign({}, payload, { t: Date.now() })); },
       onAlert(cb) { ref.child("alertCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
+      onMediaQueue(cb) { ref.child("media/queue").on("value", s => cb(s.val() || {})); },
+      pushMedia(entry) { ref.child("media/queue").push(Object.assign({}, entry, { t: Date.now() })); },
+      updateMedia(id, patch) { ref.child("media/queue/" + id).update(patch); },
+      removeMedia(id) { ref.child("media/queue/" + id).remove(); },
+      playMedia(entry) { ref.child("media/now").set(Object.assign({}, entry, { startedAt: Date.now() })); },
+      stopMedia() { ref.child("media/now").remove(); },
+      onMediaNow(cb) { ref.child("media/now").on("value", s => cb(s.val())); },
       publishMeta(p) { ref.child("meta").update(p); },
       loadMeta(cb) { ref.child("meta").once("value", s => cb(s.val())); },
       publishStaging(payload) { ref.child("staging").set(payload); },
@@ -99,6 +119,13 @@
     onClip(cb) { if (backend && backend.onClip) backend.onClip(cb); },
     publishAlert(payload) { backend && backend.publishAlert && backend.publishAlert(payload); },
     onAlert(cb) { if (backend && backend.onAlert) backend.onAlert(cb); },
+    onMediaQueue(cb) { if (backend && backend.onMediaQueue) backend.onMediaQueue(cb); else cb({}); },
+    pushMedia(entry) { backend && backend.pushMedia && backend.pushMedia(entry); },
+    updateMedia(id, patch) { backend && backend.updateMedia && backend.updateMedia(id, patch); },
+    removeMedia(id) { backend && backend.removeMedia && backend.removeMedia(id); },
+    playMedia(entry) { backend && backend.playMedia && backend.playMedia(entry); },
+    stopMedia() { backend && backend.stopMedia && backend.stopMedia(); },
+    onMediaNow(cb) { if (backend && backend.onMediaNow) backend.onMediaNow(cb); else cb(null); },
     publishMeta(p) { backend && backend.publishMeta && backend.publishMeta(p); },
     loadMeta(cb) { if (backend && backend.loadMeta) backend.loadMeta(cb); else cb(null); },
     publishStaging(payload) { backend && backend.publishStaging(payload); },

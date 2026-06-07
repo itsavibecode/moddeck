@@ -675,6 +675,36 @@
     return { render, instances: insts };
   }
 
+  R.mediashare = function (el) {
+    let cel = el;
+    const n = document.createElement("div");
+    n.style.cssText = "width:100%;height:100%;overflow:hidden;position:relative;background:#000;display:flex;align-items:center;justify-content:center";
+    const ph = document.createElement("div");
+    ph.style.cssText = "color:#9aa0b8;font:600 15px Inter,system-ui,sans-serif;text-align:center;padding:20px";
+    ph.innerHTML = "📺 Media Share<br><span style='font-size:12px;opacity:.7'>Approved viewer videos play here</span>";
+    const frameWrap = document.createElement("div"); frameWrap.style.cssText = "position:absolute;inset:0;display:none";
+    const info = document.createElement("div"); info.style.cssText = "position:absolute;left:0;right:0;bottom:0;padding:9px 13px;background:linear-gradient(transparent,rgba(0,0,0,.82));color:#fff;font:700 14px Inter,system-ui,sans-serif;display:none";
+    n.appendChild(ph); n.appendChild(frameWrap); n.appendChild(info);
+    let curId = null, subbed = false;
+    function showNow(now) {
+      if (now && now.videoId) {
+        if (now.videoId !== curId) {
+          curId = now.videoId;
+          frameWrap.innerHTML = '<iframe width="100%" height="100%" style="border:0;display:block" src="https://www.youtube.com/embed/' +
+            encodeURIComponent(now.videoId) + '?autoplay=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+        }
+        frameWrap.style.display = "block"; ph.style.display = "none";
+        if (cel.props.showInfo !== false) { info.style.display = "block"; info.textContent = "▶ " + (now.title || "Video") + " · " + (now.requester || "viewer") + (now.amount ? (" · " + now.amount + " Kicks") : ""); info.style.borderBottom = "3px solid " + (cel.props.accent || "#53fc18"); }
+        else info.style.display = "none";
+      } else { curId = null; frameWrap.innerHTML = ""; frameWrap.style.display = "none"; info.style.display = "none"; ph.style.display = "flex"; }
+    }
+    function update(e2) {
+      cel = e2; n.style.borderRadius = (e2.props.radius != null ? e2.props.radius : 12) + "px";
+      if (window.MD.isOverlay && !subbed) { subbed = true; MD.sync.onMediaNow(showNow); }   // overlay = real player; dashboard = placeholder
+    }
+    update(el); return { node: n, update };
+  };
+
   // ---- real-event Alert Box driver (overlay) ----
   // cue.type from the worker/test buttons -> the Alert Box per-event config key.
   const ALERT_KEY = { follow: "follow", sub: "sub", resub: "resub", giftsub: "gift", kicks: "kicks" };

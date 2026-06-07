@@ -66,6 +66,15 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.24.0 — Media Share (native PowerChat)
+- New **📺 Media Share** widget + **Media Queue** panel. Viewers request a video by sending **Kicks with a
+  YouTube link** in the message; the worker parses the link (title via YouTube oEmbed) into a per-channel
+  queue. You/your mods **approve, reject, and play** requests; approved videos play in the overlay widget
+  with a "requested by {user} · {amount} Kicks" banner.
+- Reuses the existing Kicks webhook — no extra setup beyond the alert wiring. (A custom Stripe-paid submit
+  form is a planned follow-up.)
+- Requires the `media` RTDB rule (re-publish `database.rules.json`).
+
 ### v0.23.0 — Chatbot foundation
 - New **🤖 Chatbot** panel: define **commands** (`!trigger` → reply, with cooldown) and **timed messages**
   (post every N minutes), each toggleable on/off. Saved per channel.

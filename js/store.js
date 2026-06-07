@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.23.0";
+  window.MD.VERSION = "0.24.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -35,6 +35,7 @@
                kicks:  { on: true, icon: "💚", text: "{user} sent {amount} Kicks", sound: "", gif: "" },
              } } },
     qr:    { w: 240, h: 240, props: { data: "https://moddeck.bookhockeys.com", color: "#000000", bg: "#ffffff", label: "" } },
+    mediashare: { w: 640, h: 392, props: { showInfo: true, accent: "#53fc18", radius: 12 } },
     eventlist: { w: 360, h: 340, props: { title: "RECENT EVENTS", accent: "#0fb5a8", bg: "rgba(10,12,22,.72)", color: "#e6e9f5", max: 8,
              events: [{ icon: "⭐", text: "kayJ subscribed" }, { icon: "🎉", text: "new follower: leoo" }, { icon: "💜", text: "grindset gifted 5 subs" }] } },
     browser: { w: 640, h: 360, props: { url: "", radius: 8, interactive: false } },
@@ -54,11 +55,11 @@
   const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat",
              progress:"Progress Goal", ticker:"Ticker", todo:"To-Do List", tally:"Tally", poll:"Live Poll", alertbox:"Alert Box",
              qr:"QR Code", eventlist:"Event List", browser:"Browser", customcode:"Custom Code", draw:"Drawing", wheel:"Prize Wheel",
-             emojicombo:"Emoji Combo", discord:"Discord Highlights", powerchat:"PowerChat", viewers:"Viewer Count" };
+             emojicombo:"Emoji Combo", discord:"Discord Highlights", powerchat:"PowerChat", viewers:"Viewer Count", mediashare:"Media Share" };
   const ICONS  = { text:"📝", image:"🖼️", video:"🎬", timer:"⏱️", shape:"⬛", chat:"💬",
              progress:"🎯", ticker:"📰", todo:"✅", tally:"🔢", poll:"📊", alertbox:"🔔",
              qr:"🔳", eventlist:"📋", browser:"🌐", customcode:"💻", wheel:"🎡", emojicombo:"🔥", discord:"⭐",
-             powerchat:"💸", viewers:"👁" };
+             powerchat:"💸", viewers:"👁", mediashare:"📺" };
 
   // ---- state ----
   // a "board" = { order:[ids], els:{id:el} }. We keep staging (editable) + live (broadcast).

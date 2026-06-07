@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — Documentation</title>
 <meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
-<meta name="moddeck-version" content="0.23.0">
+<meta name="moddeck-version" content="0.24.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#5b5bf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -60,6 +60,7 @@
     <a href="#obs">OBS setup</a>
     <a href="#mods">Inviting mods</a>
     <a href="#alerts">Live alerts</a>
+    <a href="#media">Media Share</a>
     <a href="#staging">Staging &amp; Live</a>
     <a href="#controls">Canvas &amp; shortcuts</a>
     <a href="#widgets">Widget reference</a>
@@ -130,6 +131,22 @@
       fire on their own while you're live.</p>
       <div class="note">Kick has no "raid/host" webhook yet, so those aren't included. Verified-app limits apply
       to chat-message events, not to follows/subs/gifts.</div>
+    </section>
+
+    <section id="media">
+      <h2>Media Share</h2>
+      <p>Let viewers request videos with their <b>Kicks donations</b>. When a viewer sends Kicks with a
+      <b>YouTube link</b> in the message, it lands in your <b>Media Queue</b> as a request.</p>
+      <ol>
+        <li>Add the <b>Media Share</b> widget to your canvas (that's where approved videos play).</li>
+        <li>Open <b>📺 Media Queue</b> (right panel). Each request shows the video, who sent it, and how many
+          Kicks.</li>
+        <li><b>✓ Approve</b>, <b>✕ Reject</b>, or <b>▶ Play</b> a request — Play puts it on the overlay
+          immediately. <b>⏹ Stop</b> clears the player.</li>
+      </ol>
+      <div class="note">Requires the same Kicks setup as alerts (the "Read KICKs" scope + webhook). A custom
+      paid submit form (Stripe) is planned. Re-publish your Realtime Database rules so the queue can be
+      managed.</div>
     </section>
 
     <section id="staging">

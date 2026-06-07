@@ -115,6 +115,15 @@ export default {
       let body = {}; try { body = JSON.parse(raw); } catch (e) {}
       const cue = mapKickEvent(type, body);
       if (cue && cue.cid) { try { await rtdbSet(env, "channels/" + cue.cid + "/alertCue", cue.payload); } catch (e) {} }
+      // Media Share: a Kicks donation whose message contains a YouTube link becomes a queue request.
+      if (type === "kicks.gifted" && cue && cue.cid) {
+        const vid = extractYouTubeId((body.gift && body.gift.message) || "");
+        if (vid) {
+          let title = "YouTube video"; try { title = (await ytTitle(vid)) || title; } catch (e) {}
+          const entry = { videoId: vid, title, requester: cue.payload.user || "viewer", amount: cue.payload.amount || 0, status: "pending", t: Date.now() };
+          try { await rtdbPush(env, "channels/" + cue.cid + "/media/queue", entry); } catch (e) {}
+        }
+      }
       return new Response("ok", { status: 200 });
     }
 
@@ -217,6 +226,26 @@ async function rtdbSet(env, path, value) {
     method: "PUT", body: JSON.stringify(value),
   });
   return res.ok;
+}
+async function rtdbPush(env, path, value) {
+  const dbUrl = env.FIREBASE_DB_URL || ("https://" + env.FIREBASE_PROJECT_ID + "-default-rtdb.firebaseio.com");
+  const tok = await getAccessToken(env);
+  const res = await fetch(dbUrl + "/" + path + ".json?access_token=" + encodeURIComponent(tok), {
+    method: "POST", body: JSON.stringify(value),
+  });
+  return res.ok;
+}
+
+// ── Media Share helpers ───────────────────────────────────────────────────
+function extractYouTubeId(text) {
+  const m = String(text || "").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{6,})/);
+  return m ? m[1] : null;
+}
+async function ytTitle(videoId) {
+  const r = await fetch("https://www.youtube.com/oembed?format=json&url=https://youtu.be/" + encodeURIComponent(videoId));
+  if (!r.ok) return null;
+  const j = await r.json();
+  return j && j.title ? j.title : null;
 }
 
 // ── Firebase custom token (signed JWT, RS256 via WebCrypto) ───────────────

@@ -21,6 +21,7 @@
     ["text", "📝", "Text"], ["image", "🖼️", "Image"], ["video", "🎬", "Video"],
     ["shape", "⬛", "Shape"], ["wheel", "🎡", "Prize Wheel"], ["discord", "⭐", "Discord Highlights"],
     ["powerchat", "💸", "PowerChat"], ["viewers", "👁", "Viewer Count"], ["qr", "🔳", "QR Code"],
+    ["mediashare", "📺", "Media Share"],
     ["browser", "🌐", "Browser"], ["customcode", "💻", "Custom Code"],
   ];
   function buildPalette() {
@@ -377,6 +378,64 @@
     };
   }
 
+  // ---------- media share queue ----------
+  function ytId(u) {
+    const m = String(u || "").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/))([A-Za-z0-9_-]{6,})/);
+    return m ? m[1] : null;
+  }
+  function wireMedia() {
+    $("#mediaBtn").onclick = () => {
+      const back = el("div", "modal-back");
+      back.innerHTML = `<div class="modal" style="max-width:620px">
+        <h3>📺 Media Queue</h3>
+        <div id="mNowWrap" style="margin-bottom:12px"></div>
+        <div style="font-weight:800;font-size:13px;margin-bottom:7px">Requests</div>
+        <div id="mList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px;max-height:300px;overflow:auto"></div>
+        <div style="display:flex;gap:7px;margin-bottom:14px">
+          <input id="mTestUrl" placeholder="paste a YouTube link to add a test request" style="flex:2;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
+          <button id="mTestAdd" style="border:1px solid var(--line2);background:#fff;border-radius:8px;padding:0 14px;font-weight:700;color:var(--ink-dim)">Add test</button>
+        </div>
+        <div class="mrow"><button id="mClose" class="primary">Done</button></div>
+      </div>`;
+      document.body.appendChild(back);
+      back.onclick = (e) => { if (e.target === back) back.remove(); };
+      let queue = {}, now = null;
+      function paintNow() {
+        const host = $("#mNowWrap", back); host.innerHTML = "";
+        if (now && now.videoId) {
+          const w = el("div"); w.style.cssText = "display:flex;align-items:center;gap:10px;background:#16331a;border:1px solid #2a5a2f;border-radius:9px;padding:9px 11px";
+          w.innerHTML = `<span style="font-size:18px">▶</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:12.5px;color:#7dff5a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Now playing: ${now.title || now.videoId}</div><div style="font-size:10.5px;color:var(--ink-faint)">${now.requester || ""}${now.amount ? " · " + now.amount + " Kicks" : ""}</div></div>`;
+          const stop = el("button", null, "⏹ Stop"); stop.style.cssText = "border:1px solid var(--line2);background:#fff;border-radius:7px;padding:6px 11px;font-weight:700;color:var(--danger)";
+          stop.onclick = () => SY.stopMedia();
+          w.appendChild(stop); host.appendChild(w);
+        }
+      }
+      function paintList() {
+        const host = $("#mList", back); host.innerHTML = "";
+        const ids = Object.keys(queue);
+        if (!ids.length) { host.appendChild(el("div", "list-empty", "No requests yet. Viewers send Kicks with a YouTube link.")); return; }
+        ids.sort((a, b) => (queue[a].t || 0) - (queue[b].t || 0)).forEach(id => {
+          const it = queue[id];
+          const row = el("div"); row.style.cssText = "display:flex;gap:8px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 10px";
+          const pend = (it.status || "pending") === "pending";
+          row.innerHTML = `<img src="https://i.ytimg.com/vi/${it.videoId}/default.jpg" style="width:48px;height:36px;object-fit:cover;border-radius:5px;flex:none" onerror="this.style.visibility='hidden'"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${it.title || it.videoId}</div><div style="font-size:10.5px;color:var(--ink-faint)">${it.requester || "viewer"}${it.amount ? " · " + it.amount + " Kicks" : ""} · ${it.status || "pending"}</div></div>`;
+          if (pend) { const ok = el("button", null, "✓"); ok.title = "Approve"; ok.style.cssText = "border:none;background:#16331a;color:#7dff5a;border-radius:7px;padding:6px 10px;font-weight:800"; ok.onclick = () => SY.updateMedia(id, { status: "approved" }); row.appendChild(ok); }
+          const play = el("button", null, "▶"); play.title = "Play now"; play.style.cssText = "border:none;background:var(--accent);color:#fff;border-radius:7px;padding:6px 11px;font-weight:800"; play.onclick = () => { SY.playMedia({ videoId: it.videoId, title: it.title, requester: it.requester, amount: it.amount }); SY.updateMedia(id, { status: "played" }); };
+          const del = el("button", null, "✕"); del.style.cssText = "border:1px solid var(--line2);background:#fff;color:var(--ink-faint);border-radius:7px;padding:6px 9px"; del.onclick = () => SY.removeMedia(id);
+          row.appendChild(play); row.appendChild(del); host.appendChild(row);
+        });
+      }
+      SY.onMediaQueue(q => { queue = q || {}; paintList(); });
+      SY.onMediaNow(v => { now = v; paintNow(); });
+      $("#mTestAdd", back).onclick = () => {
+        const u = $("#mTestUrl", back).value.trim(); const vid = ytId(u); if (!vid) { toast("Not a YouTube link", "err"); return; }
+        SY.pushMedia({ videoId: vid, title: "Test request", requester: "you", amount: 0, status: "pending" });
+        $("#mTestUrl", back).value = "";
+      };
+      $("#mClose", back).onclick = () => back.remove();
+    };
+  }
+
   // ---------- docs + settings ----------
   function wireMisc() {
     const d = $("#docsBtn"); if (d) d.onclick = () => window.open("docs.html", "_blank");
@@ -686,6 +745,19 @@
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
       note.innerHTML = "Shows a live, animated viewer count. <b>Demo number</b> for now — real Kick viewer count connects via the worker later.";
       add(note);
+    } else if (elx.type === "mediashare") {
+      add(labeled("Accent", swatchRow(["#53fc18", "#5b5bf0", "#0fb5a8", "#ff4d4d", "#ffffff"], p.accent, c => upp({ accent: c }))));
+      add(labeled("Corner radius", range(p.radius == null ? 12 : p.radius, 0, 40, 1, v => upp({ radius: v }))));
+      const w = el("label"); w.style.cssText = "display:flex;gap:6px;align-items:center;font-size:11px;color:var(--ink-dim);cursor:pointer";
+      const cb = el("input"); cb.type = "checkbox"; cb.checked = p.showInfo !== false; cb.onchange = () => upp({ showInfo: cb.checked });
+      w.appendChild(cb); w.appendChild(document.createTextNode("Show requester + amount banner")); add(labeled("", w));
+      const open = el("button", null, "📺 Open Media Queue");
+      open.style.cssText = "width:100%;margin-top:6px;padding:9px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:700";
+      open.onclick = () => $("#mediaBtn").click();
+      add(labeled("", open));
+      const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
+      note.innerHTML = "Viewers request a video by sending <b>Kicks with a YouTube link</b> in the message. Requests land in the <b>Media Queue</b> for you/your mods to approve, then play here. A custom submit form (Stripe) can come later.";
+      add(note);
     }
   }
 
@@ -743,7 +815,7 @@
       content: $("#content"), ui: $("#ui"), dots: $("#dots"),
       onViewChange: (s) => { $("#zoomVal").textContent = Math.round(s * 100) + "%"; },
     });
-    buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireBot(); wireMisc();
+    buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireBot(); wireMedia(); wireMisc();
     // auto-clip feedback (real clip-cut via the platform API lands in the bot phase)
     window.MD.fireClip = function (info) { toast("📎 Auto-clip: " + (info && info.emote) + " ×" + (info && info.count) + " (demo)", "ok"); try { SY.publishClip(info || {}); } catch (e) {} };
     renderAccount(); renderLists(); updateLivePill(false);
