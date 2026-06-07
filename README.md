@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.17.1 — Real viewer usernames in demo chat
+- Clip 2's hero demo chat now uses real viewer usernames (StrongDabs420, Hydroponicz, BotRix, kppfarmer,
+  jameskibs, Coyote7) for a more authentic preview.
+
 ### v0.17.0 — Auto-clip on emote threshold
 - The **Emoji Combo** widget can now **auto-clip** hype moments: set an "Auto-clip at" emote count and it
   fires once when a combo crosses it (with a Test button). The trigger plumbing + `MD.fireClip` hook ship
