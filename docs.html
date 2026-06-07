@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — Documentation</title>
 <meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
-<meta name="moddeck-version" content="0.21.1">
+<meta name="moddeck-version" content="0.22.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#5b5bf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,8 +113,11 @@
       <p>ModDeck can pop an on-stream alert when someone <b>follows, subscribes, gifts subs, or sends Kicks</b>
       on Kick. Drop an <b>Alert Box</b> widget on the canvas to set where it appears and how it looks — real
       events animate in there automatically (one at a time, so a gift-bomb queues neatly).</p>
+      <p>Each event type (Follow, Sub, Resub, Gift subs, Kicks) has its own <b>icon, message, sound, and GIF</b>
+      in the Alert Box properties — toggle any of them on/off. Messages support the variables
+      <code>{user}</code>, <code>{amount}</code>, and <code>{months}</code>.</p>
       <p>Use the <b>Test on live overlay</b> buttons in the Alert Box properties to fire a sample Follow / Sub /
-      Gift / Kicks alert onto your overlay any time.</p>
+      Gift / Kicks alert (with its sound + GIF) onto your overlay any time.</p>
       <h3>One-time setup</h3>
       <p>Real events need two things wired in your <a href="https://kick.com/settings/developer" target="_blank" rel="noopener">Kick developer app</a>:</p>
       <ol>

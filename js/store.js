@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.21.1";
+  window.MD.VERSION = "0.22.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -26,8 +26,14 @@
     tally: { w: 300, h: 180, props: { label: "DEATHS", count: 7, accent: "#e5484d", color: "#ffffff", bg: "rgba(10,12,22,.72)" } },
     poll:  { w: 480, h: 340, props: { question: "Next game?", accent: "#5b5bf0", bg: "rgba(10,12,22,.72)", color: "#e6e9f5",
              options: [{ label: "Valorant", votes: 42 }, { label: "Minecraft", votes: 31 }, { label: "Just Chatting", votes: 18 }] } },
-    alertbox: { w: 560, h: 200, props: { headline: "NEW FOLLOWER", sub: "welcome, friend!", icon: "🎉",
-             accent: "#5b5bf0", bg: "rgba(10,12,22,.86)", color: "#ffffff", triggerSeq: 0 } },
+    alertbox: { w: 560, h: 124, props: { accent: "#5b5bf0", bg: "rgba(10,12,22,.86)", color: "#ffffff", triggerSeq: 0,
+             events: {
+               follow: { on: true, icon: "👋", text: "{user} just followed", sound: "", gif: "" },
+               sub:    { on: true, icon: "⭐", text: "{user} just subscribed", sound: "", gif: "" },
+               resub:  { on: true, icon: "🌟", text: "{user} resubscribed · {months} mo", sound: "", gif: "" },
+               gift:   { on: true, icon: "🎁", text: "{user} gifted {amount} subs", sound: "", gif: "" },
+               kicks:  { on: true, icon: "💚", text: "{user} sent {amount} Kicks", sound: "", gif: "" },
+             } } },
     qr:    { w: 240, h: 240, props: { data: "https://moddeck.bookhockeys.com", color: "#000000", bg: "#ffffff", label: "" } },
     eventlist: { w: 360, h: 340, props: { title: "RECENT EVENTS", accent: "#0fb5a8", bg: "rgba(10,12,22,.72)", color: "#e6e9f5", max: 8,
              events: [{ icon: "⭐", text: "kayJ subscribed" }, { icon: "🎉", text: "new follower: leoo" }, { icon: "💜", text: "grindset gifted 5 subs" }] } },

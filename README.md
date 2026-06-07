@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.22.0 — Custom alerts (sound, text, GIF)
+- Each alert event (Follow, Sub, Resub, Gift subs, Kicks) now has its own **icon, message, sound effect,
+  and optional GIF** in the Alert Box properties, each toggleable on/off.
+- Messages support **variables** — `{user}`, `{amount}`, `{months}` — filled from the real Kick event.
+- The overlay plays the configured sound and shows the GIF when an alert fires (test buttons included).
+
 ### v0.21.1 — Kicks-donation alerts
 - Added the `kicks:read` scope to sign-in so **💚 Kicks donations** fire alerts alongside follows/subs/gifts
   (the worker already subscribes to `kicks.gifted`). Check **"Read KICKs related information"** in your Kick app.

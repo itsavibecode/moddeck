@@ -493,10 +493,29 @@
       add(labeled("Options (Label, votes)", ta));
       add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
     } else if (elx.type === "alertbox") {
-      add(labeled("Headline", txt(p.headline, v => upp({ headline: v }))));
-      add(labeled("Subtext", txt(p.sub, v => upp({ sub: v }))));
-      add(labeled("Icon (emoji)", txt(p.icon, v => upp({ icon: v }))));
       add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+      add(labeled("Text color", swatchRow(SWATCHES, p.color, c => upp({ color: c }))));
+      // per-event customisation: icon · message · sound · gif, one block per event type
+      const updEvent = (k, patch) => { const cur = (S.getEl(elx.id).props.events) || {}; upp({ events: Object.assign({}, cur, { [k]: Object.assign({}, cur[k], patch) }) }); };
+      const inpx = (val, ph, on) => { const i = el("input"); i.type = "text"; i.value = val || ""; i.placeholder = ph || ""; i.style.cssText = "width:100%;background:#fff;border:1px solid var(--line2);border-radius:7px;padding:6px 8px;font-size:11.5px;box-sizing:border-box"; i.oninput = () => on(i.value); return i; };
+      [["follow", "Follow"], ["sub", "Sub"], ["resub", "Resub"], ["gift", "Gift subs"], ["kicks", "Kicks"]].forEach(([k, lbl]) => {
+        const cfg = (p.events && p.events[k]) || {};
+        const block = el("div"); block.style.cssText = "border:1px solid var(--line2);border-radius:9px;padding:9px;margin-top:8px;background:var(--panel2)";
+        const hdr = el("div"); hdr.style.cssText = "display:flex;align-items:center;gap:7px;margin-bottom:7px";
+        const iconI = inpx(cfg.icon, "🎉", v => updEvent(k, { icon: v })); iconI.style.width = "40px"; iconI.style.flex = "none"; iconI.style.textAlign = "center";
+        const name = el("div", null, lbl); name.style.cssText = "font-weight:800;font-size:12px;flex:1";
+        const onW = el("label"); onW.style.cssText = "display:flex;gap:4px;align-items:center;font-size:10px;color:var(--ink-faint);cursor:pointer";
+        const onCb = el("input"); onCb.type = "checkbox"; onCb.checked = cfg.on !== false; onCb.onchange = () => updEvent(k, { on: onCb.checked });
+        onW.appendChild(onCb); onW.appendChild(document.createTextNode("on"));
+        hdr.appendChild(iconI); hdr.appendChild(name); hdr.appendChild(onW); block.appendChild(hdr);
+        const m = inpx(cfg.text, "{user} just followed", v => updEvent(k, { text: v })); m.style.marginBottom = "6px"; block.appendChild(m);
+        const s = inpx(cfg.sound, "sound URL (mp3/wav) — optional", v => updEvent(k, { sound: v })); s.style.marginBottom = "6px"; block.appendChild(s);
+        const g = inpx(cfg.gif, "GIF / image URL — optional", v => updEvent(k, { gif: v })); block.appendChild(g);
+        add(block);
+      });
+      const varsNote = el("div"); varsNote.style.cssText = "font-size:10px;color:var(--ink-faint);margin-top:7px";
+      varsNote.innerHTML = "Variables: <code>{user}</code> · <code>{amount}</code> · <code>{months}</code>";
+      add(varsNote);
       const trig = el("button", null, "▶ Preview style here");
       trig.style.cssText = "width:100%;margin-top:4px;padding:9px;border:1px solid var(--line2);border-radius:8px;background:#fff;color:var(--ink-dim);font-weight:700";
       trig.onclick = () => { upp({ triggerSeq: (S.getEl(elx.id).props.triggerSeq || 0) + 1 }); toast("Preview animation"); };

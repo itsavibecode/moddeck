@@ -363,8 +363,12 @@
     let lastSeq = null;
     function update(el) {
       const p = el.props; n.style.background = p.bg; n.style.borderLeft = `5px solid ${p.accent}`;
-      ic.textContent = p.icon || "🎉"; hl.textContent = p.headline; hl.style.color = p.color;
-      sub.textContent = p.sub; sub.style.color = p.accent;
+      // preview a representative event (Follow) using the per-event config
+      const ev = (p.events && p.events.follow) || {};
+      ic.textContent = ev.icon || "👋";
+      hl.textContent = String(ev.text || "{user} just followed").replace(/\{user\}/g, "Username").replace(/\{amount\}/g, "5").replace(/\{months\}/g, "3");
+      hl.style.color = p.color;
+      sub.textContent = "Live alerts appear here"; sub.style.color = p.accent;
       if (p.triggerSeq !== lastSeq) { lastSeq = p.triggerSeq; n.style.animation = "none"; void n.offsetWidth; n.style.animation = "md-alert-in .6s cubic-bezier(.2,.8,.2,1)"; }
     }
     update(el); return { node: n, update };
@@ -672,36 +676,54 @@
   }
 
   // ---- real-event Alert Box driver (overlay) ----
-  // Maps a Kick event cue to display content. Used by playAlert().
-  function alertContent(cue) {
-    cue = cue || {}; const u = cue.user || "Someone", a = +cue.amount || 0, m = +cue.months || 0;
-    switch (cue.type) {
-      case "follow":  return { icon: "👋", headline: u, sub: "just followed" };
-      case "sub":     return { icon: "⭐", headline: u, sub: m > 1 ? ("subscribed · " + m + " months") : "just subscribed" };
-      case "resub":   return { icon: "🌟", headline: u, sub: "resubscribed" + (m > 1 ? (" · " + m + " months") : "") };
-      case "giftsub": return { icon: "🎁", headline: cue.anon ? "Anonymous" : u, sub: a > 1 ? ("gifted " + a + " subs") : "gifted a sub" };
-      case "kicks":   return { icon: "💚", headline: u, sub: "sent " + a + " Kicks" };
-      default:        return { icon: "🔔", headline: u, sub: cue.message || "new event" };
-    }
+  // cue.type from the worker/test buttons -> the Alert Box per-event config key.
+  const ALERT_KEY = { follow: "follow", sub: "sub", resub: "resub", giftsub: "gift", kicks: "kicks" };
+  const ALERT_DEF = {
+    follow: { icon: "👋", text: "{user} just followed" },
+    sub:    { icon: "⭐", text: "{user} just subscribed" },
+    resub:  { icon: "🌟", text: "{user} resubscribed" },
+    gift:   { icon: "🎁", text: "{user} gifted {amount} subs" },
+    kicks:  { icon: "💚", text: "{user} sent {amount} Kicks" },
+  };
+  function fillVars(t, cue) {
+    const u = cue.anon ? "Anonymous" : (cue.user || "Someone");
+    return String(t == null ? "" : t)
+      .replace(/\{user\}/g, u)
+      .replace(/\{amount\}/g, cue.amount != null ? cue.amount : "")
+      .replace(/\{months\}/g, cue.months != null ? cue.months : "");
   }
-  // Plays an alert on the overlay. Uses a placed Alert Box widget's geometry/colors if one exists,
-  // otherwise a default top-center banner. Queues so a gift-bomb shows one at a time.
+  // Resolve a cue + an Alert Box widget's per-event config into {icon,text,sound,gif}.
+  // Returns null if the event type is unknown or that event is toggled off.
+  function alertContent(cue, cfg) {
+    cue = cue || {};
+    const key = ALERT_KEY[cue.type];
+    const def = ALERT_DEF[key] || { icon: "🔔", text: "{user}" };
+    const ec = (cfg && key && cfg[key]) || {};
+    if (ec.on === false) return null;
+    return { icon: ec.icon || def.icon, text: fillVars(ec.text || def.text, cue), sound: ec.sound || "", gif: ec.gif || "" };
+  }
+  function _findAlertBox(board) {
+    if (board && board.order) for (let i = 0; i < board.order.length; i++) { const e = board.els[board.order[i]]; if (e && e.type === "alertbox") return e; }
+    return null;
+  }
+  // Plays an alert on the overlay. Uses a placed Alert Box widget's geometry/colors/config if one
+  // exists, otherwise a default top-center banner. Queues so a gift-bomb shows one at a time.
   let _alertQ = [], _alertBusy = false;
   function playAlert(stage, board, cue) {
-    _alertQ.push({ stage, board, cue });
+    const box = _findAlertBox(board);
+    const content = alertContent(cue, box && box.props && box.props.events);
+    if (!content) return;                       // unknown or disabled event — don't waste a slot
+    _alertQ.push({ stage, box, content });
     if (!_alertBusy) _drainAlerts();
   }
   function _drainAlerts() {
     if (!_alertQ.length) { _alertBusy = false; return; }
     _alertBusy = true;
     const job = _alertQ.shift();
-    try { _renderAlert(job.stage, job.board, job.cue); } catch (e) {}
+    try { _renderAlert(job.stage, job.box, job.content); } catch (e) {}
     setTimeout(_drainAlerts, 4200);
   }
-  function _renderAlert(stage, board, cue) {
-    const c = alertContent(cue);
-    let box = null;
-    if (board && board.order) for (let i = 0; i < board.order.length; i++) { const e = board.els[board.order[i]]; if (e && e.type === "alertbox") { box = e; break; } }
+  function _renderAlert(stage, box, c) {
     const geo = box ? { x: box.x, y: box.y, w: box.w, h: box.h } : { x: 600, y: 80, w: 720, h: 124 };
     const bp = (box && box.props) || {};
     const bg = bp.bg || "rgba(16,18,28,.94)", accent = bp.accent || "#53fc18", color = bp.color || "#ffffff";
@@ -709,11 +731,12 @@
     n.style.cssText = "position:absolute;left:" + geo.x + "px;top:" + geo.y + "px;width:" + geo.w + "px;height:" + geo.h +
       "px;display:flex;align-items:center;gap:16px;border-radius:14px;padding:0 22px;box-sizing:border-box;overflow:hidden;background:" +
       bg + ";border-left:5px solid " + accent + ";box-shadow:0 12px 44px rgba(0,0,0,.4);z-index:9999";
-    const ic = document.createElement("div"); ic.style.cssText = "font-size:48px;line-height:1;flex:none"; ic.textContent = c.icon;
-    const txt = document.createElement("div"); txt.style.cssText = "min-width:0";
-    const hl = document.createElement("div"); hl.style.cssText = "font:800 30px/1.1 Inter,system-ui,sans-serif;color:" + color + ";white-space:nowrap;overflow:hidden;text-overflow:ellipsis"; hl.textContent = c.headline;
-    const sub = document.createElement("div"); sub.style.cssText = "font:600 17px/1.2 Inter,system-ui,sans-serif;color:" + accent + ";margin-top:3px"; sub.textContent = c.sub;
-    txt.appendChild(hl); txt.appendChild(sub); n.appendChild(ic); n.appendChild(txt);
+    const ic = document.createElement("div"); ic.style.cssText = "font-size:46px;line-height:1;flex:none"; ic.textContent = c.icon;
+    const txt = document.createElement("div"); txt.style.cssText = "flex:1;min-width:0";
+    const hl = document.createElement("div"); hl.style.cssText = "font:800 28px/1.15 Inter,system-ui,sans-serif;color:" + color + ";overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical"; hl.textContent = c.text;
+    txt.appendChild(hl); n.appendChild(ic); n.appendChild(txt);
+    if (c.gif) { const g = document.createElement("img"); g.src = c.gif; g.style.cssText = "height:" + Math.max(40, geo.h - 28) + "px;max-width:38%;object-fit:contain;border-radius:8px;flex:none"; g.onerror = () => g.remove(); n.appendChild(g); }
+    if (c.sound) { try { const a = new Audio(c.sound); a.volume = 1; a.play().catch(() => {}); } catch (e) {} }
     n.style.animation = "md-alert-in .6s cubic-bezier(.2,.8,.2,1)";
     stage.appendChild(n);
     setTimeout(() => { n.style.transition = "opacity .4s, transform .4s"; n.style.opacity = "0"; n.style.transform = "translateY(-10px)"; setTimeout(() => n.remove(), 420); }, 3600);
