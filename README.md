@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.18.1 — Version pill on landing + PWA manifest
+- Added the **version pill** to the landing nav (it was only on the dashboard) and made the dashboard pills
+  read the version constant automatically. Added `site.webmanifest` (PWA) + a PNG favicon fallback — finishing
+  the favicons/social set.
+
 ### v0.18.0 — Logo F + platform theming
 - New official logo: **Logo F** (overlay layers + control cursor). Updated favicon, app/PWA icons, and OG card,
   and unified the wordmark to one-color "ModDeck".

@@ -5,9 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — the control deck for you & your mods</title>
 <meta name="description" content="A free browser-based stream-overlay control tool for Kick, Twitch & YouTube. Drop one source into OBS, then let you and your mods run the overlay live — chat, timers, polls, alerts, wheels and more.">
-<meta name="moddeck-version" content="0.18.0">
+<meta name="moddeck-version" content="0.18.1">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#5b5bf0">
 <!-- Open Graph / Twitter -->
 <meta property="og:type" content="website">
@@ -48,6 +50,7 @@
   .brand img{width:34px;height:34px}
   .beta{font-size:9.5px;font-weight:800;letter-spacing:1px;background:#5cc8ff;color:#053048;
     padding:2px 7px;border-radius:6px;margin-left:2px;vertical-align:middle;box-shadow:0 0 0 1px rgba(92,200,255,.4)}
+  .ver-pill{font-size:9.5px;font-weight:700;color:var(--dim);background:#fff;border:1px solid var(--line2);border-radius:999px;padding:1px 8px;margin-left:2px;vertical-align:middle}
   nav .links{margin-left:auto;display:flex;align-items:center;gap:8px}
   nav .links a.t{padding:8px 12px;color:var(--ink-dim);font-weight:600;font-size:14px;border-radius:8px}
   nav .links a.t:hover{color:var(--ink);background:var(--panel)}
@@ -134,7 +137,7 @@
 </head>
 <body>
 <nav><div class="wrap">
-  <a class="brand" href="/"><img src="favicon.svg" alt="">ModDeck<span class="beta">BETA</span></a>
+  <a class="brand" href="/"><img src="favicon.svg" alt="">ModDeck<span class="beta">BETA</span><span class="ver-pill">v0.18.1</span></a>
   <div class="links">
     <a class="t" href="#features">Features</a>
     <a class="t" href="#how">How it works</a>
