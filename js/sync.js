@@ -12,10 +12,14 @@
     const SKEY = "moddeck:" + channelId + ":staging";
     const MQKEY = "moddeck:" + channelId + ":mq";
     const MNKEY = "moddeck:" + channelId + ":mn";
+    const BOTKEY = "moddeck:" + channelId + ":botcfg";
+    const MSKEY = "moddeck:" + channelId + ":msettings";
     const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("moddeck:" + channelId) : null;
-    const liveCbs = [], soundCbs = [], clipCbs = [], alertCbs = [], mqCbs = [], mnCbs = [];
+    const liveCbs = [], soundCbs = [], clipCbs = [], alertCbs = [], mqCbs = [], mnCbs = [], botCbs = [], msCbs = [];
     function readMQ() { try { return JSON.parse(localStorage.getItem(MQKEY) || "{}"); } catch { return {}; } }
     function writeMQ(o) { try { localStorage.setItem(MQKEY, JSON.stringify(o)); } catch {} mqCbs.forEach(cb => cb(o)); if (bc) bc.postMessage({ type: "mq", payload: o }); }
+    function readJSON(k) { try { return JSON.parse(localStorage.getItem(k) || "{}"); } catch { return {}; } }
+    function writeJSON(k, o, cbs, ev) { try { localStorage.setItem(k, JSON.stringify(o)); } catch {} cbs.forEach(cb => cb(o)); if (bc) bc.postMessage({ type: ev, payload: o }); }
     function readStored() {
       try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
     }
@@ -27,6 +31,8 @@
       else if (e.data.type === "alert") alertCbs.forEach(cb => cb(e.data.payload));
       else if (e.data.type === "mq") mqCbs.forEach(cb => cb(e.data.payload));
       else if (e.data.type === "mn") mnCbs.forEach(cb => cb(e.data.payload));
+      else if (e.data.type === "bot") botCbs.forEach(cb => cb(e.data.payload));
+      else if (e.data.type === "ms") msCbs.forEach(cb => cb(e.data.payload));
     };
     window.addEventListener("storage", (e) => {
       if (e.key === KEY && e.newValue) { try { liveCbs.forEach(cb => cb(JSON.parse(e.newValue).payload)); } catch {} }
@@ -56,6 +62,10 @@
       playMedia(entry) { const v = Object.assign({}, entry, { startedAt: Date.now() }); try { localStorage.setItem(MNKEY, JSON.stringify(v)); } catch {} mnCbs.forEach(cb => cb(v)); if (bc) bc.postMessage({ type: "mn", payload: v }); },
       stopMedia() { try { localStorage.removeItem(MNKEY); } catch {} mnCbs.forEach(cb => cb(null)); if (bc) bc.postMessage({ type: "mn", payload: null }); },
       onMediaNow(cb) { mnCbs.push(cb); try { const r = localStorage.getItem(MNKEY); setTimeout(() => cb(r ? JSON.parse(r) : null), 0); } catch { } },
+      onBot(cb) { botCbs.push(cb); setTimeout(() => cb(readJSON(BOTKEY)), 0); },
+      setBot(patch) { writeJSON(BOTKEY, Object.assign({}, readJSON(BOTKEY), patch), botCbs, "bot"); },
+      onMediaSettings(cb) { msCbs.push(cb); setTimeout(() => cb(readJSON(MSKEY)), 0); },
+      setMediaSettings(patch) { writeJSON(MSKEY, Object.assign({}, readJSON(MSKEY), patch), msCbs, "ms"); },
       publishMeta() {/* no-op locally */},
       loadMeta(cb) { cb(null); },
       publishStaging(payload) { try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch {} },
@@ -88,6 +98,10 @@
       playMedia(entry) { ref.child("media/now").set(Object.assign({}, entry, { startedAt: Date.now() })); },
       stopMedia() { ref.child("media/now").remove(); },
       onMediaNow(cb) { ref.child("media/now").on("value", s => cb(s.val())); },
+      onBot(cb) { ref.child("bot").on("value", s => cb(s.val() || {})); },
+      setBot(patch) { ref.child("bot").update(patch); },
+      onMediaSettings(cb) { ref.child("media/settings").on("value", s => cb(s.val() || {})); },
+      setMediaSettings(patch) { ref.child("media/settings").update(patch); },
       publishMeta(p) { ref.child("meta").update(p); },
       loadMeta(cb) { ref.child("meta").once("value", s => cb(s.val())); },
       publishStaging(payload) { ref.child("staging").set(payload); },
@@ -126,6 +140,10 @@
     playMedia(entry) { backend && backend.playMedia && backend.playMedia(entry); },
     stopMedia() { backend && backend.stopMedia && backend.stopMedia(); },
     onMediaNow(cb) { if (backend && backend.onMediaNow) backend.onMediaNow(cb); else cb(null); },
+    onBot(cb) { if (backend && backend.onBot) backend.onBot(cb); else cb({}); },
+    setBot(patch) { backend && backend.setBot && backend.setBot(patch); },
+    onMediaSettings(cb) { if (backend && backend.onMediaSettings) backend.onMediaSettings(cb); else cb({}); },
+    setMediaSettings(patch) { backend && backend.setMediaSettings && backend.setMediaSettings(patch); },
     publishMeta(p) { backend && backend.publishMeta && backend.publishMeta(p); },
     loadMeta(cb) { if (backend && backend.loadMeta) backend.loadMeta(cb); else cb(null); },
     publishStaging(payload) { backend && backend.publishStaging(payload); },

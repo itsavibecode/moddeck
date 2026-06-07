@@ -95,6 +95,7 @@
       SY.loadMeta(function (meta) { if (meta && meta.chatroomId) { try { MD.chat.connectKick(meta.chatroomId); } catch (e) {} } });
     }
 
+    subscribeBot(); subscribeMediaSettings();   // re-bind cloud bot/media config to the live channel
     wireMods(target, user);
     if (amOwner) { startBotRunner(target); startMediaController(); }   // run the chatbot + media auto-advance from the streamer's session
     toast(amOwner ? "Real-time sync on" : "Editing as mod", "ok");
@@ -303,11 +304,26 @@
     };
   }
 
-  // ---------- chatbot (commands + timed messages) ----------
-  function botCommands() { try { return JSON.parse(localStorage.getItem(keyOf("botCommands")) || "[]"); } catch { return []; } }
-  function saveBotCommands(a) { localStorage.setItem(keyOf("botCommands"), JSON.stringify(a)); }
-  function botTimers() { try { return JSON.parse(localStorage.getItem(keyOf("botTimers")) || "[]"); } catch { return []; } }
-  function saveBotTimers(a) { localStorage.setItem(keyOf("botTimers"), JSON.stringify(a)); }
+  // ---------- chatbot (commands + timed messages) — cloud-synced so mods share it across devices ----------
+  let _botCfg = { commands: [], timers: [] }, _botRepaint = null, _botTimerHandles = [];
+  function _toArr(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.values(x) : []); }
+  function normBot(v) { v = v || {}; return { commands: _toArr(v.commands), timers: _toArr(v.timers) }; }
+  function botCommands() { return _botCfg.commands || []; }
+  function saveBotCommands(a) { _botCfg.commands = a; if (_botRepaint) _botRepaint(); SY.setBot({ commands: a }); }
+  function botTimers() { return _botCfg.timers || []; }
+  function saveBotTimers(a) { _botCfg.timers = a; if (_botRepaint) _botRepaint(); SY.setBot({ timers: a }); }
+  function subscribeBot() {
+    SY.onBot(function (cfg) { _botCfg = normBot(cfg); if (_botRepaint) _botRepaint(); if (amOwner && _botRunner) rebuildBotTimers(channelId); });
+  }
+  function rebuildBotTimers(cid) {
+    _botTimerHandles.forEach(function (h) { clearTimeout(h.t); clearInterval(h.i); }); _botTimerHandles = [];
+    botTimers().forEach(function (t, idx) {
+      if (t.on === false) return;
+      const ms = Math.max(1, t.everyMin || 10) * 60000, h = {};
+      h.t = setTimeout(function () { botSay(cid, t.text); h.i = setInterval(function () { botSay(cid, t.text); }, ms); }, (idx + 1) * 15000);
+      _botTimerHandles.push(h);
+    });
+  }
   // runs the bot while the streamer's dashboard is open: fires timed messages + answers !commands.
   // Posts via the worker (which holds the Kick token); only the owner runs it to avoid double-posting.
   let _botRunner = false;
@@ -322,12 +338,7 @@
   }
   function startBotRunner(cid) {
     if (_botRunner) return; _botRunner = true;
-    // timed messages — stagger initial fires so they don't all post at once
-    botTimers().forEach(function (t, i) {
-      if (t.on === false) return;
-      const ms = Math.max(1, t.everyMin || 10) * 60000;
-      setTimeout(function () { botSay(cid, t.text); setInterval(function () { botSay(cid, t.text); }, ms); }, (i + 1) * 15000);
-    });
+    rebuildBotTimers(cid);   // timed messages (re-built live whenever the cloud config changes)
     // commands — answer triggers from live chat (re-reads config each message so edits apply)
     const lastFired = {};
     if (window.MD.chat && MD.chat.onMessage) MD.chat.onMessage(function (m) {
@@ -400,6 +411,7 @@
         });
       }
       renderCmds(); renderTimers();
+      _botRepaint = function () { if (document.body.contains(back)) { renderCmds(); renderTimers(); } else { _botRepaint = null; } };
       $("#cmdAdd", back).onclick = () => {
         let trig = ($("#cmdTrig", back).value || "").trim(); const reply = ($("#cmdReply", back).value || "").trim();
         if (!trig || !reply) return; if (trig[0] !== "!") trig = "!" + trig;
@@ -411,7 +423,7 @@
         const a = botTimers(); a.push({ text, everyMin: Math.max(1, parseInt($("#timEvery", back).value) || 10), on: true });
         saveBotTimers(a); $("#timText", back).value = ""; renderTimers();
       };
-      $("#botClose", back).onclick = () => back.remove();
+      $("#botClose", back).onclick = () => { _botRepaint = null; back.remove(); };
     };
   }
 
@@ -423,8 +435,9 @@
   // ---- media auto-advance (owner's dashboard drives it; overlay is unauthed so can't self-advance) ----
   // A hidden, muted YouTube player mirrors /media/now to detect when a video ends, then plays the next
   // approved request. A duration timer is a fallback in case the tab is backgrounded and ENDED is throttled.
-  let _ytReady = null, _ytPlayer = null, _mediaCtrl = false, _mediaQ = {}, _advTimer = null;
-  function autoAdvanceOn() { return localStorage.getItem(keyOf("mediaAuto")) !== "0"; }   // default on
+  let _ytReady = null, _ytPlayer = null, _mediaCtrl = false, _mediaQ = {}, _advTimer = null, _mediaSettings = {};
+  function autoAdvanceOn() { return _mediaSettings.autoAdvance !== false; }   // default on
+  function subscribeMediaSettings() { SY.onMediaSettings(function (v) { _mediaSettings = v || {}; }); }
   function loadYT() {
     if (_ytReady) return _ytReady;
     _ytReady = new Promise(function (res) {
@@ -515,7 +528,8 @@
       SY.onMediaQueue(q => { queue = q || {}; paintList(); });
       SY.onMediaNow(v => { now = v; paintNow(); });
       const autoCb = $("#mAuto", back); autoCb.checked = autoAdvanceOn();
-      autoCb.onchange = () => { localStorage.setItem(keyOf("mediaAuto"), autoCb.checked ? "1" : "0"); toast(autoCb.checked ? "Auto-advance on" : "Auto-advance off"); };
+      SY.onMediaSettings(v => { _mediaSettings = v || {}; autoCb.checked = autoAdvanceOn(); });
+      autoCb.onchange = () => { SY.setMediaSettings({ autoAdvance: autoCb.checked }); toast(autoCb.checked ? "Auto-advance on" : "Auto-advance off"); };
       $("#mTestAdd", back).onclick = () => {
         const u = $("#mTestUrl", back).value.trim(); const vid = ytId(u); if (!vid) { toast("Not a YouTube link", "err"); return; }
         SY.pushMedia({ videoId: vid, title: "Test request", requester: "you", amount: 0, status: "pending" });
@@ -899,6 +913,7 @@
     viewport = $("#viewport"); channelId = "dev-local";
     editChannel = (new URLSearchParams(location.search)).get("channel") || null;
     SY.init({ channelId });
+    subscribeBot(); subscribeMediaSettings();   // demo/local until login swaps to the firebase backend
     C.init({
       viewport, world: $("#world"), frame: $("#frame"), frameLabel: $("#frameLabel"),
       content: $("#content"), ui: $("#ui"), dots: $("#dots"),

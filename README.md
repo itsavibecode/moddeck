@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.27.0 — Cloud-synced bot & media config
+- **Chatbot commands/timed messages and the Media auto-advance toggle now live in the cloud** (per channel),
+  so you and your mods share the same config across devices instead of it being stuck in one browser.
+- Timed-message edits now apply **live** (no reload needed) — the runner rebuilds whenever the config changes.
+- Adds a `bot` RTDB rule (re-publish `database.rules.json`).
+
 ### v0.26.0 — Media Share auto-advance
 - Approved videos now play **back-to-back automatically** — when one ends, the next approved request starts.
   Driven from the streamer's dashboard via a hidden, muted YouTube player that detects the end (with a
