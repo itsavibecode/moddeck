@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.30.0";
+  window.MD.VERSION = "0.30.1";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -15,7 +15,7 @@
              size: 72, color: "#ffffff", accent: "#0fb5a8", running: false } },
     shape: { w: 320, h: 200, props: { kind: "rect", fill: "#5b5bf0", radius: 14, opacity: .9,
              border: 0, borderColor: "#ffffff" } },
-    chat:  { w: 380, h: 460, props: { title: "COMBINED CHAT", accent: "#0fb5a8", bg: "rgba(10,12,22,.72)",
+    chat:  { w: 380, h: 460, props: { title: "KICK CHAT", accent: "#0fb5a8", bg: "rgba(10,12,22,.72)",
              text: "#e6e9f5", max: 8, showPlatform: true, sources: { kick: "", twitch: "", youtube: "" } } },
     progress: { w: 480, h: 96, props: { label: "⭐ Sub Goal", current: 340, target: 500, accent: "#5b5bf0",
              bg: "rgba(10,12,22,.72)", color: "#ffffff", showPercent: true } },
@@ -52,7 +52,7 @@
     wheel: { w: 440, h: 500, props: { segments: "Nitro\n100 bits\nShoutout\nNothing\nFollow\nSub gift",
              winner: 0, spinSeq: 0, accent: "#5b5bf0", color: "#ffffff" } },
   };
-  const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Combined Chat",
+  const LABELS = { text:"Text", image:"Image", video:"Video", timer:"Timer", shape:"Shape", chat:"Kick Chat",
              progress:"Progress Goal", ticker:"Ticker", todo:"To-Do List", tally:"Tally", poll:"Live Poll", alertbox:"Alert Box",
              qr:"QR Code", eventlist:"Event List", browser:"Browser", customcode:"Custom Code", draw:"Drawing", wheel:"Prize Wheel",
              emojicombo:"Emoji Combo", discord:"Discord Highlights", powerchat:"PowerChat", viewers:"Viewer Count", mediashare:"Media Share" };

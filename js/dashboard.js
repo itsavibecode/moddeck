@@ -15,7 +15,7 @@
 
   // ---------- palette ----------
   const PALETTE = [
-    ["chat", "💬", "Combined Chat"], ["alertbox", "🔔", "Alert Box"], ["timer", "⏱️", "Timer"],
+    ["chat", "💬", "Kick Chat"], ["alertbox", "🔔", "Alert Box"], ["timer", "⏱️", "Timer"],
     ["progress", "🎯", "Goal Bar"], ["poll", "📊", "Live Poll"], ["todo", "✅", "To-Do"],
     ["tally", "🔢", "Tally"], ["emojicombo", "🔥", "Emoji Combo"], ["ticker", "📰", "Ticker"], ["eventlist", "📋", "Event List"],
     ["text", "📝", "Text"], ["image", "🖼️", "Image"], ["video", "🎬", "Video"],
@@ -728,7 +728,7 @@
       add(labeled("Max messages", range(p.max, 3, 16, 1, v => upp({ max: v }))));
       add(labeled("Accent / names", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
-      note.innerHTML = "Showing a <b>sample feed</b>. Live Kick / Twitch / YouTube chat connects in a later phase.";
+      note.innerHTML = "Shows your <b>live Kick chat</b> once you're signed in (a sample feed in demo). Twitch &amp; YouTube join the same widget soon.";
       add(note);
     } else if (elx.type === "progress") {
       add(labeled("Label", txt(p.label, v => upp({ label: v }))));

@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.30.1 — "Kick Chat" naming
+- Renamed the chat widget from **Combined Chat** to **Kick Chat** (palette, properties, default title, docs) to
+  match reality — it's Kick-only today. We'll switch it back to "Combined Chat" when Twitch/YouTube join the
+  feed. (Existing placed widgets keep their saved title until you edit it.)
+
 ### v0.30.0 — 24/7 commands
 - `!commands` are now answered **server-side via Kick's chat webhook** — they work even with the dashboard
   closed (no Durable Objects needed). The worker matches the trigger, respects the cooldown, and replies as
