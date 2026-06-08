@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.27.5 — Toast position & duration
+- Toast notifications now appear at the **top-center** of the screen and stay up **5 seconds** (was bottom-
+  right for ~2.6s), so they're easier to notice and read.
+
 ### v0.27.4 — "Why" tooltips on OBS steps
 - Each OBS setup step in the Get-OBS-Link modal now has a hover **ⓘ tooltip** explaining *why* it matters
   (resolution, "Control audio via OBS", "Shutdown source when not visible", Local file / Custom CSS).

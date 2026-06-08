@@ -179,10 +179,12 @@ input,select{font-family:inherit}
 .lk:hover{color:var(--accent);border-color:var(--accent)}
 
 /* ---- toast + modal ---- */
-.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast-wrap{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:999;display:flex;
+  flex-direction:column;gap:8px;align-items:center}
 .toast{background:var(--ink);color:#fff;padding:11px 16px;border-radius:10px;font-size:12.5px;font-weight:600;
-  box-shadow:var(--shadow-lg);animation:slidein .2s ease;max-width:320px}
+  box-shadow:var(--shadow-lg);animation:toastin .2s ease;max-width:360px;text-align:center}
 .toast.ok{background:#0f7a4a}.toast.err{background:#b4262a}
+@keyframes toastin{from{transform:translateY(-10px);opacity:0}}
 @keyframes slidein{from{transform:translateY(8px);opacity:0}}
 .modal-back{position:fixed;inset:0;background:rgba(20,25,45,.4);backdrop-filter:blur(2px);z-index:500;
   display:flex;align-items:center;justify-content:center;padding:20px}

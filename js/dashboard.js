@@ -10,7 +10,7 @@
   function toast(msg, kind) {
     let wrap = $(".toast-wrap"); if (!wrap) { wrap = el("div", "toast-wrap"); document.body.appendChild(wrap); }
     const t = el("div", "toast " + (kind || ""), msg); wrap.appendChild(t);
-    setTimeout(() => { t.style.opacity = "0"; t.style.transition = "opacity .3s"; setTimeout(() => t.remove(), 300); }, 2600);
+    setTimeout(() => { t.style.opacity = "0"; t.style.transition = "opacity .3s"; setTimeout(() => t.remove(), 300); }, 5000);
   }
 
   // ---------- palette ----------
