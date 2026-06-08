@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.28.1 — ModDeck bot is the default
+- **"Posts appear as" now defaults to ModDeck bot** — confirmed to post even in subscribers-only chat with no
+  moderator setup needed. "Your channel" stays available as the alternative.
+
 ### v0.28.0 — Post as your channel (reliable chatbot)
 - Added a **"Posts appear as"** choice in the Chatbot panel. Default **Your channel** posts from your own
   account (`type:user`) — **always works**, even in subscribers-only / follower-only chat, with no bot account

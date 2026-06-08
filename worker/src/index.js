@@ -149,15 +149,14 @@ export default {
         if (!allowed) return json({ error: "forbidden" }, 403, origin);
         const token = await getValidKickToken(env, cid);
         if (!token) return json({ error: "bot not connected" }, 503, origin);
-        // post as the broadcaster (default — always exempt from sub-only/follower-only) or as the app bot.
+        // post as the ModDeck bot (default) or, if explicitly requested, as the broadcaster's own account.
         const content = String(text).slice(0, 500);
         let sendBody;
-        if (as === "bot") { sendBody = { content, type: "bot" }; }
-        else {
+        if (as === "self") {
           const bid = parseInt((String(cid).split(":")[1] || ""), 10);
           if (!bid) return json({ error: "bad channel id" }, 400, origin);
           sendBody = { content, type: "user", broadcaster_user_id: bid };
-        }
+        } else { sendBody = { content, type: "bot" }; }
         const r = await fetch("https://api.kick.com/public/v1/chat", {
           method: "POST",
           headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: "application/json" },

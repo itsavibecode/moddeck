@@ -316,7 +316,7 @@
   // ---------- chatbot (commands + timed messages) — cloud-synced so mods share it across devices ----------
   let _botCfg = { commands: [], timers: [] }, _botRepaint = null, _botTimerHandles = [];
   function _toArr(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.values(x) : []); }
-  function normBot(v) { v = v || {}; return { commands: _toArr(v.commands), timers: _toArr(v.timers), postAs: v.postAs === "bot" ? "bot" : "self" }; }
+  function normBot(v) { v = v || {}; return { commands: _toArr(v.commands), timers: _toArr(v.timers), postAs: v.postAs === "self" ? "self" : "bot" }; }
   function botCommands() { return _botCfg.commands || []; }
   function saveBotCommands(a) { _botCfg.commands = a; if (_botRepaint) _botRepaint(); SY.setBot({ commands: a }); }
   function botTimers() { return _botCfg.timers || []; }
@@ -336,7 +336,7 @@
   // runs the bot while the streamer's dashboard is open: fires timed messages + answers !commands.
   // Posts via the worker (which holds the Kick token); only the owner runs it to avoid double-posting.
   let _botRunner = false;
-  function botPostAs() { return _botCfg.postAs === "bot" ? "bot" : "self"; }
+  function botPostAs() { return _botCfg.postAs === "self" ? "self" : "bot"; }
   function botSay(cid, text) {
     if (!window.firebase || !firebase.auth || !firebase.auth().currentUser) return;
     firebase.auth().currentUser.getIdToken().then(function (idToken) {
@@ -389,8 +389,8 @@
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:11.5px">
           <span style="color:var(--ink-dim);font-weight:700">Posts appear as</span>
           <select id="botAs" style="background:#fff;border:1px solid var(--line2);border-radius:7px;padding:6px 9px;font-size:11.5px;font-weight:700;color:var(--ink-dim)">
-            <option value="self">Your channel (always works)</option>
-            <option value="bot">ModDeck bot (needs the bot modded)</option>
+            <option value="bot">ModDeck bot (recommended)</option>
+            <option value="self">Your channel (posts as you)</option>
           </select>
         </div>
 
