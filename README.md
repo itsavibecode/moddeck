@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.27.2 — Honest platform status on the landing
+- The landing page now makes clear ModDeck is **live on Kick today**, with **Twitch & YouTube coming soon**
+  (pill copy, "SOON" badges on those connect buttons, and the Combined Chat / multi-platform cards updated),
+  so visitors aren't misled into thinking all three platforms work yet.
+
 ### v0.27.1 — Bot test button
 - Added **📣 Send test message** to the Chatbot panel — posts a line to your chat through the real path and
   reports success or the exact error (e.g. "enable Write to Chat feed"), so you can verify posting in one click.
