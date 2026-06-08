@@ -210,6 +210,8 @@ input,select{font-family:inherit}
 .why .tt::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);
   border:5px solid transparent;border-top-color:#1a1d29}
 .why:hover .tt{opacity:1;visibility:visible}
+.why.tl .tt{left:0;transform:none}                 /* left-anchored (for narrow columns) */
+.why.tl .tt::after{left:9px}
 
 .trial{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99;background:var(--accent);color:#fff;
   font-size:11px;font-weight:700;padding:4px 16px;border-radius:0 0 10px 10px;box-shadow:var(--shadow)}

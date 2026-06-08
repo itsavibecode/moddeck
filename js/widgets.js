@@ -511,11 +511,11 @@
     const n = document.createElement("div");
     n.style.cssText = "width:100%;height:100%;display:flex;align-items:center;border-radius:14px;padding:0;box-sizing:border-box;overflow:hidden;flex-direction:column";
     const hd = document.createElement("div");
-    hd.style.cssText = "width:100%;font-size:12px;font-weight:800;letter-spacing:1.2px;padding:8px 16px 0;flex:none";
+    hd.style.cssText = "width:100%;font-size:12px;font-weight:800;letter-spacing:1.2px;padding:12px 22px 2px;flex:none;box-sizing:border-box";
     const card = document.createElement("div");
-    card.style.cssText = "flex:1;width:100%;display:flex;align-items:center;gap:14px;padding:8px 16px 14px;min-height:0";
+    card.style.cssText = "flex:1;width:100%;display:flex;align-items:center;gap:15px;padding:8px 22px 18px;min-height:0;box-sizing:border-box";
     const av = document.createElement("div");
-    av.style.cssText = "width:54px;height:54px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:24px;color:#fff;background-size:cover;background-position:center";
+    av.style.cssText = "width:48px;height:48px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;color:#fff;background-size:cover;background-position:center";
     const body = document.createElement("div"); body.style.cssText = "min-width:0;display:flex;flex-direction:column;gap:3px";
     const who = document.createElement("div"); who.style.cssText = "font-size:18px;font-weight:800";
     const msg = document.createElement("div"); msg.style.cssText = "font-size:16px;line-height:1.25;opacity:.95";
@@ -688,6 +688,7 @@
     let curId = null, subbed = false;
     function showNow(now) {
       if (now && now.videoId) {
+        n.style.display = "flex";
         if (now.videoId !== curId) {
           curId = now.videoId;
           frameWrap.innerHTML = '<iframe width="100%" height="100%" style="border:0;display:block" src="https://www.youtube.com/embed/' +
@@ -696,10 +697,14 @@
         frameWrap.style.display = "block"; ph.style.display = "none";
         if (cel.props.showInfo !== false) { info.style.display = "block"; info.textContent = "▶ " + (now.title || "Video") + " · " + (now.requester || "viewer") + (now.amount ? (" · " + now.amount + " Kicks") : ""); info.style.borderBottom = "3px solid " + (cel.props.accent || "#53fc18"); }
         else info.style.display = "none";
-      } else { curId = null; frameWrap.innerHTML = ""; frameWrap.style.display = "none"; info.style.display = "none"; ph.style.display = "flex"; }
+      } else {
+        curId = null; frameWrap.innerHTML = ""; frameWrap.style.display = "none"; info.style.display = "none"; ph.style.display = "flex";
+        if (window.MD.isOverlay) n.style.display = "none";   // nothing playing -> show nothing on the live overlay
+      }
     }
     function update(e2) {
       cel = e2; n.style.borderRadius = (e2.props.radius != null ? e2.props.radius : 12) + "px";
+      if (window.MD.isOverlay && !curId) n.style.display = "none";   // stay hidden until a video plays (no idle box on stream)
       if (window.MD.isOverlay && !subbed) { subbed = true; MD.sync.onMediaNow(showNow); }   // overlay = real player; dashboard = placeholder
     }
     update(el); return { node: n, update };

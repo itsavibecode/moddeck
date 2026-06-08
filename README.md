@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.31.1 — Widget polish
+- **Discord Highlights**: more internal padding so the avatar isn't edge-to-edge on the overlay.
+- **Media Share**: shows **nothing on the live overlay when idle** (no empty box on stream) — the placeholder
+  only appears in the dashboard editor so you can still position it.
+- **Presets vs Scenes**: added hover **ⓘ tooltips** explaining each — Presets are reusable building-block
+  layouts; Scenes are full overlay setups you switch between (Starting Soon / Live / BRB).
+
 ### v0.31.0 — Align & distribute
 - Select 2+ elements (Shift+click or drag a box) and the Properties panel now shows **Align** — left, center,
   right, top, middle, bottom — plus **Distribute** horizontally/vertically for 3+. Each is a single undo step.
