@@ -448,6 +448,16 @@
   // and set MD.chatConnected = true (the demo generator then stands down).
   window.MD.emoteSinks = window.MD.emoteSinks || new Set();
   window.MD.pushEmote = function (key, opts) { window.MD.emoteSinks.forEach(fn => { try { fn(key, opts); } catch {} }); };
+  // replay a burst of emotes (like incoming chat spam) staggered over ~2.2s — used by the "Test combo" button.
+  window.MD.replayEmoteBurst = function (burst) {
+    if (!burst || !burst.length) return;
+    const items = [];
+    burst.forEach(b => { for (let i = 0; i < (b.count || 1); i++) items.push(b.key); });
+    // shuffle so emotes interleave like real chat
+    for (let i = items.length - 1; i > 0; i--) { const j = (i * 7 + 3) % (i + 1); const t = items[i]; items[i] = items[j]; items[j] = t; }
+    const step = Math.max(55, Math.floor(2200 / Math.max(1, items.length)));
+    items.forEach((k, i) => setTimeout(() => window.MD.pushEmote(k), i * step));
+  };
   // auto-clip hook — overridden by the dashboard (and, in the bot phase, calls the platform clip API)
   window.MD.fireClip = window.MD.fireClip || function () {};
   R.emojicombo = function (el) {
@@ -455,7 +465,8 @@
     const n = document.createElement("div");
     n.style.cssText = "width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:16px;border-radius:12px;padding:8px 14px;box-sizing:border-box;overflow:hidden";
     let cur = el; const combos = new Map(), clipped = new Set(); let hot = POOL[0], lastSpawn = 0;
-    function ingest(key, amt) { const c = combos.get(key) || { count: 0, last: 0 }; c.count += (amt || 1); c.last = Date.now(); combos.set(key, c); }
+    // 2nd arg may be a number (demo) or an options object (real chat passes {name}) — treat non-numbers as +1.
+    function ingest(key, a) { const amt = (typeof a === "number") ? a : ((a && a.count) || 1); const c = combos.get(key) || { count: 0, last: 0 }; c.count += amt; c.last = Date.now(); combos.set(key, c); }
     window.MD.emoteSinks.add(ingest);
     function demo() {
       if (window.MD.chatConnected) return;                 // real chat takes over when connected

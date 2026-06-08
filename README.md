@@ -66,6 +66,14 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.32.0 — Emoji Combo test + count fix
+- **Fixed** a bug where real Kick emote combos didn't count (the chat path passed an options object where the
+  counter expected a number) — real channel emotes now tally correctly and render as images.
+- New **🔥 Test combo** button in the Emoji Combo properties: simulates a chat spam burst (a real Kick emote +
+  emojis, staggered like live chat) so you can preview the combo on the canvas **and** on your live overlay.
+- Adds an `emoteCue` RTDB rule (re-publish `database.rules.json`) for the overlay test path; the canvas preview
+  works without it.
+
 ### v0.31.2 — Sidebar tooltip fix
 - The Presets/Scenes info tooltips were getting clipped by the scrolling sidebar (the canvas showed through).
   Switched those to native tooltips so they're never cut off; the styled bubble stays in the OBS modal where

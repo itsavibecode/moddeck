@@ -867,12 +867,25 @@
       add(labeled("Max emotes shown", range(p.max, 1, 8, 1, v => upp({ max: v }))));
       add(labeled("Accent", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
       add(labeled("Auto-clip at (count, 0 = off)", numInput(p.clipAt || 0, v => upp({ clipAt: v }))));
+      // simulate chat emote spam (a real Kick emote + a few emojis) — previews here AND fires to the live overlay
+      const testBtn = el("button", null, "🔥 Test combo (simulate spam)");
+      testBtn.style.cssText = "width:100%;margin-top:2px;padding:9px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;font-size:11.5px";
+      testBtn.onclick = () => {
+        const burst = [
+          { key: "https://files.kick.com/emotes/37226/fullsize", name: "KEKW", count: 11 },
+          { key: "🔥", count: 6 }, { key: "😂", count: 4 }, { key: "💀", count: 2 },
+        ];
+        if (window.MD.replayEmoteBurst) MD.replayEmoteBurst(burst);          // preview on this canvas
+        try { SY.publishEmote({ burst, seq: Date.now() + "-" + Math.floor(Math.random() * 1e6) }); } catch (e) {}   // + the live overlay
+        toast("Simulating emote spam 🔥");
+      };
+      add(labeled("", testBtn));
       const clipBtn = el("button", null, "📎 Test auto-clip");
-      clipBtn.style.cssText = "width:100%;padding:9px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:700;color:var(--ink-dim);font-size:11px";
+      clipBtn.style.cssText = "width:100%;margin-top:6px;padding:9px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:700;color:var(--ink-dim);font-size:11px";
       clipBtn.onclick = () => { if (window.MD.fireClip) MD.fireClip({ emote: "🔥", count: p.clipAt || 50 }); };
       add(labeled("", clipBtn));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
-      note.innerHTML = "Counts emotes spammed in chat and shows live combos. <b>Auto-clip</b> fires when an emote hits your threshold — the actual clip is cut once live chat + the platform clip API are connected (bot phase). Demo feed for now.";
+      note.innerHTML = "Counts emotes spammed in your <b>real Kick chat</b> and shows live combos (your actual channel emotes, as images). <b>Test combo</b> simulates a spam burst here and on your overlay. <b>Auto-clip</b> fires when an emote hits your threshold.";
       add(note);
     } else if (elx.type === "discord") {
       add(labeled("Title", txt(p.title, v => upp({ title: v }))));
