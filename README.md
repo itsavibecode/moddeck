@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.31.2 — Sidebar tooltip fix
+- The Presets/Scenes info tooltips were getting clipped by the scrolling sidebar (the canvas showed through).
+  Switched those to native tooltips so they're never cut off; the styled bubble stays in the OBS modal where
+  it has room.
+
 ### v0.31.1 — Widget polish
 - **Discord Highlights**: more internal padding so the avatar isn't edge-to-edge on the overlay.
 - **Media Share**: shows **nothing on the live overlay when idle** (no empty box on stream) — the placeholder
