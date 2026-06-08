@@ -123,6 +123,8 @@ export default {
       const ok = await verifyKickSignature(msgId, ts, raw, sig);
       if (!ok) return new Response("bad signature", { status: 401 });
       let body = {}; try { body = JSON.parse(raw); } catch (e) {}
+      // 24/7 chatbot commands: a chat message may trigger a !command reply (handled server-side).
+      if (type === "chat.message.sent") { try { await handleChatCommand(env, body); } catch (e) {} return new Response("ok", { status: 200 }); }
       const cue = mapKickEvent(type, body);
       if (cue && cue.cid) { try { await rtdbSet(env, "channels/" + cue.cid + "/alertCue", cue.payload); } catch (e) {} }
       // Media Share: a Kicks donation whose message contains a YouTube link becomes a queue request.
@@ -164,8 +166,41 @@ export default {
   },
 };
 
-// ── Chatbot 24/7 timed messages (cron) ────────────────────────────────────
+// ── Chatbot 24/7 timed messages (cron) + commands (webhook) ───────────────
 function toArr(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.values(x) : []); }
+
+// Answer a !command from a chat.message.sent webhook (works with the dashboard closed).
+async function handleChatCommand(env, body) {
+  const bc = body.broadcaster || {};
+  const cid = bc.user_id ? ("kick:" + bc.user_id) : null;
+  if (!cid) return;
+  const content = String(body.content || (body.message && body.message.content) || "").trim();
+  if (content[0] !== "!") return;                      // only commands — early-exit on normal chat
+  // if the streamer's dashboard is open, its in-browser runner answers — don't double-post.
+  const pres = await rtdbGet(env, "channels/" + cid + "/presence");
+  if (pres && Object.values(pres).some((p) => p && p.owner)) return;
+  const bot = await rtdbGet(env, "channels/" + cid + "/bot");
+  if (!bot) return;
+  const cmds = toArr(bot.commands);
+  if (!cmds.length) return;
+  const lc = content.toLowerCase();
+  const as = bot.postAs === "self" ? "self" : "bot";
+  const state = bot.cmdState || {};
+  const now = Date.now();
+  for (let i = 0; i < cmds.length; i++) {
+    const c = cmds[i];
+    if (!c || c.on === false || !c.trigger || !c.reply) continue;
+    const trig = String(c.trigger).toLowerCase();
+    if (lc === trig || lc.indexOf(trig + " ") === 0) {
+      const cd = (c.cooldown || 0) * 1000;
+      if (state[i] && now - state[i] < cd) return;     // on cooldown
+      state[i] = now;
+      try { await rtdbSet(env, "channels/" + cid + "/bot/cmdState", state); } catch (e) {}
+      await sendChat(env, cid, c.reply, as);
+      return;
+    }
+  }
+}
 
 async function sendChat(env, cid, text, as) {
   const token = await getValidKickToken(env, cid);
@@ -231,6 +266,7 @@ async function processChannelTimers(env, cid, rec) {
 // ── Kick events: subscribe + webhook mapping ──────────────────────────────
 async function subscribeKickEvents(accessToken) {
   const events = [
+    { name: "chat.message.sent", version: 1 },
     { name: "channel.followed", version: 1 },
     { name: "channel.subscription.new", version: 1 },
     { name: "channel.subscription.renewal", version: 1 },

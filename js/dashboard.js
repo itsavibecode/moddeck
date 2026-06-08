@@ -376,7 +376,7 @@
       back.innerHTML = `<div class="modal" style="max-width:600px">
         <h3>🤖 Chatbot</h3>
         <div style="font-size:11px;color:var(--ink-faint);background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin-bottom:12px">
-          <b>Timed messages post 24/7 while you're live</b> — even with this dashboard closed. <b>!commands</b> are answered while your dashboard is open. (Needs "Write to Chat feed" on your Kick app + a fresh sign-in.)</div>
+          <b>Timed messages and !commands run 24/7</b> — answered even with this dashboard closed (timed messages post while you're live). (Needs "Write to Chat feed" on your Kick app + a fresh sign-in.)</div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:11.5px">
           <span style="color:var(--ink-dim);font-weight:700">Posts appear as</span>
           <select id="botAs" style="background:#fff;border:1px solid var(--line2);border-radius:7px;padding:6px 9px;font-size:11.5px;font-weight:700;color:var(--ink-dim)">

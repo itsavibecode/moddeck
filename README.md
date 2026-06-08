@@ -66,6 +66,14 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.30.0 — 24/7 commands
+- `!commands` are now answered **server-side via Kick's chat webhook** — they work even with the dashboard
+  closed (no Durable Objects needed). The worker matches the trigger, respects the cooldown, and replies as
+  your configured identity. A presence check means the in-browser runner still handles commands while your
+  dashboard is open, so replies never double up.
+- Note: unverified Kick apps have a chat-event limit; very busy channels may want app verification. Requires
+  the same fresh sign-in (to subscribe to `chat.message.sent`).
+
 ### v0.29.0 — 24/7 timed messages
 - Timed chat messages now post from a **Worker cron** (every minute) even when your **dashboard is closed** —
   but only while your channel is **live**, so an offline chat never gets spammed. The cron is the single owner
