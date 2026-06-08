@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — Documentation</title>
 <meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
-<meta name="moddeck-version" content="0.27.2">
+<meta name="moddeck-version" content="0.27.3">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#5b5bf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -91,11 +91,14 @@
         <tr><th>Setting</th><th>Value</th></tr>
         <tr><td>Source type</td><td>Browser</td></tr>
         <tr><td>URL</td><td><code>…/overlay.html?c=YOUR_CHANNEL</code> (use Get OBS Link)</td></tr>
-        <tr><td>Resolution</td><td>1920 × 1080</td></tr>
-        <tr><td>Audio</td><td>Check “Control audio via OBS” if you use the soundboard</td></tr>
+        <tr><td>Width × Height</td><td>1920 × 1080</td></tr>
+        <tr><td>Audio</td><td>Check <b>“Control audio via OBS”</b> so alert sounds, Media Share videos &amp; the soundboard are heard on stream (and volume-controllable in the OBS mixer)</td></tr>
+        <tr><td>Local file</td><td>Leave <b>unchecked</b></td></tr>
+        <tr><td>Custom CSS</td><td>Leave the OBS default — it keeps the background transparent</td></tr>
         <tr><td>Performance</td><td>Leave “Shutdown source when not visible” <b>off</b></td></tr>
       </table>
-      <p>The overlay background is transparent, so only your widgets show over your scene.</p>
+      <p>The overlay background is transparent, so only your widgets show over your scene. Everything else can
+      stay at OBS defaults — click <b>OK</b> and you're set.</p>
     </section>
 
     <section id="mods">

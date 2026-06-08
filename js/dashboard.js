@@ -252,16 +252,25 @@
     $("#getLink").onclick = $("#getLink2").onclick = () => {
       const url = overlayUrl();
       const back = el("div", "modal-back");
-      back.innerHTML = `<div class="modal">
+      back.innerHTML = `<div class="modal" style="position:relative;max-width:540px">
+        <button id="mX" aria-label="Close" style="position:absolute;top:11px;right:14px;border:none;background:none;font-size:19px;line-height:1;color:var(--ink-faint);cursor:pointer;padding:4px">✕</button>
         <h3>🔗 OBS Browser Source</h3>
-        <p>In OBS add a <b>Browser</b> source, paste this URL, set width <b>1920</b> and height <b>1080</b>, and check <i>“Shutdown source when not visible”</i> off. Your overlay updates live whenever you Push to Live.</p>
+        <p style="margin:0 0 10px">Add <b>one</b> Browser source in OBS and point it at this URL:</p>
         <div class="obs-url">${url}</div>
-        <div class="mrow"><button id="mClose">Close</button><button class="primary" id="mCopy">Copy URL</button></div>
+        <div class="mrow" style="margin:12px 0 18px;justify-content:flex-start"><button class="primary" id="mCopy">📋 Copy URL</button></div>
+
+        <div style="font-weight:800;font-size:12.5px;margin-bottom:9px">Then in the source's properties:</div>
+        <ol style="margin:0;padding-left:18px;font-size:12.5px;color:var(--ink-dim);line-height:1.4">
+          <li style="margin-bottom:9px"><b>Width</b> 1920 &nbsp;·&nbsp; <b>Height</b> 1080.</li>
+          <li style="margin-bottom:9px">Check <b>"Control audio via OBS"</b> — so alert sounds, Media&nbsp;Share videos and the soundboard are heard on stream (and you can set their volume in the OBS audio mixer).</li>
+          <li style="margin-bottom:9px">Leave <b>"Shutdown source when not visible"</b> <u>unchecked</u> (further down) so the overlay stays connected.</li>
+          <li style="margin-bottom:9px">Leave <b>Local file</b> unchecked and the default <b>Custom CSS</b> as-is — it keeps the background transparent.</li>
+          <li>Everything else can stay default. Click <b>OK</b> — your overlay updates live whenever you Push to Live.</li>
+        </ol>
       </div>`;
       document.body.appendChild(back);
-      back.onclick = (e) => { if (e.target === back) back.remove(); };
-      $("#mClose", back).onclick = () => back.remove();
-      $("#mCopy", back).onclick = () => { navigator.clipboard.writeText(url).then(() => toast("Overlay URL copied", "ok")); back.remove(); };
+      $("#mX", back).onclick = () => back.remove();
+      $("#mCopy", back).onclick = () => { navigator.clipboard.writeText(url).then(() => toast("Overlay URL copied", "ok")); };
     };
   }
 

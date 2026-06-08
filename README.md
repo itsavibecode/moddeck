@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.27.3 — Clearer OBS link modal
+- The **Get OBS Browser-Source Link** dialog no longer closes when you hit **Copy** — it stays open (close
+  with the **✕**) so the setup steps remain visible.
+- Rewrote the steps as a readable, spaced list and added the **"Control audio via OBS"** guidance (so alert
+  sounds, Media Share videos & the soundboard are heard on stream), plus the Local-file / Custom-CSS notes.
+
 ### v0.27.2 — Honest platform status on the landing
 - The landing page now makes clear ModDeck is **live on Kick today**, with **Twitch & YouTube coming soon**
   (pill copy, "SOON" badges on those connect buttons, and the Combined Chat / multi-platform cards updated),
