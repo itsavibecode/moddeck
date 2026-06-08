@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.31.0 — Align & distribute
+- Select 2+ elements (Shift+click or drag a box) and the Properties panel now shows **Align** — left, center,
+  right, top, middle, bottom — plus **Distribute** horizontally/vertically for 3+. Each is a single undo step.
+
 ### v0.30.1 — "Kick Chat" naming
 - Renamed the chat widget from **Combined Chat** to **Kick Chat** (palette, properties, default title, docs) to
   match reality — it's Kick-only today. We'll switch it back to "Combined Chat" when Twitch/YouTube join the

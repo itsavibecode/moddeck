@@ -614,8 +614,21 @@
     }
     if (sel.length > 1) {
       const box = el("div", "prop"); box.innerHTML = `<h4><span class="dot"></span>${sel.length} selected</h4>`;
+      const ab = (label, mode) => { const b = el("button", null, label); b.style.cssText = "padding:8px 4px;border:1px solid var(--line2);border-radius:7px;background:#fff;font-weight:600;color:var(--ink-dim);font-size:11px"; b.onclick = () => S.alignSelection(mode); return b; };
+      const lbl = (t) => { const d = el("div"); d.style.cssText = "font-size:10px;color:var(--ink-faint);font-weight:700;letter-spacing:.4px;margin:2px 0 6px"; d.textContent = t; return d; };
+      box.appendChild(lbl("ALIGN"));
+      const ag = el("div"); ag.style.cssText = "display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px";
+      ag.appendChild(ab("⇤ Left", "left")); ag.appendChild(ab("↔ Center", "hcenter")); ag.appendChild(ab("Right ⇥", "right"));
+      ag.appendChild(ab("⤒ Top", "top")); ag.appendChild(ab("↕ Middle", "vcenter")); ag.appendChild(ab("Bottom ⤓", "bottom"));
+      box.appendChild(ag);
+      if (sel.length > 2) {
+        box.appendChild(lbl("DISTRIBUTE"));
+        const dg = el("div"); dg.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px";
+        dg.appendChild(ab("Horizontally", "dhoriz")); dg.appendChild(ab("Vertically", "dvert"));
+        box.appendChild(dg);
+      }
       const row = el("div"); row.style.cssText = "display:flex;gap:8px";
-      const dup = el("button", "row2".replace("row2", "") + "tool", "Duplicate"); dup.style.cssText = "flex:1;padding:8px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:600;color:var(--ink-dim)"; dup.onclick = () => S.duplicateSelected();
+      const dup = el("button", null, "Duplicate"); dup.style.cssText = "flex:1;padding:8px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:600;color:var(--ink-dim)"; dup.onclick = () => S.duplicateSelected();
       const del = el("button", null, "Delete"); del.style.cssText = "flex:1;padding:8px;border:1px solid var(--line2);border-radius:8px;background:#fff;font-weight:600;color:var(--danger)"; del.onclick = () => S.removeSelected();
       row.appendChild(dup); row.appendChild(del); box.appendChild(row); host.appendChild(box); return;
     }

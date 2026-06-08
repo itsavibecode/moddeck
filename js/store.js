@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.30.1";
+  window.MD.VERSION = "0.31.0";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -164,6 +164,34 @@
     state.selection = newIds;
     emit("change", { reason: "duplicate" }); emit("select");
   }
+  // align / distribute the multi-selection (one history step). modes: left/hcenter/right/top/vcenter/bottom/dhoriz/dvert
+  function alignSelection(mode) {
+    const ids = state.selection.filter(id => state.staging.els[id]);
+    if (ids.length < 2) return;
+    pushHistory();
+    const els = ids.map(id => state.staging.els[id]);
+    const minX = Math.min.apply(null, els.map(e => e.x));
+    const maxR = Math.max.apply(null, els.map(e => e.x + e.w));
+    const minY = Math.min.apply(null, els.map(e => e.y));
+    const maxB = Math.max.apply(null, els.map(e => e.y + e.h));
+    const cx = (minX + maxR) / 2, cy = (minY + maxB) / 2;
+    if (mode === "left") els.forEach(e => e.x = minX);
+    else if (mode === "right") els.forEach(e => e.x = Math.round(maxR - e.w));
+    else if (mode === "hcenter") els.forEach(e => e.x = Math.round(cx - e.w / 2));
+    else if (mode === "top") els.forEach(e => e.y = minY);
+    else if (mode === "bottom") els.forEach(e => e.y = Math.round(maxB - e.h));
+    else if (mode === "vcenter") els.forEach(e => e.y = Math.round(cy - e.h / 2));
+    else if (mode === "dhoriz" && els.length > 2) {
+      const s = els.slice().sort((a, b) => (a.x + a.w / 2) - (b.x + b.w / 2));
+      const first = s[0].x + s[0].w / 2, last = s[s.length - 1].x + s[s.length - 1].w / 2, step = (last - first) / (s.length - 1);
+      s.forEach((e, i) => { if (i > 0 && i < s.length - 1) e.x = Math.round(first + step * i - e.w / 2); });
+    } else if (mode === "dvert" && els.length > 2) {
+      const s = els.slice().sort((a, b) => (a.y + a.h / 2) - (b.y + b.h / 2));
+      const first = s[0].y + s[0].h / 2, last = s[s.length - 1].y + s[s.length - 1].h / 2, step = (last - first) / (s.length - 1);
+      s.forEach((e, i) => { if (i > 0 && i < s.length - 1) e.y = Math.round(first + step * i - e.h / 2); });
+    }
+    emit("change", { reason: "align" });
+  }
   function reorder(id, dir) { // 'front' | 'back' | 'up' | 'down'
     const ord = state.staging.order; const i = ord.indexOf(id); if (i < 0) return;
     pushHistory(); ord.splice(i, 1);
@@ -210,7 +238,7 @@
     CANVAS_W, CANVAS_H, DEFAULTS, LABELS, ICONS,
     state, on, off,
     addElement, getEl, eachSelected, updateEl, updateProps, beginGesture, commit,
-    removeSelected, duplicateSelected, reorder,
+    removeSelected, duplicateSelected, alignSelection, reorder,
     select, clearSelection,
     undo, redo, canUndo, canRedo,
     pushToLive, swap, exportBoard, loadIntoStaging,
