@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.27.1 — Bot test button
+- Added **📣 Send test message** to the Chatbot panel — posts a line to your chat through the real path and
+  reports success or the exact error (e.g. "enable Write to Chat feed"), so you can verify posting in one click.
+
 ### v0.27.0 — Cloud-synced bot & media config
 - **Chatbot commands/timed messages and the Media auto-advance toggle now live in the cloud** (per channel),
   so you and your mods share the same config across devices instead of it being stuck in one browser.

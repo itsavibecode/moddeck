@@ -336,6 +336,20 @@
       }).catch(function () {});
     }).catch(function () {});
   }
+  // like botSay but resolves with the result so the UI can report success/the exact error
+  function botSayTest(cid, text) {
+    return new Promise(function (res) {
+      if (!window.firebase || !firebase.auth || !firebase.auth().currentUser) { res({ ok: false, detail: "not signed in" }); return; }
+      firebase.auth().currentUser.getIdToken().then(function (idToken) {
+        fetch((window.MD.config && MD.config.workerUrl) + "/kick/say", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cid: cid, text: text, idToken: idToken }),
+        }).then(function (r) {
+          r.json().then(function (j) { res({ ok: r.ok, status: r.status, detail: (j && j.error) || "" }); }).catch(function () { res({ ok: r.ok, status: r.status }); });
+        }).catch(function (e) { res({ ok: false, detail: String(e && e.message || e) }); });
+      }).catch(function () { res({ ok: false, detail: "auth error" }); });
+    });
+  }
   function startBotRunner(cid) {
     if (_botRunner) return; _botRunner = true;
     rebuildBotTimers(cid);   // timed messages (re-built live whenever the cloud config changes)
@@ -379,7 +393,7 @@
           <input id="timEvery" type="number" value="10" title="every N minutes" style="width:80px;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12px">
           <button class="primary" id="timAdd" style="border:none;background:var(--accent);color:#fff;border-radius:8px;padding:0 14px;font-weight:700">Add</button>
         </div>
-        <div class="mrow"><button id="botClose" class="primary">Done</button></div>
+        <div class="mrow"><button id="botTest">📣 Send test message</button><button id="botClose" class="primary">Done</button></div>
       </div>`;
       document.body.appendChild(back);
       back.onclick = (e) => { if (e.target === back) back.remove(); };
@@ -422,6 +436,16 @@
         const text = ($("#timText", back).value || "").trim(); if (!text) return;
         const a = botTimers(); a.push({ text, everyMin: Math.max(1, parseInt($("#timEvery", back).value) || 10), on: true });
         saveBotTimers(a); $("#timText", back).value = ""; renderTimers();
+      };
+      $("#botTest", back).onclick = () => {
+        const btn = $("#botTest", back); btn.disabled = true; btn.textContent = "Sending…";
+        botSayTest(channelId, "✅ ModDeck bot connected — test message").then((r) => {
+          btn.disabled = false; btn.textContent = "📣 Send test message";
+          if (r.ok) toast("Bot posted to your chat ✅", "ok");
+          else if (r.detail === "not signed in") toast("Sign in first to test the bot", "err");
+          else if (r.status === 503) toast("Bot not connected — enable 'Write to Chat feed' + sign in again", "err");
+          else toast("Failed: " + (r.detail || ("HTTP " + r.status)), "err");
+        });
       };
       $("#botClose", back).onclick = () => { _botRepaint = null; back.remove(); };
     };
