@@ -85,6 +85,7 @@ export default {
           await rtdbSet(env, "bot_tokens/" + uid, {
             access_token: tok.access_token, refresh_token: tok.refresh_token || "",
             expires_at: Math.floor(Date.now() / 1000) + (tok.expires_in || 3600), broadcaster_id: String(id),
+            slug: String(username).toLowerCase(),
           });
         } catch (e) {}
 
@@ -147,29 +148,85 @@ export default {
         let allowed = (uid === cid);
         if (!allowed) { const mod = await rtdbGet(env, "channels/" + cid + "/mods/" + uid); allowed = !!mod; }
         if (!allowed) return json({ error: "forbidden" }, 403, origin);
-        const token = await getValidKickToken(env, cid);
-        if (!token) return json({ error: "bot not connected" }, 503, origin);
-        // post as the ModDeck bot (default) or, if explicitly requested, as the broadcaster's own account.
-        const content = String(text).slice(0, 500);
-        let sendBody;
-        if (as === "self") {
-          const bid = parseInt((String(cid).split(":")[1] || ""), 10);
-          if (!bid) return json({ error: "bad channel id" }, 400, origin);
-          sendBody = { content, type: "user", broadcaster_user_id: bid };
-        } else { sendBody = { content, type: "bot" }; }
-        const r = await fetch("https://api.kick.com/public/v1/chat", {
-          method: "POST",
-          headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify(sendBody),
-        });
-        if (!r.ok) return json({ error: "kick send failed", detail: (await r.text()).slice(0, 200) }, 502, origin);
-        return json({ ok: true }, 200, origin);
+        const res = await sendChat(env, cid, text, as);
+        if (res.ok) return json({ ok: true }, 200, origin);
+        if (res.status === 503) return json({ error: "bot not connected" }, 503, origin);
+        return json({ error: "kick send failed", detail: res.detail }, 502, origin);
       } catch (e) { return json({ error: "say error", detail: String(e && e.message || e) }, 500, origin); }
     }
 
     return json({ error: "not found" }, 404, origin);
   },
+
+  // Cron (every minute): post any due bot timed-messages for channels that are currently live.
+  async scheduled(event, env, ctx) {
+    try { await runBotCron(env); } catch (e) {}
+  },
 };
+
+// ── Chatbot 24/7 timed messages (cron) ────────────────────────────────────
+function toArr(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.values(x) : []); }
+
+async function sendChat(env, cid, text, as) {
+  const token = await getValidKickToken(env, cid);
+  if (!token) return { ok: false, status: 503, detail: "bot not connected" };
+  const content = String(text).slice(0, 500);
+  let body;
+  if (as === "self") {
+    const bid = parseInt((String(cid).split(":")[1] || ""), 10);
+    if (!bid) return { ok: false, status: 400, detail: "bad channel id" };
+    body = { content, type: "user", broadcaster_user_id: bid };
+  } else { body = { content, type: "bot" }; }
+  const r = await fetch("https://api.kick.com/public/v1/chat", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) return { ok: false, status: r.status, detail: (await r.text()).slice(0, 200) };
+  return { ok: true, status: 200 };
+}
+
+async function isChannelLive(slug) {
+  try {
+    const r = await fetch("https://kick.com/api/v2/channels/" + encodeURIComponent(slug), {
+      headers: { Accept: "application/json", "User-Agent": "Mozilla/5.0 (compatible; ModDeck/1.0)" },
+    });
+    if (!r.ok) return false;
+    const d = await r.json();
+    return !!d.livestream;
+  } catch (e) { return false; }
+}
+
+async function runBotCron(env) {
+  const tokens = await rtdbGet(env, "bot_tokens");
+  if (!tokens) return;
+  for (const cid of Object.keys(tokens)) {
+    try { await processChannelTimers(env, cid, tokens[cid]); } catch (e) {}
+  }
+}
+
+async function processChannelTimers(env, cid, rec) {
+  if (!rec || !rec.slug) return;
+  const bot = await rtdbGet(env, "channels/" + cid + "/bot");
+  if (!bot) return;
+  const timers = toArr(bot.timers);
+  if (!timers.some((t) => t && t.on !== false && t.text)) return;   // nothing to do — skip the live check
+  if (!(await isChannelLive(rec.slug))) return;                     // only post while actually live
+  const as = bot.postAs === "self" ? "self" : "bot";
+  const state = bot.timerState || {};
+  const now = Date.now();
+  let changed = false;
+  for (let i = 0; i < timers.length; i++) {
+    const t = timers[i];
+    if (!t || t.on === false || !t.text) continue;
+    const everyMs = Math.max(1, t.everyMin || 10) * 60000;
+    if (now - (state[i] || 0) >= everyMs) {
+      const res = await sendChat(env, cid, t.text, as);
+      if (res.ok) { state[i] = now; changed = true; }
+    }
+  }
+  if (changed) { try { await rtdbSet(env, "channels/" + cid + "/bot/timerState", state); } catch (e) {} }
+}
 
 // ── Kick events: subscribe + webhook mapping ──────────────────────────────
 async function subscribeKickEvents(accessToken) {

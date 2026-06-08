@@ -9,6 +9,10 @@ compatibility_flags = ["nodejs_compat"]
 # T:\.cloudflare-tokens\sevendwarfs.token) before deploying.
 account_id = "fe16eca597b8d5afa20dfe7b2550640b"
 
+# Every minute: fire any due bot timed-messages for channels that are currently live.
+[triggers]
+crons = ["* * * * *"]
+
 [vars]
 KICK_CLIENT_ID = "01KTFN1XEM335BE7QAKXD15G0H"          # public
 KICK_REDIRECT_URI = "https://moddeck.bookhockeys.com/auth/kick"

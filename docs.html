@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ModDeck — Documentation</title>
 <meta name="description" content="ModDeck docs: OBS setup, inviting mods, canvas controls & keyboard shortcuts, and the full widget reference.">
-<meta name="moddeck-version" content="0.28.1">
+<meta name="moddeck-version" content="0.29.0">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#5b5bf0">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -162,8 +162,9 @@
         <li><b>Commands</b> — a <code>!trigger</code> and the reply the bot posts, with a per-command cooldown.</li>
         <li><b>Timed messages</b> — text the bot posts every N minutes (great for socials/Discord reminders).</li>
       </ul>
-      <p>The bot runs while <b>your dashboard is open</b>. Command edits apply instantly; timed-message changes
-      apply after a reload.</p>
+      <p><b>Timed messages run 24/7</b> — they post automatically while your channel is <b>live</b>, even with
+      the dashboard closed. <b>!commands</b> are answered while your dashboard is open. All config is saved to
+      the cloud, shared with your mods across devices.</p>
       <h3>One-time setup</h3>
       <ol>
         <li>On your <a href="https://kick.com/settings/developer" target="_blank" rel="noopener">Kick app</a>,
@@ -175,9 +176,8 @@
       <p><b>Posts appear as</b> (in the Chatbot panel): <b>ModDeck bot</b> (default) posts as the bot and works
       even in subscribers-only / follower-only chat — no moderator setup needed. <b>Your channel</b> is the
       alternative, posting from your own account instead.</p>
-      <div class="note">Commands &amp; timed messages are saved to the cloud, so you and your mods share the
-      same bot from any device. It still posts only from the streamer's open session (one poster, so messages
-      never double up). 24/7 posting with no dashboard open is a planned upgrade.</div>
+      <div class="note">Timed messages only fire while you're <b>live</b> (never to an offline chat). Live
+      <b>!command</b> answers still need your dashboard open — always-on commands are the next upgrade.</div>
     </section>
 
     <section id="staging">

@@ -314,7 +314,7 @@
   }
 
   // ---------- chatbot (commands + timed messages) — cloud-synced so mods share it across devices ----------
-  let _botCfg = { commands: [], timers: [] }, _botRepaint = null, _botTimerHandles = [];
+  let _botCfg = { commands: [], timers: [] }, _botRepaint = null;
   function _toArr(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.values(x) : []); }
   function normBot(v) { v = v || {}; return { commands: _toArr(v.commands), timers: _toArr(v.timers), postAs: v.postAs === "self" ? "self" : "bot" }; }
   function botCommands() { return _botCfg.commands || []; }
@@ -322,16 +322,7 @@
   function botTimers() { return _botCfg.timers || []; }
   function saveBotTimers(a) { _botCfg.timers = a; if (_botRepaint) _botRepaint(); SY.setBot({ timers: a }); }
   function subscribeBot() {
-    SY.onBot(function (cfg) { _botCfg = normBot(cfg); if (_botRepaint) _botRepaint(); if (amOwner && _botRunner) rebuildBotTimers(channelId); });
-  }
-  function rebuildBotTimers(cid) {
-    _botTimerHandles.forEach(function (h) { clearTimeout(h.t); clearInterval(h.i); }); _botTimerHandles = [];
-    botTimers().forEach(function (t, idx) {
-      if (t.on === false) return;
-      const ms = Math.max(1, t.everyMin || 10) * 60000, h = {};
-      h.t = setTimeout(function () { botSay(cid, t.text); h.i = setInterval(function () { botSay(cid, t.text); }, ms); }, (idx + 1) * 15000);
-      _botTimerHandles.push(h);
-    });
+    SY.onBot(function (cfg) { _botCfg = normBot(cfg); if (_botRepaint) _botRepaint(); });
   }
   // runs the bot while the streamer's dashboard is open: fires timed messages + answers !commands.
   // Posts via the worker (which holds the Kick token); only the owner runs it to avoid double-posting.
@@ -362,8 +353,8 @@
   }
   function startBotRunner(cid) {
     if (_botRunner) return; _botRunner = true;
-    rebuildBotTimers(cid);   // timed messages (re-built live whenever the cloud config changes)
-    // commands — answer triggers from live chat (re-reads config each message so edits apply)
+    // timed messages run 24/7 from the worker cron (even with the dashboard closed); the client only
+    // answers !commands from live chat here (re-reads config each message so edits apply).
     const lastFired = {};
     if (window.MD.chat && MD.chat.onMessage) MD.chat.onMessage(function (m) {
       const text = ((m && m.text) || "").trim().toLowerCase();
@@ -385,7 +376,7 @@
       back.innerHTML = `<div class="modal" style="max-width:600px">
         <h3>🤖 Chatbot</h3>
         <div style="font-size:11px;color:var(--ink-faint);background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin-bottom:12px">
-          The bot posts while your dashboard is open. <b>Enable "Write to Chat feed" on your Kick app + sign in again</b> to grant posting. Command changes apply live; timed-message changes apply live too.</div>
+          <b>Timed messages post 24/7 while you're live</b> — even with this dashboard closed. <b>!commands</b> are answered while your dashboard is open. (Needs "Write to Chat feed" on your Kick app + a fresh sign-in.)</div>
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:11.5px">
           <span style="color:var(--ink-dim);font-weight:700">Posts appear as</span>
           <select id="botAs" style="background:#fff;border:1px solid var(--line2);border-radius:7px;padding:6px 9px;font-size:11.5px;font-weight:700;color:var(--ink-dim)">

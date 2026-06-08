@@ -66,6 +66,14 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.29.0 — 24/7 timed messages
+- Timed chat messages now post from a **Worker cron** (every minute) even when your **dashboard is closed** —
+  but only while your channel is **live**, so an offline chat never gets spammed. The cron is the single owner
+  of timers (no more double-posting with the dashboard), tracks each timer's last-fired time, and posts as
+  whatever "Posts appear as" is set to.
+- Live `!command` answers still run from the open dashboard; always-on commands (Durable Objects) are next.
+- Note: sign in once more so the worker stores your channel slug (used for the live check).
+
 ### v0.28.1 — ModDeck bot is the default
 - **"Posts appear as" now defaults to ModDeck bot** — confirmed to post even in subscribers-only chat with no
   moderator setup needed. "Your channel" stays available as the alternative.
