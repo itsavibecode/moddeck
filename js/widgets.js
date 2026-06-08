@@ -240,7 +240,7 @@
     }
     function paint() {
       const p = cur.props; n.style.background = p.bg;
-      hd.textContent = p.title; hd.style.color = p.accent;
+      hd.textContent = (p.title === "COMBINED CHAT") ? "KICK CHAT" : p.title; hd.style.color = p.accent;
       list.innerHTML = "";
       feed.slice(-(p.max || 8)).forEach(m => list.appendChild(row(m, p)));
     }

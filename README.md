@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.33.1 — Auto-rename old chat widgets
+- Chat widgets placed before the rename still showed "COMBINED CHAT". They now auto-migrate to "KICK CHAT" on
+  load, plus a display fallback so it updates instantly (including on the already-live overlay).
+
 ### v0.33.0 — Kick Chat test
 - New **💬 Test chat** button in the Kick Chat widget properties: simulates a few incoming messages (varied
   users, name colors, a mod badge, and a real Kick emote), staggered like live chat. Previews on the canvas

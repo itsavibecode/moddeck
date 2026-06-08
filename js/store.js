@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.33.0";
+  window.MD.VERSION = "0.33.1";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -230,8 +230,17 @@
   function loadIntoStaging(board) {
     pushHistory();
     state.staging = JSON.parse(JSON.stringify(board));
+    migrateBoard(state.staging);
     state.selection = []; pruneSelection();
     emit("change", { reason: "load" }); emit("select");
+  }
+  // one-time fixups for boards saved before a rename (so old placed widgets update themselves)
+  function migrateBoard(b) {
+    if (!b || !b.els) return;
+    Object.keys(b.els).forEach(id => {
+      const e = b.els[id];
+      if (e && e.type === "chat" && e.props && e.props.title === "COMBINED CHAT") e.props.title = "KICK CHAT";
+    });
   }
 
   window.MD.store = {
