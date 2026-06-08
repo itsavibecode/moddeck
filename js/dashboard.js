@@ -316,7 +316,7 @@
   // ---------- chatbot (commands + timed messages) — cloud-synced so mods share it across devices ----------
   let _botCfg = { commands: [], timers: [] }, _botRepaint = null, _botTimerHandles = [];
   function _toArr(x) { return Array.isArray(x) ? x : (x && typeof x === "object" ? Object.values(x) : []); }
-  function normBot(v) { v = v || {}; return { commands: _toArr(v.commands), timers: _toArr(v.timers) }; }
+  function normBot(v) { v = v || {}; return { commands: _toArr(v.commands), timers: _toArr(v.timers), postAs: v.postAs === "bot" ? "bot" : "self" }; }
   function botCommands() { return _botCfg.commands || []; }
   function saveBotCommands(a) { _botCfg.commands = a; if (_botRepaint) _botRepaint(); SY.setBot({ commands: a }); }
   function botTimers() { return _botCfg.timers || []; }
@@ -336,12 +336,13 @@
   // runs the bot while the streamer's dashboard is open: fires timed messages + answers !commands.
   // Posts via the worker (which holds the Kick token); only the owner runs it to avoid double-posting.
   let _botRunner = false;
+  function botPostAs() { return _botCfg.postAs === "bot" ? "bot" : "self"; }
   function botSay(cid, text) {
     if (!window.firebase || !firebase.auth || !firebase.auth().currentUser) return;
     firebase.auth().currentUser.getIdToken().then(function (idToken) {
       fetch((window.MD.config && MD.config.workerUrl) + "/kick/say", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cid: cid, text: text, idToken: idToken }),
+        body: JSON.stringify({ cid: cid, text: text, idToken: idToken, as: botPostAs() }),
       }).catch(function () {});
     }).catch(function () {});
   }
@@ -352,7 +353,7 @@
       firebase.auth().currentUser.getIdToken().then(function (idToken) {
         fetch((window.MD.config && MD.config.workerUrl) + "/kick/say", {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cid: cid, text: text, idToken: idToken }),
+          body: JSON.stringify({ cid: cid, text: text, idToken: idToken, as: botPostAs() }),
         }).then(function (r) {
           r.json().then(function (j) { res({ ok: r.ok, status: r.status, error: (j && j.error) || "", detail: (j && (j.detail || j.error)) || "" }); }).catch(function () { res({ ok: r.ok, status: r.status }); });
         }).catch(function (e) { res({ ok: false, detail: String(e && e.message || e) }); });
@@ -383,8 +384,15 @@
       const back = el("div", "modal-back");
       back.innerHTML = `<div class="modal" style="max-width:600px">
         <h3>🤖 Chatbot</h3>
-        <div style="font-size:11px;color:var(--ink-faint);background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin-bottom:14px">
-          The bot posts while your dashboard is open. <b>Enable "Write to Chat feed" on your Kick app + sign in again</b> to grant posting. Timed-message changes apply on reload; command changes apply live.</div>
+        <div style="font-size:11px;color:var(--ink-faint);background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin-bottom:12px">
+          The bot posts while your dashboard is open. <b>Enable "Write to Chat feed" on your Kick app + sign in again</b> to grant posting. Command changes apply live; timed-message changes apply live too.</div>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;font-size:11.5px">
+          <span style="color:var(--ink-dim);font-weight:700">Posts appear as</span>
+          <select id="botAs" style="background:#fff;border:1px solid var(--line2);border-radius:7px;padding:6px 9px;font-size:11.5px;font-weight:700;color:var(--ink-dim)">
+            <option value="self">Your channel (always works)</option>
+            <option value="bot">ModDeck bot (needs the bot modded)</option>
+          </select>
+        </div>
 
         <div style="font-weight:800;font-size:13px;margin-bottom:7px">⌨️ Commands</div>
         <div id="cmdList" style="display:flex;flex-direction:column;gap:7px;margin-bottom:10px;max-height:200px;overflow:auto"></div>
@@ -434,7 +442,9 @@
         });
       }
       renderCmds(); renderTimers();
-      _botRepaint = function () { if (document.body.contains(back)) { renderCmds(); renderTimers(); } else { _botRepaint = null; } };
+      const asSel = $("#botAs", back); asSel.value = botPostAs();
+      asSel.onchange = () => { SY.setBot({ postAs: asSel.value }); toast(asSel.value === "bot" ? "Posting as ModDeck bot" : "Posting as your channel", "ok"); };
+      _botRepaint = function () { if (document.body.contains(back)) { renderCmds(); renderTimers(); const a = $("#botAs", back); if (a) a.value = botPostAs(); } else { _botRepaint = null; } };
       $("#cmdAdd", back).onclick = () => {
         let trig = ($("#cmdTrig", back).value || "").trim(); const reply = ($("#cmdReply", back).value || "").trim();
         if (!trig || !reply) return; if (trig[0] !== "!") trig = "!" + trig;

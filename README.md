@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.28.0 — Post as your channel (reliable chatbot)
+- Added a **"Posts appear as"** choice in the Chatbot panel. Default **Your channel** posts from your own
+  account (`type:user`) — **always works**, even in subscribers-only / follower-only chat, with no bot account
+  or moderator setup. **ModDeck bot** (`type:bot`) remains an option but requires the auto-created bot to be a
+  moderator on your channel, which restricted chat modes would otherwise block.
+- Fixes the common "Send test message failed" caused by sub-only chat blocking the un-modded bot.
+
 ### v0.27.6 — Bot test shows the real error
 - The Chatbot **Send test message** result now surfaces Kick's actual rejection reason (e.g. chat-mode blocks,
   missing `chat:write`) instead of a generic "failed", so you can tell *why* a post didn't go through.

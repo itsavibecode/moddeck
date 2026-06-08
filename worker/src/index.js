@@ -140,7 +140,7 @@ export default {
     // mod (verified via their Firebase ID token). We post with the OWNER's stored Kick token + type:"bot".
     if (url.pathname === "/kick/say" && request.method === "POST") {
       try {
-        const { cid, text, idToken } = await request.json();
+        const { cid, text, idToken, as } = await request.json();
         if (!cid || !text || !idToken) return json({ error: "missing cid/text/idToken" }, 400, origin);
         const uid = await verifyFirebaseIdToken(idToken, env.FIREBASE_PROJECT_ID);
         if (!uid) return json({ error: "unauthorized" }, 401, origin);
@@ -149,10 +149,19 @@ export default {
         if (!allowed) return json({ error: "forbidden" }, 403, origin);
         const token = await getValidKickToken(env, cid);
         if (!token) return json({ error: "bot not connected" }, 503, origin);
+        // post as the broadcaster (default — always exempt from sub-only/follower-only) or as the app bot.
+        const content = String(text).slice(0, 500);
+        let sendBody;
+        if (as === "bot") { sendBody = { content, type: "bot" }; }
+        else {
+          const bid = parseInt((String(cid).split(":")[1] || ""), 10);
+          if (!bid) return json({ error: "bad channel id" }, 400, origin);
+          sendBody = { content, type: "user", broadcaster_user_id: bid };
+        }
         const r = await fetch("https://api.kick.com/public/v1/chat", {
           method: "POST",
           headers: { Authorization: "Bearer " + token, "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ content: String(text).slice(0, 500), type: "bot" }),
+          body: JSON.stringify(sendBody),
         });
         if (!r.ok) return json({ error: "kick send failed", detail: (await r.text()).slice(0, 200) }, 502, origin);
         return json({ ok: true }, 200, origin);
