@@ -354,7 +354,7 @@
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ cid: cid, text: text, idToken: idToken }),
         }).then(function (r) {
-          r.json().then(function (j) { res({ ok: r.ok, status: r.status, detail: (j && j.error) || "" }); }).catch(function () { res({ ok: r.ok, status: r.status }); });
+          r.json().then(function (j) { res({ ok: r.ok, status: r.status, error: (j && j.error) || "", detail: (j && (j.detail || j.error)) || "" }); }).catch(function () { res({ ok: r.ok, status: r.status }); });
         }).catch(function (e) { res({ ok: false, detail: String(e && e.message || e) }); });
       }).catch(function () { res({ ok: false, detail: "auth error" }); });
     });
@@ -453,7 +453,8 @@
           if (r.ok) toast("Bot posted to your chat ✅", "ok");
           else if (r.detail === "not signed in") toast("Sign in first to test the bot", "err");
           else if (r.status === 503) toast("Bot not connected — enable 'Write to Chat feed' + sign in again", "err");
-          else toast("Failed: " + (r.detail || ("HTTP " + r.status)), "err");
+          else if (r.status === 401 || r.status === 403) toast("Not authorized — sign out/in after enabling 'Write to Chat feed' (chat:write)", "err");
+          else toast("Failed (" + (r.status || "?") + "): " + (r.detail || r.error || "unknown — check chat mode / bot is a mod"), "err");
         });
       };
       $("#botClose", back).onclick = () => { _botRepaint = null; back.remove(); };

@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.27.6 — Bot test shows the real error
+- The Chatbot **Send test message** result now surfaces Kick's actual rejection reason (e.g. chat-mode blocks,
+  missing `chat:write`) instead of a generic "failed", so you can tell *why* a post didn't go through.
+
 ### v0.27.5 — Toast position & duration
 - Toast notifications now appear at the **top-center** of the screen and stay up **5 seconds** (was bottom-
   right for ~2.6s), so they're easier to notice and read.
