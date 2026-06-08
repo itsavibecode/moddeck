@@ -66,6 +66,10 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.27.4 — "Why" tooltips on OBS steps
+- Each OBS setup step in the Get-OBS-Link modal now has a hover **ⓘ tooltip** explaining *why* it matters
+  (resolution, "Control audio via OBS", "Shutdown source when not visible", Local file / Custom CSS).
+
 ### v0.27.3 — Clearer OBS link modal
 - The **Get OBS Browser-Source Link** dialog no longer closes when you hit **Copy** — it stays open (close
   with the **✕**) so the setup steps remain visible.

@@ -196,6 +196,18 @@ input,select{font-family:inherit}
 .modal button{padding:9px 16px;border-radius:9px;font-size:12px;font-weight:700;border:1px solid var(--line2);
   background:#fff;color:var(--ink-dim)}
 .modal button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* hover "why" info tooltip */
+.why{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;
+  background:var(--panel2);border:1px solid var(--line2);color:var(--ink-faint);font-size:9.5px;font-weight:800;
+  font-style:normal;cursor:help;position:relative;margin-left:4px;vertical-align:middle}
+.why:hover{color:var(--accent);border-color:var(--accent)}
+.why .tt{position:absolute;left:50%;bottom:155%;transform:translateX(-50%);width:212px;background:#1a1d29;
+  color:#eef0f8;font-size:11px;font-weight:500;line-height:1.45;padding:8px 10px;border-radius:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.32);opacity:0;visibility:hidden;transition:.14s;z-index:600;
+  pointer-events:none;text-align:left}
+.why .tt::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:#1a1d29}
+.why:hover .tt{opacity:1;visibility:visible}
 
 .trial{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:99;background:var(--accent);color:#fff;
   font-size:11px;font-weight:700;padding:4px 16px;border-radius:0 0 10px 10px;box-shadow:var(--shadow)}

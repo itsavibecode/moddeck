@@ -261,11 +261,11 @@
 
         <div style="font-weight:800;font-size:12.5px;margin-bottom:9px">Then in the source's properties:</div>
         <ol style="margin:0;padding-left:18px;font-size:12.5px;color:var(--ink-dim);line-height:1.4">
-          <li style="margin-bottom:9px"><b>Width</b> 1920 &nbsp;·&nbsp; <b>Height</b> 1080.</li>
-          <li style="margin-bottom:9px">Check <b>"Control audio via OBS"</b> — so alert sounds, Media&nbsp;Share videos and the soundboard are heard on stream (and you can set their volume in the OBS audio mixer).</li>
-          <li style="margin-bottom:9px">Leave <b>"Shutdown source when not visible"</b> <u>unchecked</u> (further down) so the overlay stays connected.</li>
-          <li style="margin-bottom:9px">Leave <b>Local file</b> unchecked and the default <b>Custom CSS</b> as-is — it keeps the background transparent.</li>
-          <li>Everything else can stay default. Click <b>OK</b> — your overlay updates live whenever you Push to Live.</li>
+          <li style="margin-bottom:10px"><b>Width</b> 1920 &nbsp;·&nbsp; <b>Height</b> 1080 <span class="why">i<span class="tt">Matches the 1080p overlay canvas exactly, so your widgets land where you placed them.</span></span></li>
+          <li style="margin-bottom:10px">Check <b>"Control audio via OBS"</b> <span class="why">i<span class="tt">Routes the overlay's sound — alert sounds, Media Share videos and the soundboard — into OBS so viewers hear it and you can set the volume in the mixer.</span></span></li>
+          <li style="margin-bottom:10px">Leave <b>"Shutdown source when not visible"</b> unchecked <span class="why">i<span class="tt">If checked, OBS unloads the overlay whenever the scene isn't active, which disconnects it from ModDeck.</span></span></li>
+          <li style="margin-bottom:10px">Leave <b>Local file</b> off &amp; the default <b>Custom CSS</b> as-is <span class="why">i<span class="tt">You're loading a live web URL, not a local file. The default CSS keeps the overlay background transparent.</span></span></li>
+          <li>Everything else stays default — click <b>OK</b>.</li>
         </ol>
       </div>`;
       document.body.appendChild(back);
