@@ -740,8 +740,25 @@
       add(labeled("Title", txt(p.title, v => upp({ title: v }))));
       add(labeled("Max messages", range(p.max, 3, 16, 1, v => upp({ max: v }))));
       add(labeled("Accent / names", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
+      const chatTestBtn = el("button", null, "💬 Test chat (simulate messages)");
+      chatTestBtn.style.cssText = "width:100%;margin-top:2px;padding:9px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;font-size:11.5px";
+      chatTestBtn.onclick = () => {
+        const K = { id: "37226", name: "KEKW" };
+        const msgs = [
+          { platform: "kick", user: "StrongDabs420", text: "that was actually nuts 😤", color: "#53fc18", mod: false, emotes: [] },
+          { platform: "kick", user: "Hydroponicz", text: ":KEKW:", color: "#36b5ff", mod: false, emotes: [K] },
+          { platform: "kick", user: "m0d_jess", text: "keep it clean chat 🧹", color: "#ff79c6", mod: true, emotes: [] },
+          { platform: "kick", user: "PogTX", text: "LETS GOOO :KEKW:", color: "#ffd166", mod: false, emotes: [K] },
+          { platform: "kick", user: "leoo", text: "first time catching live!", color: "#a06bff", mod: false, emotes: [] },
+          { platform: "kick", user: "grindset", text: "W stream 🔥", color: "#7dff5a", mod: false, emotes: [] },
+        ];
+        if (window.MD.replayChatTest) MD.replayChatTest(msgs);            // preview on this canvas
+        try { SY.publishChatTest({ msgs, seq: Date.now() + "-" + Math.floor(Math.random() * 1e6) }); } catch (e) {}   // + live overlay
+        toast("Simulating chat messages 💬");
+      };
+      add(labeled("", chatTestBtn));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
-      note.innerHTML = "Shows your <b>live Kick chat</b> once you're signed in (a sample feed in demo). Twitch &amp; YouTube join the same widget soon.";
+      note.innerHTML = "Shows your <b>live Kick chat</b> once you're signed in (a sample feed in demo). <b>Test chat</b> simulates messages (with a real Kick emote) here and on your overlay. Twitch &amp; YouTube join soon.";
       add(note);
     } else if (elx.type === "progress") {
       add(labeled("Label", txt(p.label, v => upp({ label: v }))));

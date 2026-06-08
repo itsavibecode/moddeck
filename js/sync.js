@@ -15,7 +15,7 @@
     const BOTKEY = "moddeck:" + channelId + ":botcfg";
     const MSKEY = "moddeck:" + channelId + ":msettings";
     const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("moddeck:" + channelId) : null;
-    const liveCbs = [], soundCbs = [], clipCbs = [], alertCbs = [], mqCbs = [], mnCbs = [], botCbs = [], msCbs = [], emoteCbs = [];
+    const liveCbs = [], soundCbs = [], clipCbs = [], alertCbs = [], mqCbs = [], mnCbs = [], botCbs = [], msCbs = [], emoteCbs = [], chatTestCbs = [];
     function readMQ() { try { return JSON.parse(localStorage.getItem(MQKEY) || "{}"); } catch { return {}; } }
     function writeMQ(o) { try { localStorage.setItem(MQKEY, JSON.stringify(o)); } catch {} mqCbs.forEach(cb => cb(o)); if (bc) bc.postMessage({ type: "mq", payload: o }); }
     function readJSON(k) { try { return JSON.parse(localStorage.getItem(k) || "{}"); } catch { return {}; } }
@@ -34,6 +34,7 @@
       else if (e.data.type === "bot") botCbs.forEach(cb => cb(e.data.payload));
       else if (e.data.type === "ms") msCbs.forEach(cb => cb(e.data.payload));
       else if (e.data.type === "emote") emoteCbs.forEach(cb => cb(e.data.payload));
+      else if (e.data.type === "chattest") chatTestCbs.forEach(cb => cb(e.data.payload));
     };
     window.addEventListener("storage", (e) => {
       if (e.key === KEY && e.newValue) { try { liveCbs.forEach(cb => cb(JSON.parse(e.newValue).payload)); } catch {} }
@@ -58,6 +59,8 @@
       onAlert(cb) { alertCbs.push(cb); },
       publishEmote(payload) { const p = Object.assign({}, payload, { t: Date.now() }); if (bc) bc.postMessage({ type: "emote", payload: p }); emoteCbs.forEach(cb => cb(p)); },
       onEmote(cb) { emoteCbs.push(cb); },
+      publishChatTest(payload) { const p = Object.assign({}, payload, { t: Date.now() }); if (bc) bc.postMessage({ type: "chattest", payload: p }); chatTestCbs.forEach(cb => cb(p)); },
+      onChatTest(cb) { chatTestCbs.push(cb); },
       onMediaQueue(cb) { mqCbs.push(cb); setTimeout(() => cb(readMQ()), 0); },
       pushMedia(entry) { const o = readMQ(); const id = "m" + Date.now() + Math.floor(Math.random() * 1000); o[id] = Object.assign({}, entry, { t: Date.now() }); writeMQ(o); },
       updateMedia(id, patch) { const o = readMQ(); if (o[id]) { o[id] = Object.assign({}, o[id], patch); writeMQ(o); } },
@@ -96,6 +99,8 @@
       onAlert(cb) { ref.child("alertCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
       publishEmote(payload) { ref.child("emoteCue").set(Object.assign({}, payload, { t: Date.now() })); },
       onEmote(cb) { ref.child("emoteCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
+      publishChatTest(payload) { ref.child("chatTestCue").set(Object.assign({}, payload, { t: Date.now() })); },
+      onChatTest(cb) { ref.child("chatTestCue").on("value", s => { const v = s.val(); if (v) cb(v); }); },
       onMediaQueue(cb) { ref.child("media/queue").on("value", s => cb(s.val() || {})); },
       pushMedia(entry) { ref.child("media/queue").push(Object.assign({}, entry, { t: Date.now() })); },
       updateMedia(id, patch) { ref.child("media/queue/" + id).update(patch); },
@@ -140,6 +145,8 @@
     onAlert(cb) { if (backend && backend.onAlert) backend.onAlert(cb); },
     publishEmote(payload) { backend && backend.publishEmote && backend.publishEmote(payload); },
     onEmote(cb) { if (backend && backend.onEmote) backend.onEmote(cb); },
+    publishChatTest(payload) { backend && backend.publishChatTest && backend.publishChatTest(payload); },
+    onChatTest(cb) { if (backend && backend.onChatTest) backend.onChatTest(cb); },
     onMediaQueue(cb) { if (backend && backend.onMediaQueue) backend.onMediaQueue(cb); else cb({}); },
     pushMedia(entry) { backend && backend.pushMedia && backend.pushMedia(entry); },
     updateMedia(id, patch) { backend && backend.updateMedia && backend.updateMedia(id, patch); },

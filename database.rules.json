@@ -14,6 +14,7 @@
         "clipCue":  { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
         "alertCue": { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
         "emoteCue": { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
+        "chatTestCue": { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
         "media":    { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
         "bot":      { ".write": "auth != null && ($cid === auth.uid || root.child('channels').child($cid).child('mods').child(auth.uid).exists())" },
 

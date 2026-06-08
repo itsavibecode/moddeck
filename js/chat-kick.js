@@ -56,5 +56,17 @@
       .catch(function () { return false; });
   }
 
-  window.MD.chat = { connectKick: connect, connectBySlug: connectBySlug, disconnect: disconnect, onMessage: function (cb) { msgCbs.push(cb); } };
+  // inject a single message down the same path real chat uses (chat widget + emoji combo react)
+  function injectTest(m) {
+    emit(m);
+    if (window.MD.pushEmote && m.emotes) m.emotes.forEach(function (e) { window.MD.pushEmote(emoteUrl(e.id), { name: e.name }); });
+  }
+  // replay a list of sample messages like live chat arriving (used by the "Test chat" button)
+  window.MD.replayChatTest = function (msgs) {
+    if (!msgs || !msgs.length) return;
+    window.MD.chatConnected = true;                          // simulate a live connection (demo feeds stand down)
+    msgs.forEach(function (m, i) { setTimeout(function () { injectTest(m); }, i * 850); });
+  };
+
+  window.MD.chat = { connectKick: connect, connectBySlug: connectBySlug, disconnect: disconnect, onMessage: function (cb) { msgCbs.push(cb); }, injectTest: injectTest };
 })();

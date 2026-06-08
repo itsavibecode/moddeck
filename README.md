@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.33.0 — Kick Chat test
+- New **💬 Test chat** button in the Kick Chat widget properties: simulates a few incoming messages (varied
+  users, name colors, a mod badge, and a real Kick emote), staggered like live chat. Previews on the canvas
+  and fires to your live overlay.
+- Adds a `chatTestCue` RTDB rule (re-publish `database.rules.json` — same pass as `emoteCue`); the canvas
+  preview works without it.
+
 ### v0.32.0 — Emoji Combo test + count fix
 - **Fixed** a bug where real Kick emote combos didn't count (the chat path passed an options object where the
   counter expected a number) — real channel emotes now tally correctly and render as images.
