@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.34.0 — Twitch chat (multi-platform!)
+- The chat widget now merges **Kick + Twitch** chat on one screen — Twitch via anonymous IRC-over-WebSocket
+  (browser-direct, no login, no backend). Twitch messages show with the purple platform dot, name colors, and
+  real Twitch emotes; Twitch emotes also feed the Emoji Combo.
+- Set your **Twitch channel** in **Settings** (it's stored per channel so your mods + overlay pick it up).
+- Landing updated — Kick + Twitch are now live (only YouTube keeps the "soon" badge).
+
 ### v0.33.1 — Auto-rename old chat widgets
 - Chat widgets placed before the rename still showed "COMBINED CHAT". They now auto-migrate to "KICK CHAT" on
   load, plus a display fallback so it updates instantly (including on the already-live overlay).

@@ -234,7 +234,7 @@
       const dot = p.showPlatform ? `<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${PCOLOR[msg.p] || p.accent};margin-right:6px;vertical-align:middle"></span>` : "";
       const modb = msg.mod ? `<span style="color:${p.accent};font-weight:800;margin-right:4px">⚔</span>` : "";
       let body = esc(msg.m);
-      (msg.emotes || []).forEach(e => { body = body.split(":" + e.name + ":").join(`<img src="https://files.kick.com/emotes/${e.id}/fullsize" alt="" style="height:1.25em;vertical-align:middle">`); });
+      (msg.emotes || []).forEach(e => { const src = e.url || ("https://files.kick.com/emotes/" + e.id + "/fullsize"); body = body.split(":" + e.name + ":").join(`<img src="${src}" alt="" style="height:1.25em;vertical-align:middle">`); });
       r.innerHTML = `${dot}${modb}<b style="color:${msg.color || p.accent};font-weight:700">${esc(msg.u)}</b><span style="opacity:.6">:</span> ${body}`;
       return r;
     }
@@ -250,12 +250,14 @@
       if (window.MD.chatConnected) return;
       if (Date.now() - last > 2600) { last = Date.now(); feed.push(SAMPLE[i % SAMPLE.length]); i++; if (feed.length > 12) feed.shift(); paint(); }
     }
-    // real Kick chat (when the adapter is connected)
-    if (window.MD.chat && window.MD.chat.onMessage) window.MD.chat.onMessage(function (m) {
+    // real chat — Kick + Twitch adapters both feed this widget (merged "combined chat")
+    function onMsg(m) {
       if (!gotReal) { gotReal = true; feed = []; }
       feed.push({ p: m.platform, u: m.user, m: m.text, emotes: m.emotes, mod: m.mod, color: m.color });
       if (feed.length > 14) feed.shift(); paint();
-    });
+    }
+    if (window.MD.chat && window.MD.chat.onMessage) window.MD.chat.onMessage(onMsg);
+    if (window.MD.chatTwitch && window.MD.chatTwitch.onMessage) window.MD.chatTwitch.onMessage(onMsg);
     function update(el) { cur = el; paint(); }
     feed = SAMPLE.slice(0, 4); tickers.add(tick); update(el);
     return { node: n, update, destroy() { tickers.delete(tick); } };

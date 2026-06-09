@@ -94,6 +94,8 @@
     } else if (window.MD.chat && SY.loadMeta) {
       SY.loadMeta(function (meta) { if (meta && meta.chatroomId) { try { MD.chat.connectKick(meta.chatroomId); } catch (e) {} } });
     }
+    // Twitch chat (optional) — connect to the channel saved in Settings, for owner and mods alike
+    if (window.MD.chatTwitch && SY.loadMeta) SY.loadMeta(function (meta) { if (meta && meta.twitchChannel) { try { MD.chatTwitch.connect(meta.twitchChannel); } catch (e) {} } });
 
     subscribeBot(); subscribeMediaSettings();   // re-bind cloud bot/media config to the live channel
     wireMods(target, user);
@@ -583,11 +585,21 @@
         <h3>⚙️ Settings</h3>
         <p>ModDeck <b>v${window.MD.VERSION}</b> · sync: <b>${SY.kind}</b></p>
         <div class="field"><label>Channel ID (overlay)</label><div class="obs-url">${channelId}</div></div>
+        <div class="field"><label>Twitch channel (optional — adds Twitch to your chat)</label>
+          <div style="display:flex;gap:7px"><input id="twChan" placeholder="your_twitch_username" style="flex:1;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:8px 10px;font-size:12.5px"><button id="twSave" class="primary" style="border:none;background:var(--accent);color:#fff;border-radius:8px;padding:0 14px;font-weight:700">Save</button></div></div>
         <div class="field"><label>Canvas</label><div style="font-size:12.5px;color:var(--ink-dim)">${S.CANVAS_W} × ${S.CANVAS_H} (1080p)</div></div>
         <div class="mrow"><button id="stClear" style="color:var(--danger)">Clear staging canvas</button><button id="stClose" class="primary">Done</button></div>
       </div>`;
       document.body.appendChild(back);
       back.onclick = (e) => { if (e.target === back) back.remove(); };
+      const twIn = $("#twChan", back);
+      if (SY.loadMeta) SY.loadMeta(meta => { if (meta && meta.twitchChannel && twIn) twIn.value = meta.twitchChannel; });
+      $("#twSave", back).onclick = () => {
+        const ch = (twIn.value || "").trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+        try { SY.publishMeta({ twitchChannel: ch }); } catch (e) {}
+        if (ch && window.MD.chatTwitch) { try { MD.chatTwitch.disconnect(); MD.chatTwitch.connect(ch); } catch (e) {} }
+        toast(ch ? "Twitch chat connected 💜" : "Twitch channel cleared", "ok");
+      };
       $("#stClear", back).onclick = () => { S.loadIntoStaging({ order: [], els: {} }); toast("Staging cleared"); back.remove(); };
       $("#stClose", back).onclick = () => back.remove();
     };
@@ -744,13 +756,14 @@
       chatTestBtn.style.cssText = "width:100%;margin-top:2px;padding:9px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;font-size:11.5px";
       chatTestBtn.onclick = () => {
         const K = { id: "37226", name: "KEKW" };
+        const KAPPA = { name: "Kappa", url: "https://static-cdn.jtvnw.net/emoticons/v2/25/default/dark/1.0" };
         const msgs = [
           { platform: "kick", user: "StrongDabs420", text: "that was actually nuts 😤", color: "#53fc18", mod: false, emotes: [] },
-          { platform: "kick", user: "Hydroponicz", text: ":KEKW:", color: "#36b5ff", mod: false, emotes: [K] },
+          { platform: "twitch", user: "Hydroponicz", text: ":Kappa: :Kappa:", color: "#9147ff", mod: false, emotes: [KAPPA] },
           { platform: "kick", user: "m0d_jess", text: "keep it clean chat 🧹", color: "#ff79c6", mod: true, emotes: [] },
           { platform: "kick", user: "PogTX", text: "LETS GOOO :KEKW:", color: "#ffd166", mod: false, emotes: [K] },
+          { platform: "twitch", user: "grindset", text: "W stream 🔥", color: "#1fd2a6", mod: false, emotes: [] },
           { platform: "kick", user: "leoo", text: "first time catching live!", color: "#a06bff", mod: false, emotes: [] },
-          { platform: "kick", user: "grindset", text: "W stream 🔥", color: "#7dff5a", mod: false, emotes: [] },
         ];
         if (window.MD.replayChatTest) MD.replayChatTest(msgs);            // preview on this canvas
         try { SY.publishChatTest({ msgs, seq: Date.now() + "-" + Math.floor(Math.random() * 1e6) }); } catch (e) {}   // + live overlay
@@ -758,7 +771,7 @@
       };
       add(labeled("", chatTestBtn));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
-      note.innerHTML = "Shows your <b>live Kick chat</b> once you're signed in (a sample feed in demo). <b>Test chat</b> simulates messages (with a real Kick emote) here and on your overlay. Twitch &amp; YouTube join soon.";
+      note.innerHTML = "Merges your <b>live Kick + Twitch</b> chat (add your Twitch channel in <b>Settings</b>). <b>Test chat</b> simulates messages — Kick green + Twitch purple dots, real emotes — here and on your overlay. YouTube soon.";
       add(note);
     } else if (elx.type === "progress") {
       add(labeled("Label", txt(p.label, v => upp({ label: v }))));
