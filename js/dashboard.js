@@ -205,9 +205,16 @@
     ["presets", "scenes"].forEach(kind => {
       const host = $("#" + kind + "List"); const items = listStore(kind); host.innerHTML = "";
       if (!items.length) { host.appendChild(el("div", "list-empty", kind === "presets" ? "No presets yet" : "No scenes yet")); return; }
+      const isScene = kind === "scenes";
       items.forEach((it, idx) => {
-        const row = el("div", "list-item", `<span style="cursor:pointer;flex:1">📂 ${it.name}</span><span class="x">✕</span>`);
-        row.firstChild.onclick = () => { S.loadIntoStaging(it.board); toast(`Loaded "${it.name}"`); };
+        const tag = isScene ? `<span style="font-size:8.5px;font-weight:800;color:var(--live);margin-right:6px;letter-spacing:.5px">▶ LIVE</span>` : "";
+        const row = el("div", "list-item", `<span style="cursor:pointer;flex:1">${isScene ? "🎬" : "📂"} ${it.name}</span>${tag}<span class="x">✕</span>`);
+        // Scenes load AND push to Live instantly (an OBS-style on-stream switch); Presets only load into staging.
+        row.firstChild.onclick = () => {
+          S.loadIntoStaging(it.board);
+          if (isScene) { S.pushToLive(); toast(`🔴 "${it.name}" is now live`, "ok"); }
+          else toast(`Loaded "${it.name}" into staging`);
+        };
         row.querySelector(".x").onclick = () => { items.splice(idx, 1); saveStore(kind, items); renderLists(); };
         host.appendChild(row);
       });

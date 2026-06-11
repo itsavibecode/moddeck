@@ -66,6 +66,12 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.35.0 — Scenes go live + repo cleanup
+- **Scenes are now distinct from Presets:** clicking a Scene loads it **and pushes it Live instantly** (an
+  OBS-style on-stream switch — Starting Soon / Live / BRB), marked with a 🎬 icon + ▶ LIVE tag. Presets still
+  load into staging only, to edit before going live.
+- Removed the old `previews/` design-mockup folder (9 files) now that the look is locked in.
+
 ### v0.34.1 — Cleanup pass
 - Removed dead scaffolding (unused `sources` field on the chat widget), fixed the misleading "(demo)" label on
   the auto-clip toast (it flags a clip-worthy moment; a real clip-cut needs a Kick clips API that doesn't exist
