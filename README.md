@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.34.1 — Cleanup pass
+- Removed dead scaffolding (unused `sources` field on the chat widget), fixed the misleading "(demo)" label on
+  the auto-clip toast (it flags a clip-worthy moment; a real clip-cut needs a Kick clips API that doesn't exist
+  yet), and refreshed stale "Phase 5 / bot phase" code comments that are now actually shipped.
+
 ### v0.34.0 — Twitch chat (multi-platform!)
 - The chat widget now merges **Kick + Twitch** chat on one screen — Twitch via anonymous IRC-over-WebSocket
   (browser-direct, no login, no backend). Twitch messages show with the purple platform dot, name colors, and

@@ -20,7 +20,7 @@
     document.head.appendChild(s);
   })();
 
-  // ---- sample chat feed (until real adapters land in Phase 5) ----
+  // ---- sample chat feed (demo / landing preview; stands down once a real Kick/Twitch adapter connects) ----
   const SAMPLE = [
     { p: "kick", u: "ninjafan_", m: "let's gooo 🔥" },
     { p: "twitch", u: "kayJ", m: "poggers" },
@@ -446,8 +446,8 @@
   };
 
   // Emote combo counter — watches chat for repeated emotes and shows live "xN" combos.
-  // Fed by the demo generator today; when real chat is wired, call MD.pushEmote(emoteKey, {img,url})
-  // and set MD.chatConnected = true (the demo generator then stands down).
+  // Fed by real Kick/Twitch emotes via MD.pushEmote(emoteUrl); the demo generator runs until a chat
+  // adapter sets MD.chatConnected, then stands down.
   window.MD.emoteSinks = window.MD.emoteSinks || new Set();
   window.MD.pushEmote = function (key, opts) { window.MD.emoteSinks.forEach(fn => { try { fn(key, opts); } catch {} }); };
   // replay a burst of emotes (like incoming chat spam) staggered over ~2.2s — used by the "Test combo" button.
@@ -460,7 +460,7 @@
     const step = Math.max(55, Math.floor(2200 / Math.max(1, items.length)));
     items.forEach((k, i) => setTimeout(() => window.MD.pushEmote(k), i * step));
   };
-  // auto-clip hook — overridden by the dashboard (and, in the bot phase, calls the platform clip API)
+  // auto-clip hook — overridden by the dashboard; a real clip-cut awaits a Kick clips API (none exists yet)
   window.MD.fireClip = window.MD.fireClip || function () {};
   R.emojicombo = function (el) {
     const POOL = ["🔥", "😂", "💀", "🎉", "👀", "🤣", "😭", "🗿", "💚", "❤️"];

@@ -2,7 +2,7 @@
    Exposed as window.MD.store. No build step; plain globals. */
 (function () {
   window.MD = window.MD || {};
-  window.MD.VERSION = "0.34.0";
+  window.MD.VERSION = "0.34.1";
   const CANVAS_W = 1920, CANVAS_H = 1080;
 
   // ---- defaults per widget type (used when spawning) ----
@@ -16,7 +16,7 @@
     shape: { w: 320, h: 200, props: { kind: "rect", fill: "#5b5bf0", radius: 14, opacity: .9,
              border: 0, borderColor: "#ffffff" } },
     chat:  { w: 380, h: 460, props: { title: "KICK CHAT", accent: "#0fb5a8", bg: "rgba(10,12,22,.72)",
-             text: "#e6e9f5", max: 8, showPlatform: true, sources: { kick: "", twitch: "", youtube: "" } } },
+             text: "#e6e9f5", max: 8, showPlatform: true } },
     progress: { w: 480, h: 96, props: { label: "⭐ Sub Goal", current: 340, target: 500, accent: "#5b5bf0",
              bg: "rgba(10,12,22,.72)", color: "#ffffff", showPercent: true } },
     ticker: { w: 1000, h: 64, props: { text: "Welcome to the stream!  •  Follow for more  •  New video Friday",

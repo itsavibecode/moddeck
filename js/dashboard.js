@@ -889,7 +889,7 @@
       add(labeled("", spin));
       add(labeled("Accent (winner text)", swatchRow(SWATCHES, p.accent, c => upp({ accent: c }))));
       const note = el("div"); note.style.cssText = "font-size:10.5px;color:var(--ink-faint);line-height:1.5;margin-top:4px";
-      note.innerHTML = "Spin fires on the live overlay too — viewers see the same result. Chat <code>!spin</code> wiring comes with the bot phase.";
+      note.innerHTML = "Spin fires on the live overlay too — viewers see the same result. A chat <code>!spin</code> trigger isn't wired yet.";
       add(note);
     } else if (elx.type === "emojicombo") {
       add(labeled("Show after (count)", range(p.startAt, 2, 25, 1, v => upp({ startAt: v }))));
@@ -1011,8 +1011,8 @@
       onViewChange: (s) => { $("#zoomVal").textContent = Math.round(s * 100) + "%"; },
     });
     buildPalette(); wireBroadcast(); wirePresets(); wireToolbar(); wireObs(); wireSoundboard(); wireBot(); wireMedia(); wireMisc();
-    // auto-clip feedback (real clip-cut via the platform API lands in the bot phase)
-    window.MD.fireClip = function (info) { toast("📎 Auto-clip: " + (info && info.emote) + " ×" + (info && info.count) + " (demo)", "ok"); try { SY.publishClip(info || {}); } catch (e) {} };
+    // auto-clip feedback — flashes the overlay CLIP indicator; a real clip-cut awaits a Kick clips API (none yet)
+    window.MD.fireClip = function (info) { toast("📎 Clip-worthy combo (×" + (info && info.count) + ") — flagged on your overlay", "ok"); try { SY.publishClip(info || {}); } catch (e) {} };
     renderAccount(); renderLists(); updateLivePill(false);
     S.on("select", renderProps); renderProps();
     // persist staging on edits, and restore it on load (so a refresh never loses your layout)
