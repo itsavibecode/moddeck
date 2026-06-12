@@ -21,15 +21,26 @@
     ["text", "📝", "Text"], ["image", "🖼️", "Image"], ["video", "🎬", "Video"],
     ["shape", "⬛", "Shape"], ["wheel", "🎡", "Prize Wheel"], ["discord", "⭐", "Discord Highlights"],
     ["powerchat", "💸", "PowerChat"], ["viewers", "👁", "Viewer Count"], ["qr", "🔳", "QR Code"],
-    ["mediashare", "📺", "Media Share"],
+    ["mediashare", "📺", "Media Share"], ["chordswarm", "🎸", "ChordSwarm"],
     ["browser", "🌐", "Browser"], ["customcode", "💻", "Custom Code"],
   ];
+  // ChordSwarm preset — a Browser widget pre-pointed at the standalone overlay, full live-area,
+  // with your Kick channel auto-linked so it reads your chat (a "Guitar Hero for chat" game).
+  function addChordSwarm() {
+    const prof = (window.MD.auth && MD.auth.profile && MD.auth.profile()) || {};
+    const slug = (prof.username || "").toLowerCase().replace(/[^a-z0-9_]/g, "");
+    const url = "https://bookhockeys.com/chordswarm?pos=left" + (slug ? "&channel=" + encodeURIComponent(slug) : "");
+    const e = S.addElement("browser", { x: S.CANVAS_W / 2, y: S.CANVAS_H / 2 });
+    if (e) { S.updateEl(e.id, { x: 0, y: 0, w: S.CANVAS_W, h: S.CANVAS_H }); S.updateProps(e.id, { url: url, interactive: false, radius: 0 }); }
+    toast(slug ? "🎸 ChordSwarm added — linked to your chat" : "🎸 ChordSwarm added — sign in to link your chat", "ok");
+  }
   function buildPalette() {
     const g = $("#palette"); g.innerHTML = "";
     PALETTE.forEach(([type, icon, label]) => {
       const glyph = (window.MD.ICONS_SVG && window.MD.ICONS_SVG[type]) || icon;
       const b = el("button", "wbtn", `<span class="i">${glyph}</span>${label}`);
       b.onclick = () => {
+        if (type === "chordswarm") { addChordSwarm(); return; }
         const c = C.s2w(viewport.clientWidth / 2, viewport.clientHeight / 2);
         S.addElement(type, c); toast(`Added ${label}`);
       };

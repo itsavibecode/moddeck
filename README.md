@@ -66,6 +66,11 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
 
 ## Changelog
 
+### v0.35.1 — ChordSwarm preset
+- Added a **🎸 ChordSwarm** palette button — one click drops the ChordSwarm overlay ("Guitar Hero for chat")
+  as a full-area Browser widget, auto-linked to your Kick channel, ready to position + push to Live. (Native
+  widget port is a future option.)
+
 ### v0.35.0 — Scenes go live + repo cleanup
 - **Scenes are now distinct from Presets:** clicking a Scene loads it **and pushes it Live instantly** (an
   OBS-style on-stream switch — Starting Soon / Live / BRB), marked with a 🎬 icon + ▶ LIVE tag. Presets still
