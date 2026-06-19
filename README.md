@@ -52,7 +52,7 @@ dashboard.html (writer) ──► sync ──► overlay.html (reader, OBS sourc
         sync.js   ── pluggable backend: local (now) | firebase RTDB (next)
 ```
 
-No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
+No build step — plain HTML/CSS/JS, static-hostable anywhere.
 
 ## Status / Roadmap
 
@@ -380,8 +380,8 @@ No build step — plain HTML/CSS/JS, static-hostable on GitHub Pages.
   next, once the Worker is deployed with its secrets.
 
 ### v0.8.2 — SEO + branded 404
-- Added `robots.txt`, `sitemap.xml`, and a branded **404 page**. First public deploy: live at
-  **itsavibecode.github.io/moddeck** (custom domain moddeck.bookhockeys.com pending DNS).
+- Added `robots.txt`, `sitemap.xml`, and a branded **404 page**. First public deploy live at
+  **moddeck.bookhockeys.com**.
 
 ### v0.8.1 — Wording refresh
 - Reworded the hero/OG headline to **“Put your mods in the director's chair”** (regenerated the OG card)

@@ -13,7 +13,6 @@
 
 const ALLOWED_ORIGINS = [
   "https://moddeck.bookhockeys.com",
-  "https://itsavibecode.github.io",
   "http://localhost:8104",
 ];
 

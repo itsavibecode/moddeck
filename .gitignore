@@ -6,7 +6,7 @@ Thumbs.db
 .idea/
 
 # secrets — never commit (OAuth client secrets, Firebase service-account keys live in
-# `wrangler secret put` / GitHub Actions secrets, NOT the repo)
+# `wrangler secret put` / CI secrets, NOT the repo)
 .env
 .env.*
 *.token
