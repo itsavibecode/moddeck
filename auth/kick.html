@@ -36,6 +36,18 @@
   <script src="../js/auth.js"></script>
   <script>
     (async function () {
+      // Stumble (bookhockeys.com/stumble) signs in through this same Kick app,
+      // because Kick allows one redirect URL per app and both app slots are
+      // used. Its logins carry a state that starts with "stumble." and are
+      // handed straight back, code and state untouched; ModDeck's own login
+      // never sees them. Only the two listed addresses can be targets, so this
+      // cannot be used to bounce people elsewhere.
+      const q = new URLSearchParams(location.search);
+      const st = q.get("state") || "";
+      if (st.indexOf("stumble.") === 0) {
+        const back = { L: "http://127.0.0.1:3460/stumble/", P: "https://bookhockeys.com/stumble/" }[st.split(".")[1]];
+        if (back) { location.replace(back + "?" + q.toString()); return; }
+      }
       const title = document.getElementById("title"), msg = document.getElementById("msg"),
             spin = document.getElementById("spin"), actions = document.getElementById("actions");
       try {

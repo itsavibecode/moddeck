@@ -66,6 +66,13 @@ No build step — plain HTML/CSS/JS, static-hostable anywhere.
 
 ## Changelog
 
+### v0.35.2 — Shared Kick sign-in for Stumble
+- The `/auth/kick` callback now hands **Stumble** logins (state starting with `stumble.`) straight back to
+  bookhockeys.com/stumble instead of treating them as ModDeck logins. Why: Kick allows two apps per account and
+  one redirect URL per app, both slots are taken, so Stumble borrows this app's sign-in with only the
+  `user:read` scope. Only two fixed return addresses are allowed (the live Stumble page and its local dev
+  server). ModDeck's own login is unchanged.
+
 ### v0.35.1 — ChordSwarm preset
 - Added a **🎸 ChordSwarm** palette button — one click drops the ChordSwarm overlay ("Guitar Hero for chat")
   as a full-area Browser widget, auto-linked to your Kick channel, ready to position + push to Live. (Native
